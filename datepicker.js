@@ -9,6 +9,25 @@ window.onerror = function(message, source, lineno) {
 
 datepicker = function(elementId, some, options){
 	var self = this,
+        bd = document.body,
+        bdEvent = function(e){
+            var target = e.target,
+                parent;
+
+            if (self.isPickerVisible() && target !== self.inputElemntLast){
+                debugger;
+                parent = target;
+                while (parent !== bd){
+                    if (parent === self.mainContainer){
+                        return;
+                    } else {
+                        parent = parent.parentNode;
+                    }
+                }
+                bd.removeEventListener("click",bdEvent);
+                self.hidePicker();
+            }
+        },
         monthString = ["January","February","February","April","May","June","July","August","September","October","November","December"],
         inputElement,
 		    getElement = function () {
@@ -132,25 +151,13 @@ datepicker = function(elementId, some, options){
         self.showType["date"](date);
     };
     self.addEvents = function() {
-        self.mainContainer.onclick = function(){
-            self.mainContainer.focused = true;
-            self.blur = false;
-        };
+        /*self.mainContainer.onclick = function(){
+         self.mainContainer.focused = true;
+         self.blur = false;
+         };*/
         self.mainContainer.onblur = function(){
             alert("blur");
         };
-        document.body.addEventListener("click", function(e){
-        		alert(e.target);
-            if ( !self.inputElemnt.focused /*&& !self.mainContainer.focused*/ && self.isPickerVisible() ){
-                setTimeout(function(){
-                    if (self.blur){
-                        self.hidePicker();
-                    } else {
-                        self.blur = true;
-                    }
-                },300);
-            }
-        });
 
     };
     self.showType = (function(){
@@ -261,6 +268,7 @@ datepicker = function(elementId, some, options){
             },
             addEventsForInput = function(){
                 var a = input;
+                //bd.removeEventListener("click",bdEvent);
                 self.leftButton.addEventListener("click", self.onButtonClick);
                 self.rightButton.addEventListener("click", self.onButtonClick);
                 a.onchange = function(){
@@ -268,7 +276,7 @@ datepicker = function(elementId, some, options){
                 };
                 a.onclick = function() {
                     debugger;
-                    alert(inputElement.id);
+                    //alert(inputElement.id);
                     a.focused = true;
                     self.blur = false;
                     if ( self.inputElemntLast !== this || !self.isPickerVisible() ){
@@ -280,14 +288,15 @@ datepicker = function(elementId, some, options){
                 };
                 a.onblur = function() {
                     a.focused = false;
-                    if ( self.isPickerVisible() ){
+                    bd.addEventListener("click", bdEvent);
+                    /*if ( self.isPickerVisible() ){
                         self.blur = true;
                         setTimeout(function(){
                             if (self.blur){
                                 self.hidePicker();
                             }
                         },300);
-                    }
+                    }*/
                 }
             };
         addEventsForInput();
