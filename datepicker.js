@@ -28,7 +28,8 @@ datepicker = function(elementId, some, options){
                     }
                 }
                 bd.removeEventListener("click",bdEvent);
-                hidePicker();
+                //hidePicker();
+                trigger("onHidePicker",inputElement);
             }
         },
         getElement = function () {
@@ -149,7 +150,9 @@ datepicker = function(elementId, some, options){
             var date = new Date(this["data-year"], this["data-month"], this["data-day"]);
             showType["date"](date);
         },
-        addEvents = NOOP,
+        addEvents = function(){
+
+        },
         showType = (function(){
             return {
                 date: function(date){
@@ -239,6 +242,7 @@ datepicker = function(elementId, some, options){
             self.mainContainer.style.display = "none";
         },
         showPicker = function(input) {
+            input = input || inputElement;
             self.mainContainer.style.top = input.offsetTop + input.offsetHeight +"px";
             self.mainContainer.style.left = input.offsetLeft+"px";
             self.mainContainer.style.display = "block";
@@ -257,45 +261,43 @@ datepicker = function(elementId, some, options){
                 options = {
                     type:"date",
                     dateFormat: "dd/mm/yy"
-                },
-                addEventsForInput = function(){
-                    var a = input;
-                    self.leftButton.addEventListener("click", onButtonClick);
-                    self.rightButton.addEventListener("click", onButtonClick);
-                    if ("ontouchstart" in document.documentElement){
-                        a.addEventListener("touchstart", preventDafeult);
-                        a.addEventListener("touchend", preventDafeult);
-                        a.addEventListener("focus", preventDafeult);
-                    }
-                    a.onchange = function(){
-                        var value = this.value;
-                    };
-                    a.onclick = function() {
-                        debugger;
-                        if ( self.inputElemntLast !== this || !isPickerVisible() ){
-                            self.inputElemntLast = this;
-                            showPicker(this);
-                            showType[options.type]();
-                            self.mainContainer.style.display = "block";
-                        }
-                    };
-                    a.onblur = function() {
-                        bd.addEventListener("click", bdEvent);
-                    }
                 };
-            addEventsForInput();
-            return {
-                hide:function () {
-                    hidePicker();
-                },
-                show:function() {
-                    debugger;
-                    showPicker(input)
-                },
-                setDate:function(newDate){
-                    setNewDate(newDate);
-                }
+
+
+        },
+        isArray = function(arr){
+            return Object.prototype.toString.call(arr).indexOf("Array") !== -1;
+        },
+        isUsualObject = function(obj){
+            return Object.prototype.toString.call(obj).indexOf("Object") !== -1;
+        },
+        extend = function(){
+            var length = arguments.length,
+                src, srcKeys, srcAttr,
+                fullCopy = false,
+                resAttr,
+                res = arguments[0], i = 1, j;
+
+            if (typeof res === "boolean"){
+                fullCopy = res;
+                res = arguments[1];
+                i++;
             }
+            while (i !== length){
+                src = arguments[i];
+                srcKeys = Object.keys(src);
+                for (j = 0; j < srcKeys.length; j++){
+                    srcAttr = src[srcKeys[j]];
+                    if (fullCopy && (isUsualObject(srcAttr) || isArray(srcAttr))){
+                        resAttr = res[srcKeys[j]] = res[srcKeys[j]] || (isArray(srcAttr) ? [] : {});
+                        extend(fullCopy, resAttr, srcAttr);
+                    } else {
+                        res[srcKeys[j]] = src[srcKeys[j]];
+                    }
+                }
+                i++;
+            }
+            return res;
         },
         on = function(eventName, handler) {
             if (!this._eventHandlers) this._eventHandlers = [];
@@ -328,23 +330,71 @@ datepicker = function(elementId, some, options){
             createScheduler();
             addEvents();
         },
+        addEventsForInput = function(){
+            var a = inputElement;
+
+            on("onHidePicker", function(input){
+                debugger;
+                input === inputElement && hidePicker();
+            });
+            on("onShowPicker", function(input){
+                debugger;
+
+                input === inputElement && (self.leftButton.onclick = onButtonClick) && (self.rightButton.onclick = onButtonClick) && showPicker();
+
+            });
+            if ("ontouchstart" in document.documentElement){
+                a.addEventListener("touchstart", preventDafeult);
+                a.addEventListener("touchend", preventDafeult);
+                a.addEventListener("focus", preventDafeult);
+            }
+            a.onchange = function(){
+                var value = this.value;
+            };
+            a.onclick = function() {
+                debugger;
+                if ( self.inputElemntLast !== this || !isPickerVisible() ){
+                    self.inputElemntLast = this;
+                    //showPicker(this);
+                    trigger("onShowPicker",inputElement);
+                    showType[pickerOptions.type]();
+                    self.mainContainer.style.display = "block";
+                }
+            };
+            a.onblur = function() {
+                bd.addEventListener("click", bdEvent);
+            }
+        },
         currentDate = null,
         todayDate = new Date(),
         pickerOptions = {
             dateFormat: "dd/mm/yy",
+            timeFormat: "H:mm:ss",
             type: "date"
         };
-   /* for(var a in options){
-     self.options[a] = options[a];
-     }*/
+    pickerOptions = extend(true,options, pickerOptions)
     getElement();
-    debugger;
     if (!self.mainContainer){
         createNodes();
     }
-    self.inst = new datepicker(options);
+    addEventsForInput();
 
-    return self.inst;
-	
+    return {
+        attachEvent: function(event, handler){
+            on(event,handler);
+        },
+        hide:function () {
+//            hidePicker();
+            trigger("onHidePicker",inputElement);
+        },
+        show:function() {
+              //showPicker(input)
+            trigger("onShowPicker",inputElement);
+        },
+        setDate:function(newDate){
+            setNewDate(newDate);
+        }
+    }
+
 }
 
