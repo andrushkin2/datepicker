@@ -220,6 +220,7 @@ datepicker = function(elementId, some, options){
                 gmtDate = new Date(dateUtc);
             this.className += " selected_date";
             currentDate = gmtDate;
+            inputElement['currentDate'] = currentDate;
             inputElement.value = dateParser.toStringFormat(currentDate, pickerOptions.dateFormat);
             showType.date(currentDate);
             debugger;
@@ -228,7 +229,7 @@ datepicker = function(elementId, some, options){
             return {
                 date: function(date){
                     var today = todayDate,
-                        current = currentDate,
+                        current = inputElement.currentDate,// || currentDate,
                         showingDate = date || null,
                         leftButton = self.leftButton,
                         rightButton = self.rightButton,
