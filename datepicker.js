@@ -208,6 +208,47 @@ datepicker = function(elementId, some, options){
                     return format.replace(token, function ($0) {
                         return $0 in flags ? flags[$0] : $0.slice(1, $0.length - 1);
                     });
+                },
+                fromStringFormat: function(dateString, format, utc){
+                    if (format.slice(0, 4) == "UTC:") {
+                        format = format.slice(4);
+                        utc = true;
+                    }
+                    var _ = utc ? "getUTC" : "get",
+                        flags = {
+                            d:    "(\d{1,2})",
+                            dd:   "(\d{2})",
+                            ddd:  function(){
+                                var res = "(", i;
+                                for (var i=0; i<7; i++){
+//                                    res +=
+                                }
+                            },
+                            dddd: dayNames[D + 7],
+                            m:    m + 1,
+                            mm:   pad(m + 1),
+                            mmm:  monthNames[m],
+                            mmmm: monthNames[m + 12],
+                            yy:   String(y).slice(2),
+                            yyyy: y,
+                            h:    H % 12 || 12,
+                            hh:   pad(H % 12 || 12),
+                            H:    H,
+                            HH:   pad(H),
+                            M:    M,
+                            MM:   pad(M),
+                            s:    s,
+                            ss:   pad(s),
+                            l:    pad(L, 3),
+                            L:    pad(L > 99 ? Math.round(L / 10) : L),
+                            t:    H < 12 ? "a"  : "p",
+                            tt:   H < 12 ? "am" : "pm",
+                            T:    H < 12 ? "A"  : "P",
+                            TT:   H < 12 ? "AM" : "PM",
+                            Z:    utc ? "UTC" : (String(date).match(timezone) || [""]).pop().replace(timezoneClip, ""),
+                            o:    (o > 0 ? "-" : "+") + pad(Math.floor(Math.abs(o) / 60) * 100 + Math.abs(o) % 60, 4),
+                            S:    ["th", "st", "nd", "rd"][d % 10 > 3 ? 0 : (d % 100 - d % 10 != 10) * d % 10]
+                        };
                 }
             }
         })(),
