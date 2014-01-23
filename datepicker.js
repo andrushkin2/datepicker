@@ -257,7 +257,7 @@ datepicker = function(elementId, some, options){
             var day = this["data-day"],
                 month = this["data-month"],
                 year = this["data-year"],
-                dateUtc = Date.UTC(year, month, day),
+                dateUtc = Date.UTC(year, month, day, 12, 0, 0),
                 gmtDate = new Date(dateUtc);
             this.className += " selected_date";
             currentDate = gmtDate;
@@ -320,6 +320,7 @@ datepicker = function(elementId, some, options){
                                 td["data-year"] = year;
                                 td.className = "number";
                                 if (!!current && !isNaN(current) && days === current.getDate()){
+                                    debugger;
                                     if (monthInt === current.getMonth() && year === current.getFullYear()){
                                         td.className += " selected_date";
                                     }
@@ -340,6 +341,8 @@ datepicker = function(elementId, some, options){
                     }
                     lastTr = self.tableBody.querySelector("tr.datepicker_scheduler_calendar_body_last_row");
                     (lastTr.querySelectorAll(".space").length < 7 )? lastTr.style.display = "table-row" : lastTr.style.display = "none";
+
+                    return true;
                 }
             }
         })(),
@@ -367,6 +370,7 @@ datepicker = function(elementId, some, options){
         preventDafeult = function(e){
             //fixed bug with showing keyboard for tablets that don't support date type
             e.preventDefault();
+            trigger("onShowPicker");
         },
         datepicker = function(options){
             var sl = this,
@@ -453,6 +457,7 @@ datepicker = function(elementId, some, options){
                 input === inputElement
                     && (self.leftButton.onclick = onButtonClick)
                     && (self.rightButton.onclick = onButtonClick)
+                    && showType[pickerOptions.type]()
                     && showPicker();
 
             });
@@ -469,8 +474,8 @@ datepicker = function(elementId, some, options){
                     self.inputElemntLast = this;
                     //showPicker(this);
                     trigger("onShowPicker",inputElement);
-                    showType[pickerOptions.type]();
-                    self.mainContainer.style.display = "block";
+                    //showType[pickerOptions.type]();
+                    //self.mainContainer.style.display = "block";
                 }
             };
             a.onblur = function() {
