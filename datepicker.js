@@ -215,40 +215,89 @@ datepicker = function(elementId, some, options){
                         utc = true;
                     }
                     var _ = utc ? "getUTC" : "get",
+                        getRegexpText = function(start, end, arr){
+                            var res = "(", i;
+                            for (var i=start; i<end; i++){
+                                res += (i !== (end-1))? arr[i]+"|" : arr[i];
+                            }
+                            res += ")";
+                            return res;
+                        },
+                        dateAr = [],
+                        regexpText,
+                        regexp,
+                        res,
                         flags = {
-                            d:    "(\d{1,2})",
-                            dd:   "(\d{2})",
-                            ddd:  function(){
-                                var res = "(", i;
-                                for (var i=0; i<7; i++){
-//                                    res +=
-                                }
+                            d:    function(){
+                                dateAr.push("date");
+                                return "(\\d{1,2})";
                             },
-                            dddd: dayNames[D + 7],
-                            m:    m + 1,
-                            mm:   pad(m + 1),
-                            mmm:  monthNames[m],
-                            mmmm: monthNames[m + 12],
-                            yy:   String(y).slice(2),
-                            yyyy: y,
-                            h:    H % 12 || 12,
-                            hh:   pad(H % 12 || 12),
-                            H:    H,
-                            HH:   pad(H),
-                            M:    M,
-                            MM:   pad(M),
-                            s:    s,
-                            ss:   pad(s),
-                            l:    pad(L, 3),
-                            L:    pad(L > 99 ? Math.round(L / 10) : L),
-                            t:    H < 12 ? "a"  : "p",
-                            tt:   H < 12 ? "am" : "pm",
-                            T:    H < 12 ? "A"  : "P",
-                            TT:   H < 12 ? "AM" : "PM",
-                            Z:    utc ? "UTC" : (String(date).match(timezone) || [""]).pop().replace(timezoneClip, ""),
-                            o:    (o > 0 ? "-" : "+") + pad(Math.floor(Math.abs(o) / 60) * 100 + Math.abs(o) % 60, 4),
-                            S:    ["th", "st", "nd", "rd"][d % 10 > 3 ? 0 : (d % 100 - d % 10 != 10) * d % 10]
+                            dd:   function(){
+                                dateAr.push("date");
+                                return "(\\d{2})";
+                            },
+                            ddd:  function(){
+                                dateAr.push("date");
+                                return getRegexpText(0, 7, dayNames);
+                            },
+                            dddd: function(){
+                                dateAr.push("date");
+                                return getRegexpText(7, 14, dayNames);
+                            },
+                            m:    function(){
+                                dateAr.push("month");
+                                return "(\\d{1,2})";
+                            },
+                            mm:   function(){
+                                dateAr.push("month");
+                                return "(\\d{2})";
+                            },
+                            mmm:  function(){
+                                dateAr.push("month");
+                                return getRegexpText(0, 12, monthNames);
+                            },
+                            mmmm: function(){
+                                dateAr.push("month");
+                                return getRegexpText(12, 24, monthNames);
+                            },
+                            yy:   function(){
+                                dateAr.push("year");
+                                return "(\\d{2})";
+                            },
+                            yyyy: function(){
+                                dateAr.push("year");
+                                return "(\\d{4})"
+                            }/*,
+                             h:    H % 12 || 12,
+                             hh:   pad(H % 12 || 12),
+                             H:    H,
+                             HH:   pad(H),
+                             M:    M,
+                             MM:   pad(M),
+                             s:    s,
+                             ss:   pad(s),
+                             l:    pad(L, 3),
+                             L:    pad(L > 99 ? Math.round(L / 10) : L),
+                             t:    H < 12 ? "a"  : "p",
+                             tt:   H < 12 ? "am" : "pm",
+                             T:    H < 12 ? "A"  : "P",
+                             TT:   H < 12 ? "AM" : "PM",
+                             Z:    utc ? "UTC" : (String(date).match(timezone) || [""]).pop().replace(timezoneClip, ""),
+                             o:    (o > 0 ? "-" : "+") + pad(Math.floor(Math.abs(o) / 60) * 100 + Math.abs(o) % 60, 4),
+                             S:    ["th", "st", "nd", "rd"][d % 10 > 3 ? 0 : (d % 100 - d % 10 != 10) * d % 10]*/
                         };
+
+                    regexpText = format.replace(token, function ($0) {
+                        return $0 in flags ? flags[$0]() : $0.toString();
+                    });
+                    debugger;
+                    regexp = new RegExp(regexpText, "g");
+                    res = regexp.exec(dateString);
+                    if (!!res && res.length && (res.length+1) === dateAr.length){
+                        //todo: function for create date
+                    } else {
+                        console.log("Error parse date:\r\n"+ JSON.stringify({date:dateString,dateFormat:format},null,"\t"));
+                    }
                 }
             }
         })(),
@@ -269,6 +318,9 @@ datepicker = function(elementId, some, options){
         showType = (function(){
             return {
                 date: function(date){
+                   if (inputElement.value !== ""){
+                       dateParser.fromStringFormat(inputElement.value, pickerOptions.dateFormat);
+                   }
                     var today = todayDate,
                         current = inputElement.currentDate,// || currentDate,
                         showingDate = date || null,
@@ -359,7 +411,7 @@ datepicker = function(elementId, some, options){
             self.mainContainer.style.display = "none";
         },
         showPicker = function(input) {
-            input = input || inputElement;
+            var input = input || inputElement;
             self.mainContainer.style.top = input.offsetTop + input.offsetHeight +"px";
             self.mainContainer.style.left = input.offsetLeft+"px";
             self.mainContainer.style.display = "block";
