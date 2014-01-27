@@ -223,9 +223,78 @@ datepicker = function(elementId, some, options){
                             res += ")";
                             return res;
                         },
+                        getDateUTC = function(res, dateAr){
+                            var date = {
+                                    date: null,
+                                    month: null,
+                                    year: null,
+                                    hours: 12,
+                                    minutes: 0,
+                                    seconds: 0,
+                                    milliseconds: 0
+                                },
+                                a,
+                                isNan,
+                                res,
+                                searchInString = function(value, arr){
+                                    var res = null;
+                                    (arr || []).forEach(function(val, index){
+                                        if (val === value){
+                                            res = (index > 11)? index-12 : index;
+                                            return;
+                                        }
+                                    })
+                                    return res;
+                                };
+                            dateAr.forEach(function(elem, index){
+                                var curIndex = index+ 1,
+                                    value = res[curIndex];
+                                switch (elem){
+                                    case "date":
+                                        date.date = (!isNaN( parseInt(value)))? parseInt(value) : null
+                                        break;
+                                    case "month":
+                                        isNan = isNaN(parseInt(value));
+                                        if (isNan){
+                                            date.month = searchInString(value, monthNames);
+                                            break;
+                                        } else {
+                                            date.month = parseInt(value);
+                                            break;
+                                        }
+                                    case "year":
+                                        isNan = isNaN(parseInt(value));
+                                        if (!isNan){
+                                            if (value.length === 4){
+                                                date.year = parseInt(value);
+                                                break;
+                                            } else {
+                                                date.year = 2000 + parseInt(value);
+                                                break
+                                            }
+                                        }
+                                    default:
+                                        break;
+                                }
+                            });
+                            isNan = false;
+                            for (a in date){
+                                if (a === null){
+                                    isNan = true;
+                                    break
+                                }
+                            }
+                            if (!isNan){
+                                res = Date.UTC(date.year,date.month, date.date, date.hours, date.minutes, date.seconds);
+                                return (new Date(res));
+                            } else {
+                                return null;
+                            }
+                        },
                         dateAr = [],
                         regexpText,
                         regexp,
+                        newDate,
                         res,
                         flags = {
                             d:    function(){
@@ -290,13 +359,16 @@ datepicker = function(elementId, some, options){
                     regexpText = format.replace(token, function ($0) {
                         return $0 in flags ? flags[$0]() : $0.toString();
                     });
-                    debugger;
                     regexp = new RegExp(regexpText, "g");
                     res = regexp.exec(dateString);
-                    if (!!res && res.length && (res.length+1) === dateAr.length){
+                    if (!!res && res.length && (res.length-1) === dateAr.length){
                         //todo: function for create date
+                        newDate = getDateUTC(res, dateAr);
+                        console.log(newDate.toUTCString());
+                        return newDate;
                     } else {
                         console.log("Error parse date:\r\n"+ JSON.stringify({date:dateString,dateFormat:format},null,"\t"));
+                        return null;
                     }
                 }
             }
@@ -318,9 +390,9 @@ datepicker = function(elementId, some, options){
         showType = (function(){
             return {
                 date: function(date){
-                   if (inputElement.value !== ""){
+                   /*if (inputElement.value !== ""){
                        dateParser.fromStringFormat(inputElement.value, pickerOptions.dateFormat);
-                   }
+                   }*/
                     var today = todayDate,
                         current = inputElement.currentDate,// || currentDate,
                         showingDate = date || null,
@@ -520,6 +592,7 @@ datepicker = function(elementId, some, options){
             }
             a.onchange = function(){
                 var value = this.value;
+                dateParser.fromStringFormat(value, pickerOptions.dateFormat);
             };
             a.onclick = function() {
                 if ( self.inputElemntLast !== this || !isPickerVisible() ){
