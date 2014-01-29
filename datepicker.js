@@ -378,14 +378,10 @@ datepicker = function(elementId, some, options){
             var day = this["data-day"],
                 month = this["data-month"],
                 year = this["data-year"],
-                dateUtc = Date.UTC(year, month, day, 12, 0, 0),
-                gmtDate = new Date(dateUtc);
+                gmtDate = new Date(year, month, day, 12, 0, 0);
             this.className += " selected_date";
             currentDate = gmtDate;
-            inputElement['currentDate'] = currentDate;
-            inputElement.value = dateParser.toStringFormat(currentDate, pickerOptions.dateFormat);
-            showType.date(currentDate);
-            debugger;
+            trigger("onChangeDate", inputElement, inputElement['currentDate'], currentDate);
         },
         showType = (function(){
             return {
@@ -585,12 +581,35 @@ datepicker = function(elementId, some, options){
                     && showPicker();
 
             });
+            on("onChangeDate", function(input, oldDate, newDate){
+                debugger;
+                var stringDate = dateParser.toStringFormat(newDate, pickerOptions.dateFormat);
+                if (input !== inputElement){
+                    return
+                }
+                input['currentDate'] = newDate;
+                if (input.value !== stringDate){
+                    input.value = stringDate
+                }
+                showType.date(newDate);
+            });
             if ("ontouchstart" in document.documentElement){
                 a.addEventListener("touchstart", preventDafeult);
                 a.addEventListener("touchend", preventDafeult);
                 a.addEventListener("focus", preventDafeult);
-            }
-            a.onchange = function(){
+            };
+            a.oninput = function(e){
+                debugger;
+                e.preventDefault();
+                var value = this.value,
+                    date;
+                date = dateParser.fromStringFormat(value, pickerOptions.dateFormat);
+                if (!isNaN(date) && date !== null){
+                    trigger("onChangeDate",inputElement, inputElement['currentDate'], date);
+                }
+            };
+            a.onchange = function(e){
+                debugger;
                 var value = this.value;
                 dateParser.fromStringFormat(value, pickerOptions.dateFormat);
             };
