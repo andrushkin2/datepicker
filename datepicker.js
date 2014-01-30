@@ -85,14 +85,22 @@ datepicker = function(elementId, some, options){
             //month container
             self.monthContainer = document.createElement("div");
             self.monthContainer.className = "datepicker_month_year_tab_central_pane_month";
-            self.monthContainer.innerHTML = "November";
             self.subCentralPane.appendChild(self.monthContainer);
 
             //year container
             self.yearContainer = document.createElement("div");
             self.yearContainer.className = "datepicker_month_year_tab_central_pane_year";
-            self.yearContainer.innerHTML = "2013";
             self.subCentralPane.appendChild(self.yearContainer);
+        },
+        createTimeContainer = function(){
+            self.timeContainer = document.createElement("div");
+            self.timeContainer.className = "datepicker_time_container";
+            self.mainContainer.appendChild(self.timeContainer);
+
+            //sub
+            self.subTimeContainer = document.createElement("div");
+            self.subTimeContainer.className = "datepicker_time_container_sub";
+            self.timeContainer.appendChild(self.subTimeContainer);
         },
         createScheduler = function(){
             self.scheduler = document.createElement("div");
