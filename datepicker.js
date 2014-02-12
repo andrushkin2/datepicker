@@ -602,9 +602,9 @@ datepicker = function(elementId, some, options){
                 showType.date(newDate);
             });
             if ("ontouchstart" in document.documentElement){
-                a.addEventListener("touchstart", preventDafeult);
+                /*a.addEventListener("touchstart", preventDafeult);
                 a.addEventListener("touchend", preventDafeult);
-                a.addEventListener("focus", preventDafeult);
+                a.addEventListener("focus", preventDafeult);*/
             };
             a.oninput = function(e){
                 debugger;
