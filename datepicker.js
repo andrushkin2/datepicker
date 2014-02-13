@@ -7,21 +7,40 @@ window.onerror = function(message, source, lineno) {
 		    "Line:" + lineno);
 };
 
-datepicker = function(elementId, some, options){
+_datepicker = function(elementId, some, options){
 	var self = this,
         bd = document.body,
         monthString = ["January","February","February","April","May","June","July","August","September","October","November","December"],
         inputElement,
+        mainContainer,
+        myTab,
+        leftButton,
+        rightButton,
+        centralPane,
+        subCentralPane,
+        monthContainer,
+        yearContainer,
+        timeContainer,
+        subTimeContainer,
+        hour,
+        minutes,
+        seconds,
+        scheduler,
+        subSchedulerContainer,
+        calendar,
+        tableHead,
+        tableBody,
+        inputElemntLast,
         NOOP = function(){},
         bdEvent = function(e){
             var target = e.target,
                 parent;
 
-            if (isPickerVisible() && target !== self.inputElemntLast){
+            if (isPickerVisible() && target !== inputElemntLast){
                 debugger;
                 parent = target;
                 while (parent !== bd){
-                    if (parent === self.mainContainer){
+                    if (parent === mainContainer){
                         return;
                     } else {
                         parent = parent.parentNode;
@@ -49,91 +68,91 @@ datepicker = function(elementId, some, options){
             }
         },
         createMainContainer = function(){
-            self.mainContainer = document.createElement("div");
-            self.mainContainer.className = "datepicker_main_container";
-            bd.appendChild(self.mainContainer);
+            if (!mainContainer){
+                mainContainer = document.createElement("div");
+                mainContainer.className = "datepicker_main_container";
+            }
+            bd.appendChild(mainContainer);
         },
         createMonthYearTab = function(){
-            self.myTab = document.createElement("div");
-            self.myTab.className = "datepicker_month_year_tab";
-            self.mainContainer.appendChild(self.myTab);
+            myTab = document.createElement("div");
+            myTab.className = "datepicker_month_year_tab";
+            mainContainer.appendChild(myTab);
 
             //left button
-            self.leftButton = document.createElement("button");
-            self.leftButton.className = "datepicker_month_year_tab_button datepicker_month_year_tab_l_button";
-            lButton = self.leftButton.style;
-            self.leftButton.innerHTML = "<";
-            self.myTab.appendChild(self.leftButton);
+            leftButton = document.createElement("button");
+            leftButton.className = "datepicker_month_year_tab_button datepicker_month_year_tab_l_button";
+            leftButton.innerHTML = "<";
+            myTab.appendChild(leftButton);
 
             //right button
-            self.rightButton = document.createElement("button");
-            self.rightButton.className = "datepicker_month_year_tab_button datepicker_month_year_tab_r_button";
-            rButton = self.rightButton.style;
-            self.rightButton.innerHTML = ">";
-            self.myTab.appendChild(self.rightButton);
+            rightButton = document.createElement("button");
+            rightButton.className = "datepicker_month_year_tab_button datepicker_month_year_tab_r_button";
+            rightButton.innerHTML = ">";
+            myTab.appendChild(rightButton);
 
             //central pane
-            self.centralPane = document.createElement("div");
-            self.centralPane.className = "datepicker_month_year_tab_central_pane";
-            self.myTab.appendChild(self.centralPane);
+            centralPane = document.createElement("div");
+            centralPane.className = "datepicker_month_year_tab_central_pane";
+            myTab.appendChild(centralPane);
 
             //sub pane
-            self.subCentralPane = document.createElement("div");
-            self.subCentralPane.className = "datepicker_month_year_tab_central_pane_sub";
-            self.centralPane.appendChild(self.subCentralPane);
+            subCentralPane = document.createElement("div");
+            subCentralPane.className = "datepicker_month_year_tab_central_pane_sub";
+            centralPane.appendChild(subCentralPane);
 
             //month container
-            self.monthContainer = document.createElement("div");
-            self.monthContainer.className = "datepicker_month_year_tab_central_pane_month";
-            self.subCentralPane.appendChild(self.monthContainer);
+            monthContainer = document.createElement("div");
+            monthContainer.className = "datepicker_month_year_tab_central_pane_month";
+            subCentralPane.appendChild(monthContainer);
 
             //year container
-            self.yearContainer = document.createElement("div");
-            self.yearContainer.className = "datepicker_month_year_tab_central_pane_year";
-            self.subCentralPane.appendChild(self.yearContainer);
+            yearContainer = document.createElement("div");
+            yearContainer.className = "datepicker_month_year_tab_central_pane_year";
+            subCentralPane.appendChild(yearContainer);
         },
         createTimeContainer = function(){
-            self.timeContainer = document.createElement("div");
-            self.timeContainer.className = "datepicker_time_container";
-            self.mainContainer.appendChild(self.timeContainer);
+            timeContainer = document.createElement("div");
+            timeContainer.className = "datepicker_time_container";
+            mainContainer.appendChild(timeContainer);
 
             //sub
-            self.subTimeContainer = document.createElement("div");
-            self.subTimeContainer.className = "datepicker_time_container_sub";
-            self.timeContainer.appendChild(self.subTimeContainer);
+            subTimeContainer = document.createElement("div");
+            subTimeContainer.className = "datepicker_time_container_sub";
+            timeContainer.appendChild(subTimeContainer);
             
-            self.hour = document.createElement("select");
-            self.hour.className = "select datepicker_time_hour";
-            self.subTimeContainer.appendChild(self.hour);
+            hour = document.createElement("select");
+            hour.className = "select datepicker_time_hour";
+            subTimeContainer.appendChild(hour);
             
-            self.minutes = document.createElement("select");
-            self.minutes.className = "select datepicker_time_minutes";
-            self.subTimeContainer.appendChild(self.minutes);
+            minutes = document.createElement("select");
+            minutes.className = "select datepicker_time_minutes";
+            subTimeContainer.appendChild(minutes);
             
-            self.seconds = document.createElement("select");
-            self.seconds.className = "select datepicker_time_seconds";
-            self.subTimeContainer.appendChild(self.seconds);
+            seconds = document.createElement("select");
+            seconds.className = "select datepicker_time_seconds";
+            subTimeContainer.appendChild(seconds);
         },
         createScheduler = function(){
-            self.scheduler = document.createElement("div");
-            self.scheduler.className = "datepicker_scheduler";
-            self.mainContainer.appendChild(self.scheduler);
+            scheduler = document.createElement("div");
+            scheduler.className = "datepicker_scheduler";
+            mainContainer.appendChild(scheduler);
 
             //sub container
-            self.subSchedulerContainer = document.createElement("div");
-            self.subSchedulerContainer.className = "datepicker_scheduler_sub";
-            self.scheduler.appendChild(self.subSchedulerContainer);
+            subSchedulerContainer = document.createElement("div");
+            subSchedulerContainer.className = "datepicker_scheduler_sub";
+            scheduler.appendChild(subSchedulerContainer);
 
             //table
-            self.calendar = document.createElement("table");
-            self.calendar.className = "datepicker_scheduler_calendar";
-            self.subSchedulerContainer.appendChild(self.calendar);
+            calendar = document.createElement("table");
+            calendar.className = "datepicker_scheduler_calendar";
+            subSchedulerContainer.appendChild(calendar);
 
             //table head
-            self.tableHead = document.createElement("thead");
-            self.tableHead.align = "center";
-            self.tableHead.className = "datepicker_scheduler_calendar_header";
-            self.tableHead.innerHTML = "<tr>" +
+            tableHead = document.createElement("thead");
+            tableHead.align = "center";
+            tableHead.className = "datepicker_scheduler_calendar_header";
+            tableHead.innerHTML = "<tr>" +
                                             "<td>Mon</td>" +
                                             "<td>Tue</td>" +
                                             "<td>Wed</td>" +
@@ -142,14 +161,14 @@ datepicker = function(elementId, some, options){
                                             "<td>Sat</td>" +
                                             "<td>Sun</td>" +
                                         "</tr>";
-            self.calendar.appendChild(self.tableHead);
+            calendar.appendChild(tableHead);
 
             //table body
-            self.tableBody = document.createElement("tbody");
-            self.tableBody.align = "center";
-            self.tableBody.className = "datepicker_scheduler_calendar_body";
-            self.tableBody.innerHTML = createTableBody();
-            self.calendar.appendChild(self.tableBody);
+            tableBody = document.createElement("tbody");
+            tableBody.align = "center";
+            tableBody.className = "datepicker_scheduler_calendar_body";
+            tableBody.innerHTML = createTableBody();
+            calendar.appendChild(tableBody);
         },
         createTableBody = function(){
             var html = "", i, j;
@@ -412,8 +431,8 @@ datepicker = function(elementId, some, options){
                     var today = todayDate,
                         current = inputElement.currentDate,// || currentDate,
                         showingDate = date || null,
-                        leftButton = self.leftButton,
-                        rightButton = self.rightButton,
+                        leftButton = leftButton,
+                        rightButton = rightButton,
                         arrTd,
                         lastTr,
                         counter,
@@ -423,9 +442,9 @@ datepicker = function(elementId, some, options){
                         monthInt,
                         year,
                         i;
-                    	self.timeContainer.style.display = "none";
-              		  	self.myTab.style.display = "block";
-              			self.scheduler.style.display = "block";
+                    	timeContainer.style.display = "none";
+              		  	myTab.style.display = "block";
+              			scheduler.style.display = "block";
                     if (!showingDate){
                         showingDate = (!current)? today : current;
                     }
@@ -436,10 +455,10 @@ datepicker = function(elementId, some, options){
                     counter  = (new Date(year, monthInt, 1)).getDay();
                     counter = (counter === 0)? 6 : counter - 1;
                     lastDate = daysInMonth(showingDate);
-                    arrTd = self.tableBody.querySelectorAll("td");
+                    arrTd = tableBody.querySelectorAll("td");
                     //set month and year
-                    self.monthContainer.innerHTML = month;
-                    self.yearContainer.innerHTML  = year;
+                    monthContainer.innerHTML = month;
+                    yearContainer.innerHTML  = year;
                     //set buttons title
                     leftButton.title = (monthInt === 0)? monthString[11]+" "+(year-1) : monthString[monthInt-1]+" "+year;
                     leftButton["data-day"] = rightButton["data-day"] = 1;
@@ -482,15 +501,15 @@ datepicker = function(elementId, some, options){
                             }
                         }
                     }
-                    lastTr = self.tableBody.querySelector("tr.datepicker_scheduler_calendar_body_last_row");
+                    lastTr = tableBody.querySelector("tr.datepicker_scheduler_calendar_body_last_row");
                     (lastTr.querySelectorAll(".space").length < 7 )? lastTr.style.display = "table-row" : lastTr.style.display = "none";
 
                     return true;
                 },
                 time: function(date){
-                	self.timeContainer.style.display = "block";
-                	self.myTab.style.display = "none";
-                	self.scheduler.style.display = "none";
+                	timeContainer.style.display = "block";
+                	myTab.style.display = "none";
+                	scheduler.style.display = "none";
                 	return true;
                 }
             }
@@ -505,16 +524,16 @@ datepicker = function(elementId, some, options){
             }
         },
         hidePicker = function() {
-            self.mainContainer.style.display = "none";
+            mainContainer.style.display = "none";
         },
         showPicker = function(input) {
             var input = input || inputElement;
-            self.mainContainer.style.top = input.offsetTop + input.offsetHeight +"px";
-            self.mainContainer.style.left = input.offsetLeft+"px";
-            self.mainContainer.style.display = "block";
+            mainContainer.style.top = input.offsetTop + input.offsetHeight +"px";
+            mainContainer.style.left = input.offsetLeft+"px";
+            mainContainer.style.display = "block";
         },
         isPickerVisible = function() {
-            return self.mainContainer.style.display === "block";
+            return mainContainer.style.display === "block";
         },
         preventDafeult = function(e){
             //fixed bug with showing keyboard for tablets that don't support date type
@@ -605,8 +624,8 @@ datepicker = function(elementId, some, options){
             });
             on("onShowPicker", function(input){
                 input === inputElement
-                    && (self.leftButton.onclick = onButtonClick)
-                    && (self.rightButton.onclick = onButtonClick)
+                    && (leftButton.onclick = onButtonClick)
+                    && (rightButton.onclick = onButtonClick)
                     && showType[pickerOptions.type]()
                     && showPicker();
 
@@ -644,12 +663,12 @@ datepicker = function(elementId, some, options){
                 dateParser.fromStringFormat(value, pickerOptions.dateFormat);
             };
             a.onclick = function() {
-                if ( self.inputElemntLast !== this || !isPickerVisible() ){
-                    self.inputElemntLast = this;
+                if ( inputElemntLast !== this || !isPickerVisible() ){
+                    inputElemntLast = this;
                     //showPicker(this);
                     trigger("onShowPicker",inputElement);
                     //showType[pickerOptions.type]();
-                    //self.mainContainer.style.display = "block";
+                    //mainContainer.style.display = "block";
                 }
             };
             a.onblur = function() {
@@ -674,10 +693,11 @@ datepicker = function(elementId, some, options){
     extend(true, pickerOptions,options);
     debugger;
     getElement();
-    if (!self.mainContainer){
+    if (!mainContainer){
         createNodes();
     }
     addEventsForInput();
+    debugger;
 
     return {
         attachEvent: function(event, handler){
@@ -701,3 +721,6 @@ datepicker = function(elementId, some, options){
 
 }
 
+datepicker = function(elementId, some, options){
+    return new _datepicker(elementId, some, options);
+}
