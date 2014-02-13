@@ -101,6 +101,18 @@ datepicker = function(elementId, some, options){
             self.subTimeContainer = document.createElement("div");
             self.subTimeContainer.className = "datepicker_time_container_sub";
             self.timeContainer.appendChild(self.subTimeContainer);
+            
+            self.hour = document.createElement("select");
+            self.hour.className = "select datepicker_time_hour";
+            self.subTimeContainer.appendChild(self.hour);
+            
+            self.minutes = document.createElement("select");
+            self.minutes.className = "select datepicker_time_minutes";
+            self.subTimeContainer.appendChild(self.minutes);
+            
+            self.seconds = document.createElement("select");
+            self.seconds.className = "select datepicker_time_seconds";
+            self.subTimeContainer.appendChild(self.seconds);
         },
         createScheduler = function(){
             self.scheduler = document.createElement("div");
@@ -411,6 +423,9 @@ datepicker = function(elementId, some, options){
                         monthInt,
                         year,
                         i;
+                    	self.timeContainer.style.display = "none";
+              		  	self.myTab.style.display = "block";
+              			self.scheduler.style.display = "block";
                     if (!showingDate){
                         showingDate = (!current)? today : current;
                     }
@@ -471,6 +486,12 @@ datepicker = function(elementId, some, options){
                     (lastTr.querySelectorAll(".space").length < 7 )? lastTr.style.display = "table-row" : lastTr.style.display = "none";
 
                     return true;
+                },
+                time: function(date){
+                	self.timeContainer.style.display = "block";
+                	self.myTab.style.display = "none";
+                	self.scheduler.style.display = "none";
+                	return true;
                 }
             }
         })(),
@@ -574,6 +595,7 @@ datepicker = function(elementId, some, options){
             createMainContainer();
             createMonthYearTab();
             createScheduler();
+            createTimeContainer();
             addEvents();
         },
         addEventsForInput = function(){
