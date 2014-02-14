@@ -431,8 +431,6 @@ _datepicker = function(elementId, some, options){
                     var today = todayDate,
                         current = inputElement.currentDate,// || currentDate,
                         showingDate = date || null,
-                        leftButton = leftButton,
-                        rightButton = rightButton,
                         arrTd,
                         lastTr,
                         counter,
@@ -682,7 +680,7 @@ _datepicker = function(elementId, some, options){
         monthNames = [
             "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
             "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
-        ]
+        ],
         currentDate = null,
         todayDate = new Date(),
         pickerOptions = {
