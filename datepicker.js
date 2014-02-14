@@ -412,6 +412,33 @@ _datepicker = function(elementId, some, options){
                 }
             }
         })(),
+        addClass = function(element, className){
+            debugger;
+            if (false && "classList" in document.documentElement){
+                element.classList.add(className);
+            } else {
+                var reg = new RegExp("\\s?"+className, "gim"),
+                    classObj = element.attributes.getNamedItem("class");
+                if (!classObj){
+                    element.setAttribute("class",className);
+                } else {
+                    if (!reg.test(classObj.textContent)){
+                        classObj.textContent += " "+className;
+                    }
+                }
+            }
+        },
+        removeClass = function(element, className){
+            if (false && "classList" in document.documentElement){
+                element.classList.remove(className);
+            } else {
+                var reg = new RegExp("\\s?"+className),
+                    classObj = element.attributes.getNamedItem("class");
+                if (!!classObj){
+                    classObj.textContent.replace(reg, "");
+                }
+            }
+        },
         addEvents = NOOP,
         setDate = function(){
             var day = this["data-day"],
