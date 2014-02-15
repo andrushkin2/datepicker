@@ -37,7 +37,6 @@ _datepicker = function(elementId, some, options){
                 parent;
 
             if (isPickerVisible() && !target.datepicker ){
-                debugger;
                 parent = target;
                 while (parent !== bd){
                     if (parent === mainContainer){
@@ -46,8 +45,6 @@ _datepicker = function(elementId, some, options){
                         parent = parent.parentNode;
                     }
                 }
-                bd.removeEventListener("click",bdEvent);
-                //hidePicker();
                 trigger("onHidePicker",inputElement);
             }
         },
@@ -185,7 +182,6 @@ _datepicker = function(elementId, some, options){
             return 33 - new Date(date.getFullYear(), date.getMonth(), 33).getDate();
         },
         onButtonClick = function(a, options, c){
-            debugger;
             var date = new Date(this["data-year"], this["data-month"], this["data-day"]);
             showType["date"](date);
         },
@@ -413,7 +409,6 @@ _datepicker = function(elementId, some, options){
             }
         })(),
         addClass = function(element, className){
-            debugger;
             if (false && "classList" in document.documentElement){
                 element.classList.add(className);
             } else {
@@ -432,10 +427,12 @@ _datepicker = function(elementId, some, options){
             if (false && "classList" in document.documentElement){
                 element.classList.remove(className);
             } else {
-                var reg = new RegExp("\\s?"+className),
-                    classObj = element.attributes.getNamedItem("class");
-                if (!!classObj){
-                    classObj.textContent.replace(reg, "");
+                var reg = new RegExp("\\s?"+className, "gim"),
+                    classObj = element.attributes.getNamedItem("class"),
+                    text;
+                if (!!classObj){debugger;
+                    text = classObj.textContent.replace(reg, "");
+                    element.setAttribute("class", text);
                 }
             }
         },
@@ -443,7 +440,7 @@ _datepicker = function(elementId, some, options){
             if (false && "classList" in document.documentElement){
                 return element.classList.contains(className);
             } else {
-                var reg = new RegExp("\\s?"+className),
+                var reg = new RegExp("\\s?"+className, "gim"),
                     classObj = element.attributes.getNamedItem("class");
                 if (!!classObj){
                     return reg.test(classObj.textContent)
@@ -471,7 +468,7 @@ _datepicker = function(elementId, some, options){
                        dateParser.fromStringFormat(inputElement.value, pickerOptions.dateFormat);
                    }*/
                     var today = todayDate,
-                        current = inputElement.currentDate,// || currentDate,
+                        current = currentDate,
                         showingDate = date || null,
                         arrTd,
                         lastTr,
@@ -522,7 +519,6 @@ _datepicker = function(elementId, some, options){
                                 td["data-year"] = year;
                                 td.className = "number";
                                 if (!!current && !isNaN(current) && days === current.getDate()){
-                                    debugger;
                                     if (monthInt === current.getMonth() && year === current.getFullYear()){
                                         td.className += " selected_date";
                                     }
@@ -653,6 +649,26 @@ _datepicker = function(elementId, some, options){
                 handlers[i].apply(this, [].slice.call(arguments, 1));
             }
         },
+        searchNodes = function(){
+            mainContainer = document.querySelector(".datepicker_main_container");
+            myTab = mainContainer.querySelector(".month_year_tab");
+            leftButton = mainContainer.querySelector(".month_year_tab_button.l_button");
+            rightButton = mainContainer.querySelector(".month_year_tab_button.r_button");
+            centralPane = mainContainer.querySelector(".central_pane");
+            subCentralPane = mainContainer.querySelector(".central_pane_sub");
+            monthContainer = mainContainer.querySelector(".central_pane_month");
+            yearContainer = mainContainer.querySelector(".central_pane_year");
+            scheduler = mainContainer.querySelector(".scheduler");
+            subSchedulerContainer = mainContainer.querySelector(".scheduler_sub");
+            calendar = mainContainer.querySelector(".scheduler_calendar");
+            tableHead = mainContainer.querySelector(".calendar_header");
+            tableBody = mainContainer.querySelector(".calendar_body");
+            timeContainer = mainContainer.querySelector(".time_container");
+            subTimeContainer = mainContainer.querySelector(".datepicker_time_container_sub");
+            hour = mainContainer.querySelector(".select.datepicker_time_hour");
+            minutes = mainContainer.querySelector(".select.datepicker_time_minutes");
+            seconds = mainContainer.querySelector(".select.datepicker_time_seconds");
+        },
         createNodes = function(){
             createMainContainer();
             createMonthYearTab();
@@ -674,16 +690,14 @@ _datepicker = function(elementId, some, options){
 
             });
             on("onChangeDate", function(input, oldDate, newDate){
-                debugger;
                 var stringDate = dateParser.toStringFormat(newDate, pickerOptions.dateFormat);
                 if (input !== inputElement){
                     return
                 }
-                input['currentDate'] = newDate;
                 if (input.value !== stringDate){
                     input.value = stringDate
                 }
-                showType.date(newDate);
+                showType[pickerOptions.type](newDate);
             });
             if ("ontouchstart" in document.documentElement){
                 /*a.addEventListener("touchstart", preventDafeult);
@@ -691,7 +705,6 @@ _datepicker = function(elementId, some, options){
                 a.addEventListener("focus", preventDafeult);*/
             };
             a.oninput = function(e){
-                debugger;
                 e.preventDefault();
                 var value = this.value,
                     date;
@@ -701,17 +714,13 @@ _datepicker = function(elementId, some, options){
                 }
             };
             a.onchange = function(e){
-                debugger;
                 var value = this.value;
                 dateParser.fromStringFormat(value, pickerOptions.dateFormat);
             };
             a.onclick = function() {
                 if ( true || !isPickerVisible() ){
                     inputElemntLast = this;
-                    //showPicker(this);
                     trigger("onShowPicker",inputElement);
-                    //showType[pickerOptions.type]();
-                    //mainContainer.style.display = "block";
                 }
             };
             a.onblur = function() {
@@ -734,13 +743,16 @@ _datepicker = function(elementId, some, options){
             type: "date"
         };
     extend(true, pickerOptions,options);
-    debugger;
     getElement();
     if (!mainContainer){
-        createNodes();
+        debugger;
+        if (document.querySelectorAll(".datepicker_main_container").length < 1){
+            createNodes();
+        } else{
+            searchNodes();
+        }
     }
     addEventsForInput();
-    debugger;
 
     return inputElement.datepicker = {
         attachEvent: function(event, handler){
