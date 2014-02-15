@@ -36,7 +36,7 @@ _datepicker = function(elementId, some, options){
             var target = e.target,
                 parent;
 
-            if (isPickerVisible() && target !== inputElemntLast){
+            if (isPickerVisible() && !target.datepicker ){
                 debugger;
                 parent = target;
                 while (parent !== bd){
@@ -439,7 +439,22 @@ _datepicker = function(elementId, some, options){
                 }
             }
         },
-        addEvents = NOOP,
+        isClassInElement = function(element, className){
+            if (false && "classList" in document.documentElement){
+                return element.classList.contains(className);
+            } else {
+                var reg = new RegExp("\\s?"+className),
+                    classObj = element.attributes.getNamedItem("class");
+                if (!!classObj){
+                    return reg.test(classObj.textContent)
+                } else {
+                    return false;
+                }
+            }
+        },
+        addEvents = function(){
+            bd.addEventListener("click", bdEvent);
+        },
         setDate = function(){
             var day = this["data-day"],
                 month = this["data-month"],
@@ -549,16 +564,19 @@ _datepicker = function(elementId, some, options){
             }
         },
         hidePicker = function() {
-            mainContainer.style.display = "none";
+            addClass(mainContainer,"hidden");
+            removeClass(mainContainer,"shown");
         },
         showPicker = function(input) {
             var input = input || inputElement;
             mainContainer.style.top = input.offsetTop + input.offsetHeight +"px";
             mainContainer.style.left = input.offsetLeft+"px";
-            mainContainer.style.display = "block";
+            addClass(mainContainer,"shown");
+            //mainContainer.style.display = "block";
+            removeClass(mainContainer,"hidden");
         },
         isPickerVisible = function() {
-            return mainContainer.style.display === "block";
+            return isClassInElement(mainContainer, "shown");
         },
         preventDafeult = function(e){
             //fixed bug with showing keyboard for tablets that don't support date type
@@ -688,7 +706,7 @@ _datepicker = function(elementId, some, options){
                 dateParser.fromStringFormat(value, pickerOptions.dateFormat);
             };
             a.onclick = function() {
-                if ( inputElemntLast !== this || !isPickerVisible() ){
+                if ( true || !isPickerVisible() ){
                     inputElemntLast = this;
                     //showPicker(this);
                     trigger("onShowPicker",inputElement);
@@ -697,7 +715,7 @@ _datepicker = function(elementId, some, options){
                 }
             };
             a.onblur = function() {
-                bd.addEventListener("click", bdEvent);
+                //bd.addEventListener("click", bdEvent);
             }
         },
         dayNames = [
@@ -724,7 +742,7 @@ _datepicker = function(elementId, some, options){
     addEventsForInput();
     debugger;
 
-    return {
+    return inputElement.datepicker = {
         attachEvent: function(event, handler){
             on(event,handler);
         },
