@@ -22,9 +22,12 @@ _datepicker = function(elementId, some, options){
         yearContainer,
         timeContainer,
         subTimeContainer,
+        timeText,
         hour,
         minutes,
         seconds,
+        tContTable,
+        zones,
         scheduler,
         subSchedulerContainer,
         calendar,
@@ -102,21 +105,56 @@ _datepicker = function(elementId, some, options){
             subCentralPane.appendChild(yearContainer);
         },
         createTimeContainer = function(){
+            var selectsAr, tr ,td, tdName, i;
             timeContainer = createElement("div",{class:"time_container"});
             mainContainer.appendChild(timeContainer);
 
             //sub
             subTimeContainer = createElement("div",{class:"datepicker_time_container_sub"});
             timeContainer.appendChild(subTimeContainer);
+
+            tContTable = createElement("table", {class:"t_cont_table"});
+            subTimeContainer.appendChild(tContTable);
             
+            timeText = createElement("span", {class:"t_cont_time_text"});
             hour = createElement("select", {class:"select datepicker_time_hour"});
-            subTimeContainer.appendChild(hour);
-            
             minutes = createElement("select", {class:"select datepicker_time_minutes"});
-            subTimeContainer.appendChild(minutes);
-            
             seconds = createElement("select", {class:"select datepicker_time_seconds"});
-            subTimeContainer.appendChild(seconds);
+            zones = createElement("select", {class:"select datepicker_time_zones"});
+
+            selectsAr = [timeText, hour, minutes, seconds, zones];
+            for (i=0; i<5; i++){
+                tr = createElement("tr", {class:"t_cont_table_row"});
+                switch (i){
+                    case 0:
+                        tdName = createElement("td", {class:"descr"}, {innerHTML:pickerOptions.timeText});
+                        td = createElement("td", {class:"controls"});
+                        td.appendChild(selectsAr[i]);
+                        break;
+                    case 1:
+                        tdName = createElement("td", {class:"descr"}, {innerHTML:pickerOptions.hourText});
+                        td = createElement("td", {class:"controls"});
+                        td.appendChild(selectsAr[i]);
+                        break;
+                    case 2:
+                        tdName = createElement("td", {class:"descr"}, {innerHTML:pickerOptions.minutesText});
+                        td = createElement("td", {class:"controls"});
+                        td.appendChild(selectsAr[i]);
+                        break;
+                    case 3:
+                        tdName = createElement("td", {class:"descr"}, {innerHTML:pickerOptions.secondsText});
+                        td = createElement("td", {class:"controls"});
+                        td.appendChild(selectsAr[i]);
+                        break;
+                    case 4:
+                        tdName = createElement("td", {class:"descr"}, {innerHTML:pickerOptions.zoneText});
+                        td = createElement("td", {class:"controls"});
+                        td.appendChild(selectsAr[i]);
+                }
+                tr.appendChild(tdName);
+                tr.appendChild(td);
+                tContTable.appendChild(tr);
+            }
         },
         createScheduler = function(){
             scheduler = createElement("div", {class:"scheduler"});
@@ -410,10 +448,13 @@ _datepicker = function(elementId, some, options){
                 }
             }
         },
-        createElement = function(nodeName, options){
-            var elem = document.createElement(nodeName);
-            for (var opt in options){
+        createElement = function(nodeName, options, methods){
+            var elem = document.createElement(nodeName), otp;
+            for (opt in options){
                 elem.setAttribute(opt,options[opt]);
+            }
+            for (opt in methods){
+                elem[opt] = methods[opt];
             }
             return elem;
         },
@@ -658,6 +699,9 @@ _datepicker = function(elementId, some, options){
             tableBody = mainContainer.querySelector(".calendar_body");
             timeContainer = mainContainer.querySelector(".time_container");
             subTimeContainer = mainContainer.querySelector(".datepicker_time_container_sub");
+            tContTable = mainContainer.querySelector(".t_cont_table");
+            timeText = mainContainer.querySelector(".t_cont_time_text");
+            zones = mainContainer.querySelector(".datepicker_time_zones");
             hour = mainContainer.querySelector(".select.datepicker_time_hour");
             minutes = mainContainer.querySelector(".select.datepicker_time_minutes");
             seconds = mainContainer.querySelector(".select.datepicker_time_seconds");
@@ -735,7 +779,14 @@ _datepicker = function(elementId, some, options){
             dateFormat: "dd/mm/yy",
             timeFormat: "H:mm:ss",
             dateTimeFormat: "dd/mm/yy H:mm:ss",
-            type: "date"
+            type: "date",
+            hourText:"Hours",
+            minutesText:"Minutes",
+            secondsText:"Seconds",
+            zoneText:"Zone",
+            timeText:"Time",
+            showSeconds:false,
+            showZones:false
         };
     extend(true, pickerOptions,options);
     getElement();
