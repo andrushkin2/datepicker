@@ -76,44 +76,44 @@ _datepicker = function(elementId, some, options){
         },
         createMonthYearTab = function(){
             myTab = document.createElement("div");
-            myTab.className = "datepicker_month_year_tab";
+            myTab.className = "month_year_tab";
             mainContainer.appendChild(myTab);
 
             //left button
             leftButton = document.createElement("button");
-            leftButton.className = "datepicker_month_year_tab_button datepicker_month_year_tab_l_button";
+            leftButton.className = "month_year_tab_button l_button";
             leftButton.innerHTML = "<";
             myTab.appendChild(leftButton);
 
             //right button
             rightButton = document.createElement("button");
-            rightButton.className = "datepicker_month_year_tab_button datepicker_month_year_tab_r_button";
+            rightButton.className = "month_year_tab_button r_button";
             rightButton.innerHTML = ">";
             myTab.appendChild(rightButton);
 
             //central pane
             centralPane = document.createElement("div");
-            centralPane.className = "datepicker_month_year_tab_central_pane";
+            centralPane.className = "central_pane";
             myTab.appendChild(centralPane);
 
             //sub pane
             subCentralPane = document.createElement("div");
-            subCentralPane.className = "datepicker_month_year_tab_central_pane_sub";
+            subCentralPane.className = "central_pane_sub";
             centralPane.appendChild(subCentralPane);
 
             //month container
             monthContainer = document.createElement("div");
-            monthContainer.className = "datepicker_month_year_tab_central_pane_month";
+            monthContainer.className = "central_pane_month";
             subCentralPane.appendChild(monthContainer);
 
             //year container
             yearContainer = document.createElement("div");
-            yearContainer.className = "datepicker_month_year_tab_central_pane_year";
+            yearContainer.className = "central_pane_year";
             subCentralPane.appendChild(yearContainer);
         },
         createTimeContainer = function(){
             timeContainer = document.createElement("div");
-            timeContainer.className = "datepicker_time_container";
+            timeContainer.className = "time_container";
             mainContainer.appendChild(timeContainer);
 
             //sub
@@ -135,23 +135,23 @@ _datepicker = function(elementId, some, options){
         },
         createScheduler = function(){
             scheduler = document.createElement("div");
-            scheduler.className = "datepicker_scheduler";
+            scheduler.className = "scheduler";
             mainContainer.appendChild(scheduler);
 
             //sub container
             subSchedulerContainer = document.createElement("div");
-            subSchedulerContainer.className = "datepicker_scheduler_sub";
+            subSchedulerContainer.className = "scheduler_sub";
             scheduler.appendChild(subSchedulerContainer);
 
             //table
             calendar = document.createElement("table");
-            calendar.className = "datepicker_scheduler_calendar";
+            calendar.className = "scheduler_calendar";
             subSchedulerContainer.appendChild(calendar);
 
             //table head
             tableHead = document.createElement("thead");
             tableHead.align = "center";
-            tableHead.className = "datepicker_scheduler_calendar_header";
+            tableHead.className = "calendar_header";
             tableHead.innerHTML = "<tr>" +
                                             "<td>Mon</td>" +
                                             "<td>Tue</td>" +
@@ -166,7 +166,7 @@ _datepicker = function(elementId, some, options){
             //table body
             tableBody = document.createElement("tbody");
             tableBody.align = "center";
-            tableBody.className = "datepicker_scheduler_calendar_body";
+            tableBody.className = "calendar_body";
             tableBody.innerHTML = createTableBody();
             calendar.appendChild(tableBody);
         },
