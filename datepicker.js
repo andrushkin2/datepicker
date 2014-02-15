@@ -66,25 +66,21 @@ _datepicker = function(elementId, some, options){
         },
         createMainContainer = function(){
             if (!mainContainer){
-                mainContainer = document.createElement("div");
-                mainContainer.className = "datepicker_main_container";
+                mainContainer = createElement("div", {class:"datepicker_main_container"});
             }
             bd.appendChild(mainContainer);
         },
         createMonthYearTab = function(){
-            myTab = document.createElement("div");
-            myTab.className = "month_year_tab";
+            myTab = createElement("div", {class:"month_year_tab"});
             mainContainer.appendChild(myTab);
 
             //left button
-            leftButton = document.createElement("button");
-            leftButton.className = "month_year_tab_button l_button";
+            leftButton = createElement("button", {class:"month_year_tab_button l_button"});
             leftButton.innerHTML = "<";
             myTab.appendChild(leftButton);
 
             //right button
-            rightButton = document.createElement("button");
-            rightButton.className = "month_year_tab_button r_button";
+            rightButton = createElement("button", {class:"month_year_tab_button r_button"});
             rightButton.innerHTML = ">";
             myTab.appendChild(rightButton);
 
@@ -94,61 +90,51 @@ _datepicker = function(elementId, some, options){
             myTab.appendChild(centralPane);
 
             //sub pane
-            subCentralPane = document.createElement("div");
-            subCentralPane.className = "central_pane_sub";
+            subCentralPane = createElement("div", {class:"central_pane_sub"});
             centralPane.appendChild(subCentralPane);
 
             //month container
-            monthContainer = document.createElement("div");
-            monthContainer.className = "central_pane_month";
+            monthContainer = createElement("div", {class:"central_pane_month"});
             subCentralPane.appendChild(monthContainer);
 
             //year container
-            yearContainer = document.createElement("div");
-            yearContainer.className = "central_pane_year";
+            yearContainer = createElement("div", {class:"central_pane_year"});
             subCentralPane.appendChild(yearContainer);
         },
         createTimeContainer = function(){
-            timeContainer = document.createElement("div");
-            timeContainer.className = "time_container";
+            timeContainer = createElement("div",{class:"time_container"});
             mainContainer.appendChild(timeContainer);
 
             //sub
-            subTimeContainer = document.createElement("div");
-            subTimeContainer.className = "datepicker_time_container_sub";
+            subTimeContainer = createElement("div",{class:"datepicker_time_container_sub"});
             timeContainer.appendChild(subTimeContainer);
             
-            hour = document.createElement("select");
-            hour.className = "select datepicker_time_hour";
+            hour = createElement("select", {class:"select datepicker_time_hour"});
             subTimeContainer.appendChild(hour);
             
-            minutes = document.createElement("select");
-            minutes.className = "select datepicker_time_minutes";
+            minutes = createElement("select", {class:"select datepicker_time_minutes"});
             subTimeContainer.appendChild(minutes);
             
-            seconds = document.createElement("select");
-            seconds.className = "select datepicker_time_seconds";
+            seconds = createElement("select", {class:"select datepicker_time_seconds"});
             subTimeContainer.appendChild(seconds);
         },
         createScheduler = function(){
-            scheduler = document.createElement("div");
-            scheduler.className = "scheduler";
+            scheduler = createElement("div", {class:"scheduler"});
             mainContainer.appendChild(scheduler);
 
             //sub container
-            subSchedulerContainer = document.createElement("div");
-            subSchedulerContainer.className = "scheduler_sub";
+            subSchedulerContainer = createElement("div", {class:"scheduler_sub"});
             scheduler.appendChild(subSchedulerContainer);
 
             //table
-            calendar = document.createElement("table");
-            calendar.className = "scheduler_calendar";
+            calendar = createElement("table", {class:"scheduler_calendar"});
             subSchedulerContainer.appendChild(calendar);
 
             //table head
-            tableHead = document.createElement("thead");
-            tableHead.align = "center";
-            tableHead.className = "calendar_header";
+            tableHead = createElement("thead", {
+                class:"calendar_header",
+                align:"center"
+            });
             tableHead.innerHTML = "<tr>" +
                                             "<td>Mon</td>" +
                                             "<td>Tue</td>" +
@@ -161,9 +147,10 @@ _datepicker = function(elementId, some, options){
             calendar.appendChild(tableHead);
 
             //table body
-            tableBody = document.createElement("tbody");
-            tableBody.align = "center";
-            tableBody.className = "calendar_body";
+            tableBody = createElement("tbody", {
+                class:"calendar_body",
+                align:"center"
+            });
             tableBody.innerHTML = createTableBody();
             calendar.appendChild(tableBody);
         },
@@ -422,6 +409,13 @@ _datepicker = function(elementId, some, options){
                     }
                 }
             }
+        },
+        createElement = function(nodeName, options){
+            var elem = document.createElement(nodeName);
+            for (var opt in options){
+                elem.setAttribute(opt,options[opt]);
+            }
+            return elem;
         },
         removeClass = function(element, className){
             if (false && "classList" in document.documentElement){
