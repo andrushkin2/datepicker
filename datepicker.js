@@ -399,10 +399,10 @@ _datepicker = function(elementId, some, options){
                     if (!!res && res.length && (res.length-1) === dateAr.length){
                         //todo: function for create date
                         newDate = getDateUTC(res, dateAr);
-                        console.log(newDate.toUTCString());
+                        //console.log(newDate.toUTCString());
                         return newDate;
                     } else {
-                        console.log("Error parse date:\r\n"+ JSON.stringify({date:dateString,dateFormat:format},null,"\t"));
+                        //console.log("Error parse date:\r\n"+ JSON.stringify({date:dateString,dateFormat:format},null,"\t"));
                         return null;
                     }
                 }
@@ -430,7 +430,7 @@ _datepicker = function(elementId, some, options){
                 var reg = new RegExp("\\s?"+className, "gim"),
                     classObj = element.attributes.getNamedItem("class"),
                     text;
-                if (!!classObj){debugger;
+                if (!!classObj){
                     text = classObj.textContent.replace(reg, "");
                     element.setAttribute("class", text);
                 }
@@ -485,7 +485,7 @@ _datepicker = function(elementId, some, options){
                     if (!showingDate){
                         showingDate = (!current)? today : current;
                     }
-                    month = monthString[showingDate.getMonth()];
+                    month = monthNames[12+showingDate.getMonth()];
                     monthInt = showingDate.getMonth();
                     year = showingDate.getFullYear();
 
@@ -553,8 +553,7 @@ _datepicker = function(elementId, some, options){
         setNewDate = function(newDate){
             var d = (typeof newDate === "object")? newDate : (new Date(newDate));
             if (typeof d === "object" && !isNaN(d)){
-                currentDate = d;
-                showType["date"]();
+                trigger("onChangeDate",inputElement, currentDate, d);
             } else {
                 //todo: throw error "Incorrect date"
             }
@@ -694,6 +693,7 @@ _datepicker = function(elementId, some, options){
                 if (input !== inputElement){
                     return
                 }
+                currentDate = newDate;
                 if (input.value !== stringDate){
                     input.value = stringDate
                 }
@@ -740,12 +740,12 @@ _datepicker = function(elementId, some, options){
         pickerOptions = {
             dateFormat: "dd/mm/yy",
             timeFormat: "H:mm:ss",
+            dateTimeFormat: "dd/mm/yy H:mm:ss",
             type: "date"
         };
     extend(true, pickerOptions,options);
     getElement();
     if (!mainContainer){
-        debugger;
         if (document.querySelectorAll(".datepicker_main_container").length < 1){
             createNodes();
         } else{
