@@ -448,6 +448,35 @@ _datepicker = function(elementId, some, options){
                 }
             }
         },
+        addOptionsToSelect = function(select, data){
+            var length = data.length, i, opt;
+            for (i=0; i< length; i++){
+                opt = createElement("option", {
+                    class:"select_option",
+                    value:data[i]
+                }, {innerHTML:data[i]});
+                select.appendChild(opt);
+            }
+        },
+        clearChild = function(element){
+            var ch;
+            while(ch = element.firstChild){
+                element.removeChild(ch);
+            }
+        },
+        getRange = function(range, step){
+            var k = 1, res = [], i;
+            if (isArray(range)){
+                var length = range.length;
+                if(step){
+                    k= step;
+                }
+                for (i=0; i< length; i+=k){
+                    res.push(range[i]);
+                }
+            }
+            return res;
+        },
         showOrHideElement = function(element, isShow){
             isShow = isShow === undefined? true : isShow;
             if (isShow){
@@ -588,9 +617,29 @@ _datepicker = function(elementId, some, options){
                     return true;
                 },
                 time: function(date){
+                    var today = todayDate,
+                        current = currentDate,
+                        showingDate = date || null,
+                        h,
+                        min,
+                        sec;
+
                     showOrHideElement(timeContainer);
                     showOrHideElement(myTab, false);
                     showOrHideElement(scheduler, false);
+                    if (!showingDate){
+                        showingDate = (!current)? today : current;
+                    }
+                    h = showingDate.getHours();
+                    min = showingDate.getMinutes();
+                    sec = showingDate.getSeconds();
+
+                    clearChild(hour);
+                    clearChild(minutes);
+                    clearChild(seconds);
+
+                    addOptionsToSelect(minutes, getRange(minutesAr, pickerOptions.stepMinutes));
+                    addOptionsToSelect(seconds, getRange(minutesAr, pickerOptions.stepSeconds));
                 	return true;
                 }
             }
@@ -783,7 +832,16 @@ _datepicker = function(elementId, some, options){
             "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
             "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
         ],
+        getMinutes = function(){
+            var res = [], text;
+            for (var i=0; i<60; i++){
+                text = (i<10)? "0"+ i.toString() : i.toString();
+                res.push(text);
+            }
+            return res;
+        },
         currentDate = null,
+        minutesAr = getMinutes(),
         todayDate = new Date(),
         pickerOptions = {
             dateFormat: "dd/mm/yy",
@@ -795,6 +853,8 @@ _datepicker = function(elementId, some, options){
             secondsText:"Seconds",
             zoneText:"Zone",
             timeText:"Time",
+            stepMinutes: 0,
+            stepSeconds: 0,
             showSeconds:false,
             showZones:false
         };
