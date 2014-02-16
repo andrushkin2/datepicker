@@ -448,6 +448,16 @@ _datepicker = function(elementId, some, options){
                 }
             }
         },
+        showOrHideElement = function(element, isShow){
+            isShow = isShow === undefined? true : isShow;
+            if (isShow){
+                addClass(element, "shown");
+                removeClass(element, "hidden");
+            } else {
+                addClass(element, "hidden");
+                removeClass(element, "shown");
+            }
+        },
         createElement = function(nodeName, options, methods){
             var elem = document.createElement(nodeName), otp;
             for (opt in options){
@@ -514,9 +524,9 @@ _datepicker = function(elementId, some, options){
                         monthInt,
                         year,
                         i;
-                    	timeContainer.style.display = "none";
-              		  	myTab.style.display = "block";
-              			scheduler.style.display = "block";
+                    showOrHideElement(timeContainer, false);
+                    showOrHideElement(myTab);
+                    showOrHideElement(scheduler);
                     if (!showingDate){
                         showingDate = (!current)? today : current;
                     }
@@ -578,9 +588,9 @@ _datepicker = function(elementId, some, options){
                     return true;
                 },
                 time: function(date){
-                	timeContainer.style.display = "block";
-                	myTab.style.display = "none";
-                	scheduler.style.display = "none";
+                    showOrHideElement(timeContainer);
+                    showOrHideElement(myTab, false);
+                    showOrHideElement(scheduler, false);
                 	return true;
                 }
             }
