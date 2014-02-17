@@ -448,6 +448,12 @@ _datepicker = function(elementId, some, options){
                 }
             }
         },
+        css = function(element, options){
+            var style = element.style, opt;
+            for (opt in options){
+                style[opt] = options[opt];
+            }
+        },
         addOptionsToSelect = function(select, data){
             var length = data.length, i, opt;
             for (i=0; i< length; i++){
@@ -653,16 +659,41 @@ _datepicker = function(elementId, some, options){
             }
         },
         hidePicker = function() {
-            addClass(mainContainer,"hidden");
-            removeClass(mainContainer,"shown");
+            showOrHideElement(mainContainer, false);
         },
         showPicker = function(input) {
-            var input = input || inputElement;
-            mainContainer.style.top = input.offsetTop + input.offsetHeight +"px";
-            mainContainer.style.left = input.offsetLeft+"px";
-            addClass(mainContainer,"shown");
-            //mainContainer.style.display = "block";
-            removeClass(mainContainer,"hidden");
+            var input = input || inputElement,
+                top,
+                left,
+                rectContainer = mainContainer.getBoundingClientRect(),
+                inputRect = input.getBoundingClientRect(),
+                offsetParent = mainContainer.offsetParent,
+                isOffsetParentBody = !!offsetParent && offsetParent !== bd,
+                offsetParentRect = (isOffsetParentBody)? offsetParent.getBoundingClientRect() : null;
+
+
+            offsetParentRect = {
+                top:(offsetParentRect)? offsetParentRect.top : 0,
+                left:(offsetParentRect)? offsetParentRect.left : 0
+            }
+            if (!!isOffsetParentBody){
+                offsetParentRect.top = offsetParentRect.top - offsetParent.scrollTop;
+                offsetParentRect.left = offsetParentRect.left - offsetParent.scrollLeft;
+            }
+            top = inputRect.top - offsetParentRect.top + inputRect.height;
+            left = inputRect.left - offsetParentRect.left;
+            /*if ( (top + rectContainer.height) > offsetParentRect.height){
+                top = offsetParentRect.height - 2 - rectContainer.height;
+            }
+            if ( (left + rectContainer.width) > offsetParentRect.width){
+                left = offsetParentRect.width - 2 - rectContainer.width;
+            }*/
+            css(mainContainer, {
+                top: top + "px",
+                left: left + "px"
+            });
+            showOrHideElement(mainContainer);
+            debugger;
         },
         isPickerVisible = function() {
             return isClassInElement(mainContainer, "shown");
