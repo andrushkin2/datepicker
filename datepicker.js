@@ -863,6 +863,12 @@ _datepicker = function(elementId, some, options){
                     trigger("onShowPicker",inputElement);
                 }
             };
+            a.onfocus = function(){
+                if ( true || !isPickerVisible() ){
+                    inputElemntLast = this;
+                    trigger("onShowPicker",inputElement);
+                }
+            }
             a.onblur = function() {
                 //bd.addEventListener("click", bdEvent);
             }
