@@ -127,26 +127,31 @@ _datepicker = function(elementId, some, options){
                 tr = createElement("tr", {class:"t_cont_table_row"});
                 switch (i){
                     case 0:
+                        addClass(tr, "time");
                         tdName = createElement("td", {class:"descr"}, {innerHTML:pickerOptions.timeText});
                         td = createElement("td", {class:"controls"});
                         td.appendChild(selectsAr[i]);
                         break;
                     case 1:
+                        addClass(tr, "hours");
                         tdName = createElement("td", {class:"descr"}, {innerHTML:pickerOptions.hourText});
                         td = createElement("td", {class:"controls"});
                         td.appendChild(selectsAr[i]);
                         break;
                     case 2:
+                        addClass(tr, "minutes");
                         tdName = createElement("td", {class:"descr"}, {innerHTML:pickerOptions.minutesText});
                         td = createElement("td", {class:"controls"});
                         td.appendChild(selectsAr[i]);
                         break;
                     case 3:
+                        addClass(tr, "seconds");
                         tdName = createElement("td", {class:"descr"}, {innerHTML:pickerOptions.secondsText});
                         td = createElement("td", {class:"controls"});
                         td.appendChild(selectsAr[i]);
                         break;
                     case 4:
+                        addClass(tr, "zones");
                         tdName = createElement("td", {class:"descr"}, {innerHTML:pickerOptions.zoneText});
                         td = createElement("td", {class:"controls"});
                         td.appendChild(selectsAr[i]);
@@ -484,6 +489,9 @@ _datepicker = function(elementId, some, options){
             return res;
         },
         showOrHideElement = function(element, isShow){
+            if (!element){
+                return;
+            }
             isShow = isShow === undefined? true : isShow;
             if (isShow){
                 addClass(element, "shown");
@@ -633,6 +641,8 @@ _datepicker = function(elementId, some, options){
                     showOrHideElement(timeContainer);
                     showOrHideElement(myTab, false);
                     showOrHideElement(scheduler, false);
+                    showOrHideElement(tContTable.querySelector(".t_cont_table_row.seconds"), pickerOptions.showSeconds);
+                    showOrHideElement(tContTable.querySelector(".t_cont_table_row.zones"), pickerOptions.showZones);
                     if (!showingDate){
                         showingDate = (!current)? today : current;
                     }
@@ -644,8 +654,10 @@ _datepicker = function(elementId, some, options){
                     clearChild(minutes);
                     clearChild(seconds);
 
+                    addOptionsToSelect(hour, getRange(hoursAr, pickerOptions.stepHours));
                     addOptionsToSelect(minutes, getRange(minutesAr, pickerOptions.stepMinutes));
                     addOptionsToSelect(seconds, getRange(minutesAr, pickerOptions.stepSeconds));
+
                 	return true;
                 }
             }
@@ -871,7 +883,16 @@ _datepicker = function(elementId, some, options){
             }
             return res;
         },
+        getHours = function(){
+            var res = [], text;
+            for (var i=0; i<24; i++){
+                text = (i<10)? "0"+ i.toString() : i.toString();
+                res.push(text);
+            }
+            return res;
+        },
         currentDate = null,
+        hoursAr = getHours(),
         minutesAr = getMinutes(),
         todayDate = new Date(),
         pickerOptions = {
@@ -886,6 +907,7 @@ _datepicker = function(elementId, some, options){
             timeText:"Time",
             stepMinutes: 0,
             stepSeconds: 0,
+            stepHours: 0,
             showSeconds:false,
             showZones:false
         };
