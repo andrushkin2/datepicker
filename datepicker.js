@@ -348,16 +348,16 @@ _datepicker = function(elementId, some, options){
                                     case "t":debugger;
                                         if (!H && date.hours !== null){
                                             intValue = value.toLowerCase();
-                                            if (/[a|am]/.test(intValue) && date.hours > 12){
-                                                date.hours = date.hour - 12;
-                                            } else if (/[p|pm]/.test(intValue) && date.hours < 12){
-                                                date.hours = date.hour - 12;
+                                            if (/(a|am)/.test(intValue) && date.hours > 12){
+                                                date.hours = date.hours - 12;
+                                            } else if (/(p|pm)/.test(intValue) && date.hours < 12){
+                                                date.hours = date.hours + 12;
                                             }
                                         }
                                     default:
                                         break;
                                 }
-                            });debugger;
+                            });
                             switch (pickerOptions.type){
                                 case "date":
                                     date.hours = date.hours || 12;
@@ -479,19 +479,19 @@ _datepicker = function(elementId, some, options){
                             ,
                              t: function(){
                                  dateAr.push("t");
-                                 return "[a|p]";
+                                 return "(a|p)";
                              },
                              tt: function(){
                                  dateAr.push("t");
-                                 return "[am|pm]";
+                                 return "(am|pm)";
                              },
                              T: function(){
                                  dateAr.push("t");
-                                 return "[A|P]";
+                                 return "(A|P)";
                              },
                              TT: function(){
                                  dateAr.push("t");
-                                 return "[AM|PM]";
+                                 return "(AM|PM)";
                              }
                             /*,
                              Z:    utc ? "UTC" : (String(date).match(timezone) || [""]).pop().replace(timezoneClip, ""),
@@ -902,63 +902,74 @@ _datepicker = function(elementId, some, options){
             createTimeContainer();
             addEvents();
         },
-        addEventsForInput = function(){
-            var a = inputElement;
-            on("onHidePicker", function(input){
-                input === inputElement && hidePicker();
-            });
-            on("onShowPicker", function(input){
-                input === inputElement
-                    && (leftButton.onclick = onButtonClick)
-                    && (rightButton.onclick = onButtonClick)
-                    && showType[pickerOptions.type]()
-                    && showPicker();
+        addEventsForInput = function(isAddEvents){
+            var a = inputElement,
+                event = (!isAddEvents)? "remove" : "add";
+            if (!isAddEvents){
+                off("onHidePicker", onHidePicker);
+                off("onShowPicker", onShowPicker);
+                off("onChangeDate", onChangeDate);
+            } else {
+                on("onHidePicker", onHidePicker);
+                on("onShowPicker", onShowPicker);
+                on("onChangeDate", onChangeDate);
+            }
 
-            });
-            on("onChangeDate", function(input, oldDate, newDate){
-                var stringDate = dateParser.toStringFormat(newDate, pickerOptions[pickerOptions.type+"Format"]);
-                if (input !== inputElement){
-                    return
-                }
-                currentDate = newDate;
-                if (input.value !== stringDate){
-                    input.value = stringDate
-                }
-                showType[pickerOptions.type](newDate);
-            });
             if ("ontouchstart" in document.documentElement){
                 /*a.addEventListener("touchstart", preventDafeult);
                 a.addEventListener("touchend", preventDafeult);
                 a.addEventListener("focus", preventDafeult);*/
             };
-            a.oninput = function(e){
-                e.preventDefault();
-                var value = this.value,
-                    date;
-                date = dateParser.fromStringFormat(value, pickerOptions[pickerOptions.type+"Format"]);
-                if (!isNaN(date) && date !== null){
-                    trigger("onChangeDate",inputElement, inputElement['currentDate'], date);
-                }
-            };
-            a.onchange = function(e){
-                var value = this.value;
-                dateParser.fromStringFormat(value, pickerOptions.dateFormat);
-            };
-            a.onclick = function() {
-                if ( true || !isPickerVisible() ){
-                    inputElemntLast = this;
-                    trigger("onShowPicker",inputElement);
-                }
-            };
-            a.onfocus = function(){
-                if ( true || !isPickerVisible() ){
-                    inputElemntLast = this;
-                    trigger("onShowPicker",inputElement);
-                }
+            a[event+"EventListener"]("input", onInput);
+            a[event+"EventListener"]("change", onChange);
+            a[event+"EventListener"]("click", onClickAndFocus);
+            a[event+"EventListener"]("focus", onClickAndFocus);
+            a[event+"EventListener"]("blur", onBlur);
+        },
+        onHidePicker = function(input){
+            input === inputElement && hidePicker();
+        },
+        onShowPicker = function(input){
+            input === inputElement
+                && (leftButton.onclick = onButtonClick)
+                && (rightButton.onclick = onButtonClick)
+                && showType[pickerOptions.type]()
+            && showPicker();
+
+        },
+        onChangeDate = function(input, oldDate, newDate){
+            var stringDate = dateParser.toStringFormat(newDate, pickerOptions[pickerOptions.type+"Format"]);
+            if (input !== inputElement){
+                return
             }
-            a.onblur = function() {
-                //bd.addEventListener("click", bdEvent);
+            currentDate = newDate;
+            if (input.value !== stringDate){
+                input.value = stringDate
             }
+            showType[pickerOptions.type](newDate);
+        },
+        onInput = function(e){debugger;
+            e.preventDefault();
+            var value = this.value,
+                date;
+            date = dateParser.fromStringFormat(value, pickerOptions[pickerOptions.type+"Format"]);
+            if (!isNaN(date) && date !== null){
+                trigger("onChangeDate",inputElement, inputElement['currentDate'], date);
+            }
+        },
+        onChange = function(e){
+            var value = this.value;
+            dateParser.fromStringFormat(value, pickerOptions.dateFormat);
+        },
+        onClickAndFocus = function() {
+            if ( true || !isPickerVisible() ){
+                inputElemntLast = this;
+                trigger("onShowPicker",inputElement);
+            }
+        },
+
+        onBlur = function() {
+            //bd.addEventListener("click", bdEvent);
         },
         dayNames = [
             "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
@@ -991,7 +1002,7 @@ _datepicker = function(elementId, some, options){
         pickerOptions = {
             dateFormat: "dd/mm/yy",
             timeFormat: "H:MM:ss",
-            dateTimeFormat: "dd/mm/yy H:mm:ss",
+            dateTimeFormat: "dd/mm/yy H:MM:ss",
             type: "date",
             hourText:"Hours",
             minutesText:"Minutes",
@@ -1013,7 +1024,7 @@ _datepicker = function(elementId, some, options){
             searchNodes();
         }
     }
-    addEventsForInput();
+    addEventsForInput(true);
 
     return inputElement.datepicker = {
         attachEvent: function(event, handler){
