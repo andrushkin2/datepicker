@@ -330,7 +330,7 @@ _datepicker = function(elementId, some, options){
                                     case "year":
                                         isNan = isNaN(parseInt(value));
                                         if (!isNan){
-                                            if (value.length === 4){
+                                            if (value.length > 2){
                                                 date.year = parseInt(value);
                                                 break;
                                             } else {
@@ -400,7 +400,7 @@ _datepicker = function(elementId, some, options){
                             },
                             yyyy: function(){
                                 dateAr.push("year");
-                                return "(\\d{4})"
+                                return "(\\d{3,4})"
                             }/*,
                              h:    H % 12 || 12,
                              hh:   pad(H % 12 || 12),
