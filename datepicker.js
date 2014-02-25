@@ -215,6 +215,13 @@ _datepicker = function(elementId, some, options){
             var date = new Date(this["data-year"], this["data-month"], this["data-day"]);
             showType["date"](date);
         },
+        onChangeSelect = function(e){
+            var date = currentDate || todayDate,
+                utcDate = new Date(date.getDate(), date.getMonth(), date.getFullYear(), parseInt(hour.value), parseInt(minutes.value), parseInt(seconds.value));
+            if (!isNaN(utcDate)){
+                setNewDate(utcDate);
+            }
+        },
         dateParser = (function(){
             var	token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
                 timezone = /\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)\b/g,
@@ -301,47 +308,74 @@ _datepicker = function(elementId, some, options){
                                 a,
                                 isNan,
                                 res,
+                                t = 0,
+                                H = false,
                                 searchInString = function(value, arr){
                                     var res = null;
                                     (arr || []).forEach(function(val, index){
-                                        if (val === value){
+                                        if (val.toLowerCase() === value.toLowerCase()){
                                             res = (index > 11)? index-12 : index;
-                                            return;
+                                            return res;
                                         }
                                     })
-                                    return res;
+                                    return null;
                                 };
                             dateAr.forEach(function(elem, index){
                                 var curIndex = index+ 1,
-                                    value = res[curIndex];
+                                    value = res[curIndex],
+                                    intValue =  parseInt(value);
+                                isNan = isNaN(intValue);
                                 switch (elem){
-                                    case "date":
-                                        date.date = (!isNaN( parseInt(value)))? parseInt(value) : null
-                                        break;
                                     case "month":
-                                        isNan = isNaN(parseInt(value));
-                                        if (isNan){
-                                            date.month = searchInString(value, monthNames);
-                                            break;
-                                        } else {
-                                            date.month = parseInt(value);
-                                            break;
-                                        }
+                                        date.month = (isNan)? searchInString(value, monthNames) : intValue;
+                                        break;
                                     case "year":
-                                        isNan = isNaN(parseInt(value));
                                         if (!isNan){
-                                            if (value.length > 2){
-                                                date.year = parseInt(value);
-                                                break;
-                                            } else {
-                                                date.year = 2000 + parseInt(value);
-                                                break
+                                            date.year = (value.length > 2)? intValue : 2000 + intValue;
+                                        }
+                                        break;
+                                    case "Hour":
+                                        H = true;
+                                        date.hours = (!isNan)? intValue : null;
+                                        break;
+                                    case "date":
+                                    case "hours":
+                                    case "minutes":
+                                    case "seconds":
+                                    case "milliseconds":
+                                        date[elem] = (!isNan)? intValue : null;
+                                        break;
+                                    case "t":debugger;
+                                        if (!H && date.hours !== null){
+                                            intValue = value.toLowerCase();
+                                            if (/[a|am]/.test(intValue) && date.hours > 12){
+                                                date.hours = date.hour - 12;
+                                            } else if (/[p|pm]/.test(intValue) && date.hours < 12){
+                                                date.hours = date.hour - 12;
                                             }
                                         }
                                     default:
                                         break;
                                 }
-                            });
+                            });debugger;
+                            switch (pickerOptions.type){
+                                case "date":
+                                    date.hours = date.hours || 12;
+                                    date.minutes = date.minutes || 0;
+                                    date.seconds = date.seconds || 0;
+                                    date.milliseconds = date.milliseconds || 0;
+                                    break;
+                                case "time":
+                                    date.date = date.date || currentDate.getDate();
+                                    date.month = date.month || currentDate.getMonth();
+                                    date.year = date.year || currentDate.getFullYear();
+                                    date.seconds = date.seconds || 0;
+                                    date.milliseconds = date.milliseconds || 0;
+                                    break;
+                                case "datetime":
+                                    date.seconds = date.seconds || 0;
+                                    date.milliseconds = date.milliseconds || 0;
+                            }
                             isNan = false;
                             for (a in date){
                                 if (a === null){
@@ -350,8 +384,8 @@ _datepicker = function(elementId, some, options){
                                 }
                             }
                             if (!isNan){
-                                res = Date.UTC(date.year,date.month, date.date, date.hours, date.minutes, date.seconds);
-                                return (new Date(res));
+                                res = new Date(date.year,date.month, date.date, date.hours, date.minutes, date.seconds, date.milliseconds);
+                                return res;
                             } else {
                                 return null;
                             }
@@ -371,11 +405,11 @@ _datepicker = function(elementId, some, options){
                                 return "(\\d{2})";
                             },
                             ddd:  function(){
-                                dateAr.push("date");
+                                dateAr.push("dateStr");
                                 return getRegexpText(0, 7, dayNames);
                             },
                             dddd: function(){
-                                dateAr.push("date");
+                                dateAr.push("dateStr");
                                 return getRegexpText(7, 14, dayNames);
                             },
                             m:    function(){
@@ -401,21 +435,65 @@ _datepicker = function(elementId, some, options){
                             yyyy: function(){
                                 dateAr.push("year");
                                 return "(\\d{3,4})"
-                            }/*,
-                             h:    H % 12 || 12,
-                             hh:   pad(H % 12 || 12),
-                             H:    H,
-                             HH:   pad(H),
-                             M:    M,
-                             MM:   pad(M),
-                             s:    s,
-                             ss:   pad(s),
-                             l:    pad(L, 3),
-                             L:    pad(L > 99 ? Math.round(L / 10) : L),
-                             t:    H < 12 ? "a"  : "p",
-                             tt:   H < 12 ? "am" : "pm",
-                             T:    H < 12 ? "A"  : "P",
-                             TT:   H < 12 ? "AM" : "PM",
+                            },
+                            h: function(){
+                                dateAr.push("hours");
+                                return "(\\d{1,2})";
+                            },
+                            hh: function(){
+                                dateAr.push("hours");
+                                return "(\\d{2})";
+                            },
+                            H: function(){
+                                dateAr.push("Hour");
+                                return "(\\d{1,2})";
+                            },
+                            HH: function(){
+                                dateAr.push("Hour");
+                                return "(\\d{2})";
+                            },
+                            M: function(){
+                                dateAr.push("minutes");
+                                return "(\\d{2})";
+                            },
+                            MM: function(){
+                                dateAr.push("minutes");
+                                return "(\\d{1,2})";
+                            },
+                            s: function(){
+                                dateAr.push("seconds");
+                                return "(\\d{2})";
+                            },
+                            ss: function(){
+                                dateAr.push("seconds");
+                                return "(\\d{1,2})";
+                            },
+                            l: function(){
+                                dateAr.push("milliseconds");
+                                return "(\\d{2})";
+                            },
+                            L: function(){
+                                dateAr.push("milliseconds");
+                                return "(\\d{1,2})";
+                            }
+                            ,
+                             t: function(){
+                                 dateAr.push("t");
+                                 return "[a|p]";
+                             },
+                             tt: function(){
+                                 dateAr.push("t");
+                                 return "[am|pm]";
+                             },
+                             T: function(){
+                                 dateAr.push("t");
+                                 return "[A|P]";
+                             },
+                             TT: function(){
+                                 dateAr.push("t");
+                                 return "[AM|PM]";
+                             }
+                            /*,
                              Z:    utc ? "UTC" : (String(date).match(timezone) || [""]).pop().replace(timezoneClip, ""),
                              o:    (o > 0 ? "-" : "+") + pad(Math.floor(Math.abs(o) / 60) * 100 + Math.abs(o) % 60, 4),
                              S:    ["th", "st", "nd", "rd"][d % 10 > 3 ? 0 : (d % 100 - d % 10 != 10) * d % 10]*/
@@ -633,7 +711,7 @@ _datepicker = function(elementId, some, options){
                 time: function(date){
                     var today = todayDate,
                         current = currentDate,
-                        showingDate = date || null,
+                        showingDate = current || null,
                         h,
                         min,
                         sec;
@@ -646,10 +724,6 @@ _datepicker = function(elementId, some, options){
                     if (!showingDate){
                         showingDate = (!current)? today : current;
                     }
-                    h = showingDate.getHours();
-                    min = showingDate.getMinutes();
-                    sec = showingDate.getSeconds();
-
                     clearChild(hour);
                     clearChild(minutes);
                     clearChild(seconds);
@@ -657,6 +731,20 @@ _datepicker = function(elementId, some, options){
                     addOptionsToSelect(hour, getRange(hoursAr, pickerOptions.stepHours));
                     addOptionsToSelect(minutes, getRange(minutesAr, pickerOptions.stepMinutes));
                     addOptionsToSelect(seconds, getRange(minutesAr, pickerOptions.stepSeconds));
+
+                    if (currentDate){
+                        h = (currentDate.getHours()<10)? "0"+currentDate.getHours().toString() : currentDate.getHours().toString();
+                        min = (currentDate.getMinutes()<10)? "0"+currentDate.getMinutes().toString() : currentDate.getMinutes().toString();
+                        sec = (currentDate.getSeconds()<10)? "0"+currentDate.getSeconds().toString() : currentDate.getSeconds().toString();
+                        hour.value = h;
+                        minutes.value = min;
+                        seconds.value = sec;
+                    }
+
+                    hour.onchange = onChangeSelect;
+                    minutes.onchange = onChangeSelect;
+                    seconds.onchange = onChangeSelect;
+
 
                 	return true;
                 }
@@ -705,7 +793,6 @@ _datepicker = function(elementId, some, options){
                 left: left + "px"
             });
             showOrHideElement(mainContainer);
-            debugger;
         },
         isPickerVisible = function() {
             return isClassInElement(mainContainer, "shown");
@@ -829,7 +916,7 @@ _datepicker = function(elementId, some, options){
 
             });
             on("onChangeDate", function(input, oldDate, newDate){
-                var stringDate = dateParser.toStringFormat(newDate, pickerOptions.dateFormat);
+                var stringDate = dateParser.toStringFormat(newDate, pickerOptions[pickerOptions.type+"Format"]);
                 if (input !== inputElement){
                     return
                 }
@@ -848,7 +935,7 @@ _datepicker = function(elementId, some, options){
                 e.preventDefault();
                 var value = this.value,
                     date;
-                date = dateParser.fromStringFormat(value, pickerOptions.dateFormat);
+                date = dateParser.fromStringFormat(value, pickerOptions[pickerOptions.type+"Format"]);
                 if (!isNaN(date) && date !== null){
                     trigger("onChangeDate",inputElement, inputElement['currentDate'], date);
                 }
@@ -903,7 +990,7 @@ _datepicker = function(elementId, some, options){
         todayDate = new Date(),
         pickerOptions = {
             dateFormat: "dd/mm/yy",
-            timeFormat: "H:mm:ss",
+            timeFormat: "H:MM:ss",
             dateTimeFormat: "dd/mm/yy H:mm:ss",
             type: "date",
             hourText:"Hours",
