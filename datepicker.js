@@ -906,10 +906,12 @@ _datepicker = function(elementId, some, options){
             var a = inputElement,
                 event = (!isAddEvents)? "remove" : "add";
             if (!isAddEvents){
+                removeClass(inputElement,"hasDatePicker");
                 off("onHidePicker", onHidePicker);
                 off("onShowPicker", onShowPicker);
                 off("onChangeDate", onChangeDate);
             } else {
+                addClass(inputElement,"hasDatePicker");
                 on("onHidePicker", onHidePicker);
                 on("onShowPicker", onShowPicker);
                 on("onChangeDate", onChangeDate);
@@ -971,6 +973,14 @@ _datepicker = function(elementId, some, options){
         onBlur = function() {
             //bd.addEventListener("click", bdEvent);
         },
+        destoy = function(){
+            addEventsForInput(false);
+            if(bd.querySelectorAll("input.hasDatePicker").length === 0){
+                bd.removeChild(mainContainer);
+            }
+            inputElement.datepicker = null;
+            delete inputElement.datepicker
+        },
         dayNames = [
             "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
             "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
@@ -1031,11 +1041,9 @@ _datepicker = function(elementId, some, options){
             on(event,handler);
         },
         hide:function () {
-//            hidePicker();
             trigger("onHidePicker",inputElement);
         },
         show:function() {
-              //showPicker(input)
             trigger("onShowPicker",inputElement);
         },
         setDate:function(newDate){
@@ -1043,6 +1051,11 @@ _datepicker = function(elementId, some, options){
         },
         getDate:function(){
             return currentDate;
+        },
+        destroy: function(){
+            destoy();
+            // todo: Add method for remove container listeners
+            delete this;
         }
     }
 
