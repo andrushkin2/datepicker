@@ -590,7 +590,7 @@ _datepicker = function(elementId, some, options){
             return elem;
         },
         removeClass = function(element, className){
-            if (false && "classList" in document.documentElement){
+            if ("classList" in document.documentElement){
                 element.classList.remove(className);
             } else {
                 var reg = new RegExp("\\s?"+className, "gim"),
@@ -603,7 +603,7 @@ _datepicker = function(elementId, some, options){
             }
         },
         isClassInElement = function(element, className){
-            if (false && "classList" in document.documentElement){
+            if ("classList" in document.documentElement){
                 return element.classList.contains(className);
             } else {
                 var reg = new RegExp("\\s?"+className, "gim"),
@@ -623,16 +623,13 @@ _datepicker = function(elementId, some, options){
                 month = this["data-month"],
                 year = this["data-year"],
                 gmtDate = new Date(year, month, day, 12, 0, 0);
-            this.className += " selected_date";
+            addClass(this, "selected_date");
             currentDate = gmtDate;
             trigger("onChangeDate", inputElement, inputElement['currentDate'], currentDate);
         },
         showType = (function(){
             return {
                 date: function(date){
-                   /*if (inputElement.value !== ""){
-                       dateParser.fromStringFormat(inputElement.value, pickerOptions.dateFormat);
-                   }*/
                     var today = todayDate,
                         current = currentDate,
                         showingDate = date || null,
@@ -673,9 +670,10 @@ _datepicker = function(elementId, some, options){
                     //set calendar
                     for (i=0; i<arrTd.length; i++){
                         var td = arrTd[i];
+                        td.setAttribute("class", "");
                         if (i < counter){
                             td.innerHTML = "";
-                            td.className = "space"
+                            addClass(td, "space");
                         } else {
                             if (days <= lastDate){
                                 td.onclick = setDate;
@@ -683,14 +681,14 @@ _datepicker = function(elementId, some, options){
                                 td["data-day"]  = days;
                                 td["data-month"] = monthInt ;
                                 td["data-year"] = year;
-                                td.className = "number";
+                                addClass(td, "number");
                                 if (!!current && !isNaN(current) && days === current.getDate()){
                                     if (monthInt === current.getMonth() && year === current.getFullYear()){
-                                        td.className += " selected_date";
+                                        addClass(td, "selected_date");
                                     }
                                 } else if (!isNaN(today) && days === today.getDate()){
                                     if (monthInt === today.getMonth() && year === today.getFullYear()){
-                                        td.className += " today_date";
+                                        addClass(td, "today_date");
                                     }
                                 }
                                 days++;
@@ -699,7 +697,7 @@ _datepicker = function(elementId, some, options){
                                 td["data-day"]  = "";
                                 td["data-month"] = "" ;
                                 td["data-year"] = "";
-                                td.className = "space"
+                                addClass(td, "space");
                             }
                         }
                     }
@@ -745,7 +743,6 @@ _datepicker = function(elementId, some, options){
                     minutes.onchange = onChangeSelect;
                     seconds.onchange = onChangeSelect;
 
-
                 	return true;
                 }
             }
@@ -753,7 +750,7 @@ _datepicker = function(elementId, some, options){
         setNewDate = function(newDate){
             var d = (typeof newDate === "object")? newDate : (new Date(newDate));
             if (typeof d === "object" && !isNaN(d)){
-                trigger("onChangeDate",inputElement, currentDate, d);
+                self.trigger("onChangeDate",inputElement, currentDate, d);
             } else {
                 //todo: throw error "Incorrect date"
             }
@@ -800,18 +797,7 @@ _datepicker = function(elementId, some, options){
         preventDafeult = function(e){
             //fixed bug with showing keyboard for tablets that don't support date type
             e.preventDefault();
-            trigger("onShowPicker");
-        },
-        datepicker = function(options){
-            var sl = this,
-                input = inputElement,
-                s = self,
-                options = {
-                    type:"date",
-                    dateFormat: "dd/mm/yy"
-                };
-
-
+            self.trigger("onShowPicker");
         },
         isArray = function(arr){
             return Object.prototype.toString.call(arr).indexOf("Array") !== -1;
@@ -846,31 +832,6 @@ _datepicker = function(elementId, some, options){
                 i++;
             }
             return res;
-        },
-        on = function(eventName, handler) {
-            if (!this._eventHandlers) this._eventHandlers = [];
-            if (!this._eventHandlers[eventName]) {
-                this._eventHandlers[eventName] = [];
-            }
-            this._eventHandlers[eventName].push(handler);
-        },
-        off = function(eventName, handler) {
-            var handlers = this._eventHandlers[eventName];
-            if (!handlers) return;
-            for(var i=0; i<handlers.length; i++) {
-                if (handlers[i] == handler) {
-                    handlers.splice(i--, 1);
-                }
-            }
-        },
-        trigger = function(eventName) {
-            if (!this._eventHandlers[eventName]) {
-                return;
-            }
-            var handlers = this._eventHandlers[eventName];
-            for (var i = 0; i < handlers.length; i++) {
-                handlers[i].apply(this, [].slice.call(arguments, 1));
-            }
         },
         searchNodes = function(){
             mainContainer = document.querySelector(".datepicker_main_container");
@@ -907,14 +868,14 @@ _datepicker = function(elementId, some, options){
                 event = (!isAddEvents)? "remove" : "add";
             if (!isAddEvents){
                 removeClass(inputElement,"hasDatePicker");
-                off("onHidePicker", onHidePicker);
-                off("onShowPicker", onShowPicker);
-                off("onChangeDate", onChangeDate);
+                self.off("onHidePicker", onHidePicker);
+                self.off("onShowPicker", onShowPicker);
+                self.off("onChangeDate", onChangeDate);
             } else {
                 addClass(inputElement,"hasDatePicker");
-                on("onHidePicker", onHidePicker);
-                on("onShowPicker", onShowPicker);
-                on("onChangeDate", onChangeDate);
+                self.on("onHidePicker", onHidePicker);
+                self.on("onShowPicker", onShowPicker);
+                self.on("onChangeDate", onChangeDate);
             }
 
             if ("ontouchstart" in document.documentElement){
@@ -956,7 +917,7 @@ _datepicker = function(elementId, some, options){
                 date;
             date = dateParser.fromStringFormat(value, pickerOptions[pickerOptions.type+"Format"]);
             if (!isNaN(date) && date !== null){
-                trigger("onChangeDate",inputElement, inputElement['currentDate'], date);
+                self.trigger("onChangeDate",inputElement, inputElement['currentDate'], date);
             }
         },
         onChange = function(e){
@@ -966,7 +927,7 @@ _datepicker = function(elementId, some, options){
         onClickAndFocus = function() {
             if ( true || !isPickerVisible() ){
                 inputElemntLast = this;
-                trigger("onShowPicker",inputElement);
+                self.trigger("onShowPicker",inputElement);
             }
         },
 
@@ -1025,6 +986,31 @@ _datepicker = function(elementId, some, options){
             showSeconds:false,
             showZones:false
         };
+    self.on = function(eventName, handler) {
+        if (!this._eventHandlers) this._eventHandlers = [];
+        if (!this._eventHandlers[eventName]) {
+            this._eventHandlers[eventName] = [];
+        }
+        this._eventHandlers[eventName].push(handler);
+    };
+    self.off = function(eventName, handler) {
+        var handlers = this._eventHandlers[eventName];
+        if (!handlers) return;
+        for(var i=0; i<handlers.length; i++) {
+            if (handlers[i] == handler) {
+                handlers.splice(i--, 1);
+            }
+        }
+    };
+    self.trigger = function(eventName) {
+        if (!this._eventHandlers[eventName]) {
+            return;
+        }
+        var handlers = this._eventHandlers[eventName];
+        for (var i = 0; i < handlers.length; i++) {
+            handlers[i].apply(this, [].slice.call(arguments, 1));
+        }
+    };
     extend(true, pickerOptions,options);
     getElement();
     if (!mainContainer){
@@ -1038,13 +1024,13 @@ _datepicker = function(elementId, some, options){
 
     return inputElement.datepicker = {
         attachEvent: function(event, handler){
-            on(event,handler);
+            self.on(event,handler);
         },
         hide:function () {
-            trigger("onHidePicker",inputElement);
+            self.trigger("onHidePicker",inputElement);
         },
         show:function() {
-            trigger("onShowPicker",inputElement);
+            self.trigger("onShowPicker",inputElement);
         },
         setDate:function(newDate){
             setNewDate(newDate);
