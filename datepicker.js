@@ -535,13 +535,30 @@ _datepicker = function(elementId, some, options){
                 style[opt] = options[opt];
             }
         },
-        addOptionsToSelect = function(select, data){
-            var length = data.length, i, opt;
+        addOptionsToSelect = function(select, data, extraText){
+            var length = data.length, i, opt,
+                withTime = function(hour, text){
+                    var int = parseInt(hour);
+                    switch (text){
+                        case "t":
+                            return hour + ((int < 12)? " a" : " p");
+                            break;
+                        case "tt":
+                            return hour + ((int < 12)? " am" : " pm");
+                            break;
+                        case "T":
+                            return hour + ((int < 12)? " A" : " P");
+                            break;
+                        case "t":
+                            return hour + ((int < 12)? " AM" : " PM");
+                            break;
+                    }
+                };
             for (i=0; i< length; i++){
                 opt = createElement("option", {
                     class:"select_option",
                     value:data[i]
-                }, {innerHTML:data[i]});
+                }, {innerHTML:((!!extraText)? withTime(data[i], extraText) : data[i])});
                 select.appendChild(opt);
             }
         },
@@ -712,7 +729,8 @@ _datepicker = function(elementId, some, options){
                         showingDate = current || null,
                         h,
                         min,
-                        sec;
+                        sec,
+                        isTime = /\s?(tt|t|TT|T)\s?/.exec(pickerOptions.timeFormat);
 
                     showOrHideElement(timeContainer);
                     showOrHideElement(myTab, false);
@@ -725,8 +743,7 @@ _datepicker = function(elementId, some, options){
                     clearChild(hour);
                     clearChild(minutes);
                     clearChild(seconds);
-
-                    addOptionsToSelect(hour, getRange(hoursAr, pickerOptions.stepHours));
+                    addOptionsToSelect(hour, getRange(hoursAr, pickerOptions.stepHours), ((isTime && isTime.length === 2)? isTime[1] : false));
                     addOptionsToSelect(minutes, getRange(minutesAr, pickerOptions.stepMinutes));
                     addOptionsToSelect(seconds, getRange(minutesAr, pickerOptions.stepSeconds));
 
@@ -734,6 +751,7 @@ _datepicker = function(elementId, some, options){
                         h = (currentDate.getHours()<10)? "0"+currentDate.getHours().toString() : currentDate.getHours().toString();
                         min = (currentDate.getMinutes()<10)? "0"+currentDate.getMinutes().toString() : currentDate.getMinutes().toString();
                         sec = (currentDate.getSeconds()<10)? "0"+currentDate.getSeconds().toString() : currentDate.getSeconds().toString();
+                        timeText.innerHTML = dateParser.toStringFormat(currentDate, pickerOptions.timeFormat);
                         hour.value = h;
                         minutes.value = min;
                         seconds.value = sec;
