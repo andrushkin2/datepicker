@@ -48,7 +48,7 @@ _datepicker = function(elementId, some, options){
                         parent = parent.parentNode;
                     }
                 }
-                trigger("onHidePicker");
+                self.trigger("onHidePicker");
             }
         },
         getElement = function () {
@@ -213,11 +213,11 @@ _datepicker = function(elementId, some, options){
         },
         onButtonClick = function(a, options, c){
             var date = new Date(this["data-year"], this["data-month"], this["data-day"]);
-            showType["date"](date);
+            showType[pickerOptions.type](date);
         },
         onChangeSelect = function(e){
             var date = currentDate || todayDate,
-                utcDate = new Date(date.getDate(), date.getMonth(), date.getFullYear(), parseInt(hour.value), parseInt(minutes.value), parseInt(seconds.value));
+                utcDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(hour.value), parseInt(minutes.value), parseInt(seconds.value));
             if (!isNaN(utcDate)){
                 setNewDate(utcDate);
             }
@@ -762,6 +762,15 @@ _datepicker = function(elementId, some, options){
                     seconds.onchange = onChangeSelect;
 
                 	return true;
+                },
+                datetime: function(date){debugger;
+                    showType.date(date);
+                    showType.time();
+                    showOrHideElement(timeContainer);
+                    showOrHideElement(myTab);
+                    showOrHideElement(scheduler);
+
+                    return true;
                 }
             }
         })(),
@@ -985,7 +994,7 @@ _datepicker = function(elementId, some, options){
         pickerOptions = {
             dateFormat: "dd/mm/yy",
             timeFormat: "H:MM:ss",
-            dateTimeFormat: "dd/mm/yy H:MM:ss",
+            datetimeFormat: "dd/mm/yy H:MM:ss",
             type: "date",
             hourText:"Hours",
             minutesText:"Minutes",
