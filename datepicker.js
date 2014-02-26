@@ -48,7 +48,7 @@ _datepicker = function(elementId, some, options){
                         parent = parent.parentNode;
                     }
                 }
-                trigger("onHidePicker",inputElement);
+                trigger("onHidePicker");
             }
         },
         getElement = function () {
@@ -507,10 +507,8 @@ _datepicker = function(elementId, some, options){
                     if (!!res && res.length && (res.length-1) === dateAr.length){
                         //todo: function for create date
                         newDate = getDateUTC(res, dateAr);
-                        //console.log(newDate.toUTCString());
                         return newDate;
                     } else {
-                        //console.log("Error parse date:\r\n"+ JSON.stringify({date:dateString,dateFormat:format},null,"\t"));
                         return null;
                     }
                 }
@@ -625,7 +623,7 @@ _datepicker = function(elementId, some, options){
                 gmtDate = new Date(year, month, day, 12, 0, 0);
             addClass(this, "selected_date");
             currentDate = gmtDate;
-            trigger("onChangeDate", inputElement, inputElement['currentDate'], currentDate);
+            self.trigger("onChangeDate", inputElement['currentDate'], currentDate);
         },
         showType = (function(){
             return {
@@ -664,6 +662,8 @@ _datepicker = function(elementId, some, options){
                     leftButton["data-day"] = rightButton["data-day"] = 1;
                     leftButton["data-month"] = (monthInt === 0)? 11 : monthInt-1;
                     leftButton["data-year"] = (monthInt === 0)? year-1 : year;
+                    leftButton.onclick = onButtonClick;
+                    rightButton.onclick = onButtonClick;
                     rightButton.title = (monthInt === 11)? monthString[0]+" "+(year+1) : monthString[monthInt+1]+" "+year;
                     rightButton["data-month"] = (monthInt === 11)? 0 : monthInt+1;
                     rightButton["data-year"] = (monthInt === 11)? year+1 : year;
@@ -750,7 +750,7 @@ _datepicker = function(elementId, some, options){
         setNewDate = function(newDate){
             var d = (typeof newDate === "object")? newDate : (new Date(newDate));
             if (typeof d === "object" && !isNaN(d)){
-                self.trigger("onChangeDate",inputElement, currentDate, d);
+                self.trigger("onChangeDate", currentDate, d);
             } else {
                 //todo: throw error "Incorrect date"
             }
@@ -889,25 +889,19 @@ _datepicker = function(elementId, some, options){
             a[event+"EventListener"]("focus", onClickAndFocus);
             a[event+"EventListener"]("blur", onBlur);
         },
-        onHidePicker = function(input){
-            input === inputElement && hidePicker();
+        onHidePicker = function(){
+            hidePicker();
         },
-        onShowPicker = function(input){
-            input === inputElement
-                && (leftButton.onclick = onButtonClick)
-                && (rightButton.onclick = onButtonClick)
-                && showType[pickerOptions.type]()
+        onShowPicker = function(){
+            showType[pickerOptions.type]()
             && showPicker();
 
         },
-        onChangeDate = function(input, oldDate, newDate){
+        onChangeDate = function(oldDate, newDate){
             var stringDate = dateParser.toStringFormat(newDate, pickerOptions[pickerOptions.type+"Format"]);
-            if (input !== inputElement){
-                return
-            }
             currentDate = newDate;
-            if (input.value !== stringDate){
-                input.value = stringDate
+            if (inputElement.value !== stringDate){
+                inputElement.value = stringDate
             }
             showType[pickerOptions.type](newDate);
         },
@@ -917,7 +911,7 @@ _datepicker = function(elementId, some, options){
                 date;
             date = dateParser.fromStringFormat(value, pickerOptions[pickerOptions.type+"Format"]);
             if (!isNaN(date) && date !== null){
-                self.trigger("onChangeDate",inputElement, inputElement['currentDate'], date);
+                self.trigger("onChangeDate", inputElement['currentDate'], date);
             }
         },
         onChange = function(e){
@@ -927,7 +921,7 @@ _datepicker = function(elementId, some, options){
         onClickAndFocus = function() {
             if ( true || !isPickerVisible() ){
                 inputElemntLast = this;
-                self.trigger("onShowPicker",inputElement);
+                self.trigger("onShowPicker");
             }
         },
 
@@ -1027,10 +1021,10 @@ _datepicker = function(elementId, some, options){
             self.on(event,handler);
         },
         hide:function () {
-            self.trigger("onHidePicker",inputElement);
+            self.trigger("onHidePicker");
         },
         show:function() {
-            self.trigger("onShowPicker",inputElement);
+            self.trigger("onShowPicker");
         },
         setDate:function(newDate){
             setNewDate(newDate);
