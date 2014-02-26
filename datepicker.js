@@ -549,7 +549,7 @@ _datepicker = function(elementId, some, options){
                         case "T":
                             return hour + ((int < 12)? " A" : " P");
                             break;
-                        case "t":
+                        case "TT":
                             return hour + ((int < 12)? " AM" : " PM");
                             break;
                     }
