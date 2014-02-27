@@ -1003,6 +1003,9 @@ _datepicker = function(elementId, some, options){
         attachEvent: function(event, handler){
             self.on(event,handler);
         },
+        detachEvent: function(event, handler){
+            self.off(event, handler);
+        },
         hide:function () {
             self.trigger("onHidePicker");
         },
