@@ -212,7 +212,7 @@ _datepicker = function(elementId, some, options){
             return 33 - new Date(date.getFullYear(), date.getMonth(), 33).getDate();
         },
         onButtonClick = function(a, options, c){
-            var date = new Date(this["data-year"], this["data-month"], this["data-day"]);
+            var date = new Date(this["data-year"], this["data-month"], this["data-day"], hour.value, minutes.value, seconds.value);
             showType[pickerOptions.type](date);
         },
         onChangeSelect = function(e){
@@ -315,10 +315,9 @@ _datepicker = function(elementId, some, options){
                                     (arr || []).forEach(function(val, index){
                                         if (val.toLowerCase() === value.toLowerCase()){
                                             res = (index > 11)? index-12 : index;
-                                            return res;
                                         }
                                     })
-                                    return null;
+                                    return res;
                                 };
                             dateAr.forEach(function(elem, index){
                                 var curIndex = index+ 1,
@@ -327,14 +326,14 @@ _datepicker = function(elementId, some, options){
                                 isNan = isNaN(intValue);
                                 switch (elem){
                                     case "month":
-                                        date.month = (isNan)? searchInString(value, monthNames) : intValue;
+                                        date.month = (isNan)? searchInString(value, monthNames) : intValue - 1;
                                         break;
                                     case "year":
                                         if (!isNan){
                                             date.year = (value.length > 2)? intValue : 2000 + intValue;
                                         }
                                         break;
-                                    case "Hour":
+                                    case "Hours":
                                         H = true;
                                         date.hours = (!isNan)? intValue : null;
                                         break;
@@ -345,7 +344,7 @@ _datepicker = function(elementId, some, options){
                                     case "milliseconds":
                                         date[elem] = (!isNan)? intValue : null;
                                         break;
-                                    case "t":debugger;
+                                    case "t":
                                         if (!H && date.hours !== null){
                                             intValue = value.toLowerCase();
                                             if (/(a|am)/.test(intValue) && date.hours > 12){
@@ -360,20 +359,20 @@ _datepicker = function(elementId, some, options){
                             });
                             switch (pickerOptions.type){
                                 case "date":
-                                    date.hours = date.hours || 12;
-                                    date.minutes = date.minutes || 0;
-                                    date.seconds = date.seconds || 0;
+                                    date.hours = (date.hours !== null)? date.hours : hour.value;
+                                    date.minutes = date.minutes || minutes.value;
+                                    date.seconds = date.seconds || seconds.value;
                                     date.milliseconds = date.milliseconds || 0;
                                     break;
                                 case "time":
-                                    date.date = date.date || currentDate.getDate();
-                                    date.month = date.month || currentDate.getMonth();
+                                    date.date = (date.date !== null)? date.date : currentDate.getDate();
+                                    date.month = (date.month !== null)? date.month : currentDate.getMonth();
                                     date.year = date.year || currentDate.getFullYear();
-                                    date.seconds = date.seconds || 0;
+                                    date.seconds = date.seconds || seconds.value;
                                     date.milliseconds = date.milliseconds || 0;
                                     break;
                                 case "datetime":
-                                    date.seconds = date.seconds || 0;
+                                    date.seconds = date.seconds || seconds.value;
                                     date.milliseconds = date.milliseconds || 0;
                             }
                             isNan = false;
@@ -395,104 +394,39 @@ _datepicker = function(elementId, some, options){
                         regexp,
                         newDate,
                         res,
+                        d1_2 = "(\\d{1,2})",
+                        d2 = "(\\d{2})",
+                        flagFunc = function(name, returnVal){
+                            return function(){
+                                dateAr.push(name);
+                                return returnVal;
+                            };
+                        },
                         flags = {
-                            d:    function(){
-                                dateAr.push("date");
-                                return "(\\d{1,2})";
-                            },
-                            dd:   function(){
-                                dateAr.push("date");
-                                return "(\\d{2})";
-                            },
-                            ddd:  function(){
-                                dateAr.push("dateStr");
-                                return getRegexpText(0, 7, dayNames);
-                            },
-                            dddd: function(){
-                                dateAr.push("dateStr");
-                                return getRegexpText(7, 14, dayNames);
-                            },
-                            m:    function(){
-                                dateAr.push("month");
-                                return "(\\d{1,2})";
-                            },
-                            mm:   function(){
-                                dateAr.push("month");
-                                return "(\\d{2})";
-                            },
-                            mmm:  function(){
-                                dateAr.push("month");
-                                return getRegexpText(0, 12, monthNames);
-                            },
-                            mmmm: function(){
-                                dateAr.push("month");
-                                return getRegexpText(12, 24, monthNames);
-                            },
-                            yy:   function(){
-                                dateAr.push("year");
-                                return "(\\d{2})";
-                            },
-                            yyyy: function(){
-                                dateAr.push("year");
-                                return "(\\d{3,4})"
-                            },
-                            h: function(){
-                                dateAr.push("hours");
-                                return "(\\d{1,2})";
-                            },
-                            hh: function(){
-                                dateAr.push("hours");
-                                return "(\\d{2})";
-                            },
-                            H: function(){
-                                dateAr.push("Hour");
-                                return "(\\d{1,2})";
-                            },
-                            HH: function(){
-                                dateAr.push("Hour");
-                                return "(\\d{2})";
-                            },
-                            M: function(){
-                                dateAr.push("minutes");
-                                return "(\\d{2})";
-                            },
-                            MM: function(){
-                                dateAr.push("minutes");
-                                return "(\\d{1,2})";
-                            },
-                            s: function(){
-                                dateAr.push("seconds");
-                                return "(\\d{2})";
-                            },
-                            ss: function(){
-                                dateAr.push("seconds");
-                                return "(\\d{1,2})";
-                            },
-                            l: function(){
-                                dateAr.push("milliseconds");
-                                return "(\\d{2})";
-                            },
-                            L: function(){
-                                dateAr.push("milliseconds");
-                                return "(\\d{1,2})";
-                            }
-                            ,
-                             t: function(){
-                                 dateAr.push("t");
-                                 return "(a|p)";
-                             },
-                             tt: function(){
-                                 dateAr.push("t");
-                                 return "(am|pm)";
-                             },
-                             T: function(){
-                                 dateAr.push("t");
-                                 return "(A|P)";
-                             },
-                             TT: function(){
-                                 dateAr.push("t");
-                                 return "(AM|PM)";
-                             }
+                            d:      flagFunc("date", d1_2),
+                            dd:     flagFunc("date", d2),
+                            ddd:    flagFunc("dateStr", getRegexpText(0, 7, dayNames)),
+                            dddd:   flagFunc("dateStr", getRegexpText(7, 14, dayNames)),
+                            m:      flagFunc("month", d1_2),
+                            mm:     flagFunc("month", d2),
+                            mmm:    flagFunc("month", getRegexpText(0, 12, monthNames)),
+                            mmmm:   flagFunc("month", getRegexpText(12, 24, monthNames)),
+                            yy:     flagFunc("year", d2),
+                            yyyy:   flagFunc("year", "(\\d{3,4})"),
+                            h:      flagFunc("hours", d1_2),
+                            hh:     flagFunc("hours", d2),
+                            H:      flagFunc("Hour", d1_2),
+                            HH:     flagFunc("Hours", d2),
+                            M:      flagFunc("minutes", d1_2),
+                            MM:     flagFunc("minutes", d2),
+                            s:      flagFunc("seconds", d1_2),
+                            ss:     flagFunc("seconds", d2),
+                            l:      flagFunc("milliseconds", d1_2),
+                            L:      flagFunc("milliseconds", d2),
+                            t:      flagFunc("t", "(a|p)"),
+                            tt:     flagFunc("t", "(am|pm)"),
+                            T:      flagFunc("t", "(A|P)"),
+                            TT:     flagFunc("t", "(AM|PM)")
                             /*,
                              Z:    utc ? "UTC" : (String(date).match(timezone) || [""]).pop().replace(timezoneClip, ""),
                              o:    (o > 0 ? "-" : "+") + pad(Math.floor(Math.abs(o) / 60) * 100 + Math.abs(o) % 60, 4),
@@ -505,7 +439,6 @@ _datepicker = function(elementId, some, options){
                     regexp = new RegExp(regexpText, "g");
                     res = regexp.exec(dateString);
                     if (!!res && res.length && (res.length-1) === dateAr.length){
-                        //todo: function for create date
                         newDate = getDateUTC(res, dateAr);
                         return newDate;
                     } else {
@@ -515,7 +448,7 @@ _datepicker = function(elementId, some, options){
             }
         })(),
         addClass = function(element, className){
-            if (false && "classList" in document.documentElement){
+            if ("classList" in document.documentElement){
                 element.classList.add(className);
             } else {
                 var reg = new RegExp("\\s?"+className, "gim"),
@@ -541,13 +474,13 @@ _datepicker = function(elementId, some, options){
                     var int = parseInt(hour);
                     switch (text){
                         case "t":
-                            return hour + ((int < 12)? " a" : " p");
+                            return hour + ((int < 12)? " am" : " pm");
                             break;
                         case "tt":
                             return hour + ((int < 12)? " am" : " pm");
                             break;
                         case "T":
-                            return hour + ((int < 12)? " A" : " P");
+                            return hour + ((int < 12)? " AM" : " PM");
                             break;
                         case "TT":
                             return hour + ((int < 12)? " AM" : " PM");
@@ -637,10 +570,10 @@ _datepicker = function(elementId, some, options){
             var day = this["data-day"],
                 month = this["data-month"],
                 year = this["data-year"],
-                gmtDate = new Date(year, month, day, 12, 0, 0);
-            addClass(this, "selected_date");
-            currentDate = gmtDate;
-            self.trigger("onChangeDate", inputElement['currentDate'], currentDate);
+                gmtDate = new Date(year, month, day, hour.value, minutes.value, seconds.value);
+            setNewDate(gmtDate, function(){
+                //addClass(this, "selected_date");
+            })
         },
         showType = (function(){
             return {
@@ -743,9 +676,9 @@ _datepicker = function(elementId, some, options){
                     clearChild(hour);
                     clearChild(minutes);
                     clearChild(seconds);
-                    addOptionsToSelect(hour, getRange(hoursAr, pickerOptions.stepHours), ((isTime && isTime.length === 2)? isTime[1] : false));
-                    addOptionsToSelect(minutes, getRange(minutesAr, pickerOptions.stepMinutes));
-                    addOptionsToSelect(seconds, getRange(minutesAr, pickerOptions.stepSeconds));
+                    addOptionsToSelect(hour, rangeHours, ((isTime && isTime.length === 2)? isTime[1] : false));
+                    addOptionsToSelect(minutes, rangeMinutes);
+                    addOptionsToSelect(seconds, rangeSeconds);
 
                     if (currentDate){
                         h = (currentDate.getHours()<10)? "0"+currentDate.getHours().toString() : currentDate.getHours().toString();
@@ -763,7 +696,7 @@ _datepicker = function(elementId, some, options){
 
                 	return true;
                 },
-                datetime: function(date){debugger;
+                datetime: function(date){
                     showType.date(date);
                     showType.time();
                     showOrHideElement(timeContainer);
@@ -774,10 +707,11 @@ _datepicker = function(elementId, some, options){
                 }
             }
         })(),
-        setNewDate = function(newDate){
+        setNewDate = function(newDate, callback){
             var d = (typeof newDate === "object")? newDate : (new Date(newDate));
             if (typeof d === "object" && !isNaN(d)){
                 self.trigger("onChangeDate", currentDate, d);
+                callback && callback();
             } else {
                 //todo: throw error "Incorrect date"
             }
@@ -920,8 +854,20 @@ _datepicker = function(elementId, some, options){
             hidePicker();
         },
         onShowPicker = function(){
-            showType[pickerOptions.type]()
-            && showPicker();
+            var h, m, s;
+            if (!currentDate){
+                clearChild(hour);
+                clearChild(minutes);
+                clearChild(seconds);
+                updateRangeOfTime();
+                h = (hour.value === "")? 0 : rangeHours[0];
+                m = (minutes.value === "")? 0 : rangeMinutes[0];
+                s = (seconds.value === "")? 0 : rangeSeconds[0];
+                setNewDate(new Date(todayDate.getFullYear(), todayDate.getMonth(),todayDate.getDate(), h, m, s));
+            } else {
+                showType[pickerOptions.type]()
+            }
+            showPicker();
 
         },
         onChangeDate = function(oldDate, newDate){
@@ -951,7 +897,6 @@ _datepicker = function(elementId, some, options){
                 self.trigger("onShowPicker");
             }
         },
-
         onBlur = function() {
             //bd.addEventListener("click", bdEvent);
         },
@@ -962,6 +907,11 @@ _datepicker = function(elementId, some, options){
             }
             inputElement.datepicker = null;
             delete inputElement.datepicker
+        },
+        updateRangeOfTime = function(){
+            rangeHours = getRange(hoursAr, pickerOptions.stepHours);
+            rangeMinutes = getRange(minutesAr, pickerOptions.stepMinutes);
+            rangeSeconds = getRange(minutesAr, pickerOptions.stepSeconds);
         },
         dayNames = [
             "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
@@ -987,14 +937,17 @@ _datepicker = function(elementId, some, options){
             }
             return res;
         },
+        rangeHours,
+        rangeMinutes,
+        rangeSeconds,
         currentDate = null,
         hoursAr = getHours(),
         minutesAr = getMinutes(),
         todayDate = new Date(),
         pickerOptions = {
             dateFormat: "dd/mm/yy",
-            timeFormat: "H:MM:ss",
-            datetimeFormat: "dd/mm/yy H:MM:ss",
+            timeFormat: "HH:MM:ss",
+            datetimeFormat: "dd/mm/yy HH:MM:ss",
             type: "date",
             hourText:"Hours",
             minutesText:"Minutes",
