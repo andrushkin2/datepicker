@@ -34,6 +34,7 @@ _datepicker = function(elementId, some, options){
         tableHead,
         tableBody,
         inputElemntLast,
+        entitySelect,
         NOOP = function(){},
         bdEvent = function(e){
             var target = e.target,
@@ -103,6 +104,74 @@ _datepicker = function(elementId, some, options){
             //year container
             yearContainer = createElement("div", {class:"central_pane_year"});
             subCentralPane.appendChild(yearContainer);
+        },
+        createElementsForSelect= function(entitiesAr){
+            if (!entitySelect){
+                return;
+            }
+            clearChild(entitySelect);
+            var length = entitiesAr.length,
+                selectValue = entitySelect.value,
+                onclick = function(){
+                    var val = this.value,
+                        tempVal,
+                        int = parseInt(val),
+                        isNan = isNaN(int),
+                        newDate;
+                    if (val === entitySelect.value){
+                        return;
+                    }
+                    switch (entitySelect.entity){
+                        case "month":
+                            if (!isNan){
+                                tempVal = searchInString(val, monthNames);
+                                if (tempVal !== null){
+                                    entitySelect.value = tempVal;
+                                } else {
+                                    return;
+                                }
+                            } else {
+                                entitySelect.value  = int;
+                            }
+                            newDate = new Date(currentDate.getFullYear(), entitySelect.value, currentDate.getDate(), hour.value, minutes.value, seconds.value);
+                            break;
+                        case "year":
+                            if (!isNan){
+                                entitySelect.value = int;
+                            } else {
+                                return;
+                            }
+                            newDate = new Date(currentDate.getFullYear(), entitySelect.value, currentDate.getDate(), hour.value, minutes.value, seconds.value);
+                            break;
+                        default:
+                            return;
+                            break;
+                    }
+                    showOrHideElement(entitySelect, false);
+                    if (!isNaN(newDate)){
+                        setNewDate(newDate);
+                    }
+                },
+                value,
+                i,
+                child;
+            for (i = 0; i < length; i++){
+                value = entitiesAr[i];
+                child = createElement("div",{
+                        class: "entity_child" + ((value.toString() === selectValue.toString())? " selected" : "")
+                    },
+                    {
+                        value: value,
+                        onclick: onclick
+                    })
+                child.appendChild(createElement("span",{},{ innerHTML:value}));
+                entitySelect.appendChild(child);
+            }
+
+        },
+        createSelect = function(className){
+            entitySelect = createElement("div", {class:"entity_select hidden"});
+            mainContainer.appendChild(entitySelect);
         },
         createTimeContainer = function(){
             var selectsAr, tr ,td, tdName, i;
@@ -583,6 +652,19 @@ _datepicker = function(elementId, some, options){
                     var today = todayDate,
                         current = currentDate,
                         showingDate = date || null,
+                        funcForSelect = function(node, type, value, array){
+                            return function(){
+                                var rect = node.getBoundingClientRect();
+                                entitySelect.value = value;
+                                entitySelect.entity = type;
+                                createElementsForSelect(array);
+                                css(entitySelect, {
+                                    top: 1 +"px",
+                                    left: rect.left + "px"
+                                });
+                                showOrHideElement(entitySelect);
+                            }
+                        },
                         arrTd,
                         lastTr,
                         counter,
@@ -609,6 +691,17 @@ _datepicker = function(elementId, some, options){
                     //set month and year
                     monthContainer.innerHTML = month;
                     yearContainer.innerHTML  = year;
+                    //attache entity selector if need it
+                    if (!!pickerOptions.selectingMonth){
+                        monthContainer.onclick = funcForSelect(monthContainer, "month", month, monthNames.slice(12));
+                    } else {
+                        monthContainer.onclick = NOOP;
+                    }
+                    if (!!pickerOptions.selectingYear){
+                        yearContainer.onclick = funcForSelect(yearContainer, "year", year.toString(), [2000, 2005,2013,2014]);
+                    } else {
+                        yearContainer.onclick = NOOP;
+                    }
                     //set buttons title
                     leftButton.title = (monthInt === 0)? monthString[11]+" "+(year-1) : monthString[monthInt-1]+" "+year;
                     leftButton["data-day"] = rightButton["data-day"] = 1;
@@ -818,12 +911,14 @@ _datepicker = function(elementId, some, options){
             hour = mainContainer.querySelector(".select.datepicker_time_hour");
             minutes = mainContainer.querySelector(".select.datepicker_time_minutes");
             seconds = mainContainer.querySelector(".select.datepicker_time_seconds");
+            entitySelect = mainContainer.querySelector(".entity_select");
         },
         createNodes = function(){
             createMainContainer();
             createMonthYearTab();
             createScheduler();
             createTimeContainer();
+            createSelect();
             addEvents();
         },
         addEventsForInput = function(isAddEvents){
@@ -956,6 +1051,8 @@ _datepicker = function(elementId, some, options){
             secondsText:"Seconds",
             zoneText:"Zone",
             timeText:"Time",
+            selectingMonth: false,
+            selectingYear: true,
             shortYearCutoff: 50,
             stepMinutes: 0,
             stepSeconds: 0,
