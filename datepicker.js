@@ -333,6 +333,12 @@ _datepicker = function(elementId, some, options){
                                             date.year = (value.length > 2)? intValue : 2000 + intValue;
                                         }
                                         break;
+                                    case "yearShort":
+                                        if (!isNan){
+                                            var centery = (intValue <= pickerOptions.shortYearCutoff)? 2000 : 1900;
+                                            date.year = centery + intValue;
+                                        }
+                                        break;
                                     case "Hours":
                                         H = true;
                                         date.hours = (!isNan)? intValue : null;
@@ -347,8 +353,12 @@ _datepicker = function(elementId, some, options){
                                     case "t":
                                         if (!H && date.hours !== null){
                                             intValue = value.toLowerCase();
-                                            if (/(a|am)/.test(intValue) && date.hours > 12){
-                                                date.hours = date.hours - 12;
+                                            if (/(a|am)/.test(intValue) && date.hours >= 12){
+                                                if (date.hours === 12){
+                                                    date.hours = 0;
+                                                } else {
+                                                    date.hours = date.hours - 12;
+                                                }
                                             } else if (/(p|pm)/.test(intValue) && date.hours < 12){
                                                 date.hours = date.hours + 12;
                                             }
@@ -411,7 +421,7 @@ _datepicker = function(elementId, some, options){
                             mm:     flagFunc("month", d2),
                             mmm:    flagFunc("month", getRegexpText(0, 12, monthNames)),
                             mmmm:   flagFunc("month", getRegexpText(12, 24, monthNames)),
-                            yy:     flagFunc("year", d2),
+                            yy:     flagFunc("yearShort", d2),
                             yyyy:   flagFunc("year", "(\\d{3,4})"),
                             h:      flagFunc("hours", d1_2),
                             hh:     flagFunc("hours", d2),
@@ -471,21 +481,13 @@ _datepicker = function(elementId, some, options){
         addOptionsToSelect = function(select, data, extraText){
             var length = data.length, i, opt,
                 withTime = function(hour, text){
-                    var int = parseInt(hour);
-                    switch (text){
-                        case "t":
-                            return hour + ((int < 12)? " am" : " pm");
-                            break;
-                        case "tt":
-                            return hour + ((int < 12)? " am" : " pm");
-                            break;
-                        case "T":
-                            return hour + ((int < 12)? " AM" : " PM");
-                            break;
-                        case "TT":
-                            return hour + ((int < 12)? " AM" : " PM");
-                            break;
+                    var int = parseInt(hour),
+                        hours = hour + ((int < 12)? " AM" : " PM");
+
+                    if (int === 0){
+                        hours += " (12 AM)";
                     }
+                    return hours;
                 };
             for (i=0; i< length; i++){
                 opt = createElement("option", {
@@ -954,6 +956,7 @@ _datepicker = function(elementId, some, options){
             secondsText:"Seconds",
             zoneText:"Zone",
             timeText:"Time",
+            shortYearCutoff: 50,
             stepMinutes: 0,
             stepSeconds: 0,
             stepHours: 0,
