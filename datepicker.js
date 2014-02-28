@@ -123,7 +123,7 @@ _datepicker = function(elementId, some, options){
                     }
                     switch (entitySelect.entity){
                         case "month":
-                            if (!isNan){
+                            if (isNan){
                                 tempVal = searchInString(val, monthNames);
                                 if (tempVal !== null){
                                     entitySelect.value = tempVal;
@@ -141,7 +141,7 @@ _datepicker = function(elementId, some, options){
                             } else {
                                 return;
                             }
-                            newDate = new Date(currentDate.getFullYear(), entitySelect.value, currentDate.getDate(), hour.value, minutes.value, seconds.value);
+                            newDate = new Date(entitySelect.value, currentDate.getMonth(), currentDate.getDate(), hour.value, minutes.value, seconds.value);
                             break;
                         default:
                             return;
@@ -297,6 +297,15 @@ _datepicker = function(elementId, some, options){
                 setNewDate(utcDate);
             }
         },
+        searchInString = function(value, arr){
+            var res = null;
+            (arr || []).forEach(function(val, index){
+                if (val.toLowerCase() === value.toLowerCase()){
+                    res = (index > 11)? index-12 : index;
+                }
+            })
+            return res;
+        },
         dateParser = (function(){
             var	token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
                 timezone = /\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)\b/g,
@@ -384,16 +393,7 @@ _datepicker = function(elementId, some, options){
                                 isNan,
                                 res,
                                 t = 0,
-                                H = false,
-                                searchInString = function(value, arr){
-                                    var res = null;
-                                    (arr || []).forEach(function(val, index){
-                                        if (val.toLowerCase() === value.toLowerCase()){
-                                            res = (index > 11)? index-12 : index;
-                                        }
-                                    })
-                                    return res;
-                                };
+                                H = false;
                             dateAr.forEach(function(elem, index){
                                 var curIndex = index+ 1,
                                     value = res[curIndex],
@@ -736,6 +736,7 @@ _datepicker = function(elementId, some, options){
                         var td = arrTd[i];
                         td.setAttribute("class", "");
                         if (i < counter){
+                            td.onclick = NOOP;
                             td.innerHTML = "";
                             addClass(td, "space");
                         } else {
@@ -757,6 +758,7 @@ _datepicker = function(elementId, some, options){
                                 }
                                 days++;
                             } else {
+                                td.onclick = NOOP;
                                 td.innerHTML = "";
                                 td["data-day"]  = "";
                                 td["data-month"] = "" ;
@@ -994,13 +996,13 @@ _datepicker = function(elementId, some, options){
             }
             showType[pickerOptions.type](newDate);
         },
-        onInput = function(e){debugger;
+        onInput = function(e){
             e.preventDefault();
             var value = this.value,
                 date;
             date = dateParser.fromStringFormat(value, pickerOptions[pickerOptions.type+"Format"]);
             if (!isNaN(date) && date !== null){
-                self.trigger("onChangeDate", inputElement['currentDate'], date);
+                setNewDate(date);
             }
         },
         onChange = function(e){
