@@ -682,6 +682,11 @@ _datepicker = function(elementId, some, options){
                                 } else {
                                     removeClass(entitySelect, "overflow_y");
                                 }
+                                entitySelect.onmouseenter = function(){
+                                    entitySelect.onmouseleave = function(){
+                                        showOrHideElement(this, false);
+                                    }
+                                }
                             }
                         },
                         arrTd,
@@ -713,13 +718,17 @@ _datepicker = function(elementId, some, options){
                     //attache entity selector if need it
                     if (!!pickerOptions.selectingMonth){
                         monthContainer.onclick = funcForSelect(monthContainer, "month", month, monthNames.slice(12));
+                        addClass(monthContainer, "hover");
                     } else {
                         monthContainer.onclick = NOOP;
+                        removeClass(monthContainer, "hover");
                     }
                     if (!!pickerOptions.selectingYear){
                         yearContainer.onclick = funcForSelect(yearContainer, "year", year.toString(), [2000, 2005,2013,2014,2015,2016,2017,2018,2019,2020]);
+                        addClass(yearContainer, "hover");
                     } else {
                         yearContainer.onclick = NOOP;
+                        removeClass(yearContainer, "hover");
                     }
                     //set buttons title
                     leftButton.title = (monthInt === 0)? monthString[11]+" "+(year-1) : monthString[monthInt-1]+" "+year;
