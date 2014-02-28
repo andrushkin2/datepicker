@@ -654,14 +654,22 @@ _datepicker = function(elementId, some, options){
                         showingDate = date || null,
                         funcForSelect = function(node, type, value, array){
                             return function(){
-                                var rect = node.getBoundingClientRect();
+                                var length = entitySelect.childElementCount,
+                                    childsHeight,
+                                    heightCont = mainContainer.getBoundingClientRect().height;
                                 entitySelect.value = value;
                                 entitySelect.entity = type;
                                 createElementsForSelect(array);
+                                childsHeight = entitySelect.firstChild.getBoundingClientRect().height * length;
                                 css(entitySelect, {
-                                    top: 1 +"px",
-                                    left: rect.left + "px"
+                                    top: 0 +"px",
+                                    left: this.offsetLeft + this.offsetParent.offsetLeft + "px"
                                 });
+                                if (childsHeight > heightCont){
+                                    addClass(entitySelect, "overflow_y");
+                                } else {
+                                    addClass(entitySelect, "overflow_y");
+                                }
                                 showOrHideElement(entitySelect);
                             }
                         },
