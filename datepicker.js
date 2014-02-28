@@ -154,11 +154,14 @@ _datepicker = function(elementId, some, options){
                 },
                 value,
                 i,
-                child;
+                child,
+                isSelected,
+                res;
             for (i = 0; i < length; i++){
                 value = entitiesAr[i];
+                isSelected = value.toString() === selectValue.toString();
                 child = createElement("div",{
-                        class: "entity_child" + ((value.toString() === selectValue.toString())? " selected" : "")
+                        class: "entity_child" + ((isSelected)? " selected" : "")
                     },
                     {
                         value: value,
@@ -166,8 +169,11 @@ _datepicker = function(elementId, some, options){
                     })
                 child.appendChild(createElement("span",{},{ innerHTML:value}));
                 entitySelect.appendChild(child);
+                if (isSelected){
+                    res = child;
+                }
             }
-
+            return res;
         },
         createSelect = function(className){
             entitySelect = createElement("div", {class:"entity_select hidden"});
@@ -654,23 +660,28 @@ _datepicker = function(elementId, some, options){
                         showingDate = date || null,
                         funcForSelect = function(node, type, value, array){
                             return function(){
-                                var length = entitySelect.childElementCount,
+                                var length,
                                     childsHeight,
-                                    heightCont = mainContainer.getBoundingClientRect().height;
+                                    heightCont = mainContainer.getBoundingClientRect().height,
+                                    selected;
                                 entitySelect.value = value;
                                 entitySelect.entity = type;
-                                createElementsForSelect(array);
-                                childsHeight = entitySelect.firstChild.getBoundingClientRect().height * length;
+                                selected = createElementsForSelect(array);
+                                length = entitySelect.childElementCount;
+                                showOrHideElement(entitySelect);
+                                childsHeight = entitySelect.firstChild.offsetHeight * length;
                                 css(entitySelect, {
                                     top: 0 +"px",
                                     left: this.offsetLeft + this.offsetParent.offsetLeft + "px"
                                 });
                                 if (childsHeight > heightCont){
                                     addClass(entitySelect, "overflow_y");
+                                    if (selected){
+                                        selected.scrollIntoView(false);
+                                    }
                                 } else {
-                                    addClass(entitySelect, "overflow_y");
+                                    removeClass(entitySelect, "overflow_y");
                                 }
-                                showOrHideElement(entitySelect);
                             }
                         },
                         arrTd,
@@ -706,7 +717,7 @@ _datepicker = function(elementId, some, options){
                         monthContainer.onclick = NOOP;
                     }
                     if (!!pickerOptions.selectingYear){
-                        yearContainer.onclick = funcForSelect(yearContainer, "year", year.toString(), [2000, 2005,2013,2014]);
+                        yearContainer.onclick = funcForSelect(yearContainer, "year", year.toString(), [2000, 2005,2013,2014,2015,2016,2017,2018,2019,2020]);
                     } else {
                         yearContainer.onclick = NOOP;
                     }
@@ -1059,7 +1070,7 @@ _datepicker = function(elementId, some, options){
             secondsText:"Seconds",
             zoneText:"Zone",
             timeText:"Time",
-            selectingMonth: false,
+            selectingMonth: true,
             selectingYear: true,
             shortYearCutoff: 50,
             stepMinutes: 0,
