@@ -689,7 +689,9 @@ _datepicker = function(elementId, some, options){
                         month,
                         monthInt,
                         year,
-                        i;
+                        i,
+                        tr = createElement("tr"),
+                        minDaysAr;
                     showOrHideElement(timeContainer, false);
                     showOrHideElement(myTab);
                     showOrHideElement(scheduler);
@@ -701,19 +703,26 @@ _datepicker = function(elementId, some, options){
                     year = showingDate.getFullYear();
 
                     counter  = (new Date(year, monthInt, 1)).getDay();
-                    counter = (counter === 0)? 6 : counter - 1;
+                    if (pickerOptions.startWeekOnMonday){
+                        counter = (counter === 0)? 6 : counter - 1;
+                    } else {
+                        //counter = counter - 1;
+                    }
                     lastDate = daysInMonth(showingDate);
                     arrTd = tableBody.querySelectorAll("td");
                     //clear and set days descriptions
                     clearChild(tableHead);
-                    var tr = createElement("tr");                            
-			            for (var i = 0; i < length ; i++) {
-			            		var td = createElement("td", {}, {
-			            			innerHTML: minDayNames[i]
-			            		});
-			            		tr.appendChild(td);
-			            }
-			            tableHead.appendChild(tr);
+                    minDaysAr = (pickerOptions.startWeekOnMonday)? minDayNames.slice(1) : minDayNames;
+                    if (pickerOptions.startWeekOnMonday){
+                        minDaysAr.push(minDayNames[0]);
+                    }
+                    for (var i = 0; i < length ; i++) {
+                            var td = createElement("td", {}, {
+                                innerHTML: minDaysAr[i]
+                            });
+                            tr.appendChild(td);
+                    }
+                    tableHead.appendChild(tr);
                     //set month and year
                     monthContainer.innerHTML = month;
                     yearContainer.innerHTML  = year;
@@ -968,7 +977,7 @@ _datepicker = function(elementId, some, options){
                 self.on("onChangeDate", onChangeDate);
             }
 
-            if ("ontouchstart" in document.documentElement){
+            if ("ontouchstart" in document.documentElement){debugger;
                 a.addEventListener("touchstart", preventDafeult);
                 a.addEventListener("touchend", preventDafeult);
                 a.addEventListener("focus", preventDafeult);
@@ -1083,6 +1092,7 @@ _datepicker = function(elementId, some, options){
             datetimeFormat: "dd/mm/yy HH:MM:ss",
             type: "date",
             hourText:"Hours",
+            startWeekOnMonday: true,
             minutesText:"Minutes",
             secondsText:"Seconds",
             zoneText:"Zone",
