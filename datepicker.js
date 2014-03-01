@@ -253,15 +253,6 @@ _datepicker = function(elementId, some, options){
                 class:"calendar_header",
                 align:"center"
             });
-            tableHead.innerHTML = "<tr>" +
-                                            "<td>Mon</td>" +
-                                            "<td>Tue</td>" +
-                                            "<td>Wed</td>" +
-                                            "<td>Thu</td>" +
-                                            "<td>Fri</td>" +
-                                            "<td>Sat</td>" +
-                                            "<td>Sun</td>" +
-                                        "</tr>";
             calendar.appendChild(tableHead);
 
             //table body
@@ -694,6 +685,7 @@ _datepicker = function(elementId, some, options){
                         counter,
                         days = 1,
                         lastDate,
+                        length = minDayNames.length,                        
                         month,
                         monthInt,
                         year,
@@ -712,6 +704,16 @@ _datepicker = function(elementId, some, options){
                     counter = (counter === 0)? 6 : counter - 1;
                     lastDate = daysInMonth(showingDate);
                     arrTd = tableBody.querySelectorAll("td");
+                    //clear and set days descriptions
+                    clearChild(tableHead);
+                    var tr = createElement("tr");                            
+			            for (var i = 0; i < length ; i++) {
+			            		var td = createElement("td", {}, {
+			            			innerHTML: minDayNames[i]
+			            		});
+			            		tr.appendChild(td);
+			            }
+			            tableHead.appendChild(tr);
                     //set month and year
                     monthContainer.innerHTML = month;
                     yearContainer.innerHTML  = year;
@@ -967,21 +969,23 @@ _datepicker = function(elementId, some, options){
             }
 
             if ("ontouchstart" in document.documentElement){
-                /*a.addEventListener("touchstart", preventDafeult);
+                a.addEventListener("touchstart", preventDafeult);
                 a.addEventListener("touchend", preventDafeult);
-                a.addEventListener("focus", preventDafeult);*/
+                a.addEventListener("focus", preventDafeult);
+            } else {
+            		a[event+"EventListener"]("input", onInput);
+            		a[event+"EventListener"]("change", onChange);
+            		a[event+"EventListener"]("click", onClickAndFocus);
+            		a[event+"EventListener"]("focus", onClickAndFocus);
+            		a[event+"EventListener"]("blur", onBlur);
             };
-            a[event+"EventListener"]("input", onInput);
-            a[event+"EventListener"]("change", onChange);
-            a[event+"EventListener"]("click", onClickAndFocus);
-            a[event+"EventListener"]("focus", onClickAndFocus);
-            a[event+"EventListener"]("blur", onBlur);
         },
         onHidePicker = function(){
             hidePicker();
         },
         onShowPicker = function(){
             var h, m, s;
+            mainContainer.currentInput = inputElement;
             if (!currentDate){
                 clearChild(hour);
                 clearChild(minutes);
@@ -1003,7 +1007,9 @@ _datepicker = function(elementId, some, options){
             if (inputElement.value !== stringDate){
                 inputElement.value = stringDate
             }
-            showType[pickerOptions.type](newDate);
+            if (!mainContainer.currentInput || mainContainer.currentInput === inputElement){
+                showType[pickerOptions.type](newDate);
+            }
         },
         onInput = function(e){
             e.preventDefault();
@@ -1032,7 +1038,6 @@ _datepicker = function(elementId, some, options){
             if(bd.querySelectorAll("input.hasDatePicker").length === 0){
                 bd.removeChild(mainContainer);
             }
-            inputElement.datepicker = null;
             delete inputElement.datepicker
         },
         updateRangeOfTime = function(){
@@ -1040,6 +1045,7 @@ _datepicker = function(elementId, some, options){
             rangeMinutes = getRange(minutesAr, pickerOptions.stepMinutes);
             rangeSeconds = getRange(minutesAr, pickerOptions.stepSeconds);
         },
+        minDayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "St"],
         dayNames = [
             "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
             "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
