@@ -7,7 +7,7 @@ window.onerror = function(message, source, lineno) {
 		    "Line:" + lineno);
 };
 
-_datepicker = function(elementId, some, options){
+_datepicker = function(elementId, options){
 	var self = this,
         bd = document.body,
         monthString = ["January","February","February","April","May","June","July","August","September","October","November","December"],
@@ -1131,8 +1131,11 @@ _datepicker = function(elementId, some, options){
             handlers[i].apply(this, [].slice.call(arguments, 1));
         }
     };
-    extend(true, pickerOptions,options);
+    extend(true, pickerOptions,options || {});
     getElement();
+    if (inputElement.datepicker){
+        return inputElement.datepicker;
+    }
     if (!mainContainer){
         if (document.querySelectorAll(".datepicker_main_container").length < 1){
             createNodes();
@@ -1170,6 +1173,6 @@ _datepicker = function(elementId, some, options){
 
 }
 
-datepicker = function(elementId, some, options){
-    return new _datepicker(elementId, some, options);
+datepicker = function(elementId, options){
+    return new _datepicker(elementId, options);
 }
