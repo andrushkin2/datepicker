@@ -124,7 +124,7 @@ _datepicker = function(elementId, options){
                     switch (entitySelect.entity){
                         case "month":
                             if (isNan){
-                                tempVal = searchInString(val, monthNames);
+                                tempVal = searchInString(val, pickerOptions.shortMonthNames.concat(pickerOptions.monthNames));
                                 if (tempVal !== null){
                                     entitySelect.value = tempVal;
                                 } else {
@@ -326,12 +326,12 @@ _datepicker = function(elementId, options){
                         flags = {
                             d:    d,
                             dd:   pad(d),
-                            ddd:  dayNames[D],
-                            dddd: dayNames[D + 7],
+                            ddd:  pickerOptions.shortDayNames[D],
+                            dddd: pickerOptions.dayNames[D],
                             m:    m + 1,
                             mm:   pad(m + 1),
-                            mmm:  monthNames[m],
-                            mmmm: monthNames[m + 12],
+                            mmm:  pickerOptions.shortMonthNames[m],
+                            mmmm: pickerOptions.monthNames[m],
                             yy:   String(y).slice(2),
                             yyyy: y,
                             h:    H % 12 || 12,
@@ -392,7 +392,7 @@ _datepicker = function(elementId, options){
                                 isNan = isNaN(intValue);
                                 switch (elem){
                                     case "month":
-                                        date.month = (isNan)? searchInString(value, monthNames) : intValue - 1;
+                                        date.month = (isNan)? searchInString(value, pickerOptions.shortMonthNames.concat(pickerOptions.monthNames)) : intValue - 1;
                                         break;
                                     case "year":
                                         if (!isNan){
@@ -481,12 +481,12 @@ _datepicker = function(elementId, options){
                         flags = {
                             d:      flagFunc("date", d1_2),
                             dd:     flagFunc("date", d2),
-                            ddd:    flagFunc("dateStr", getRegexpText(0, 7, dayNames)),
-                            dddd:   flagFunc("dateStr", getRegexpText(7, 14, dayNames)),
+                            ddd:    flagFunc("dateStr", getRegexpText(0, 7, pickerOptions.shortDayNames)),
+                            dddd:   flagFunc("dateStr", getRegexpText(0, 7, pickerOptions.dayNames)),
                             m:      flagFunc("month", d1_2),
                             mm:     flagFunc("month", d2),
-                            mmm:    flagFunc("month", getRegexpText(0, 12, monthNames)),
-                            mmmm:   flagFunc("month", getRegexpText(12, 24, monthNames)),
+                            mmm:    flagFunc("month", getRegexpText(0, 12, pickerOptions.shortMonthNames)),
+                            mmmm:   flagFunc("month", getRegexpText(0, 12, pickerOptions.monthNames)),
                             yy:     flagFunc("yearShort", d2),
                             yyyy:   flagFunc("year", "(\\d{3,4})"),
                             h:      flagFunc("hours", d1_2),
@@ -568,6 +568,70 @@ _datepicker = function(elementId, options){
             while(ch = element.firstChild){
                 element.removeChild(ch);
             }
+        },
+        getRangeYear = function(range){
+            var res = [], i,
+                lenght,
+                c = 2000,
+                rAr;
+            if (isArray(range)){
+                lenght = range.length;
+                for (i = 0; i < lenght; i++){
+                    res.push(range[i].toString());
+                }
+            } else {
+                if (/c/.test(range)){
+                    range = range.replace(/c/gim, "");
+                    rAr = range.split(":");
+                    for ( i = 0; i < 2; i++){
+                        if (/-/.test(rAr[i])){
+                            rAr[i] = parseInt(rAr[i].replace("-",""));
+                            rAr[i] = c - rAr[i];
+                        } else {
+                            rAr[i] = parseInt(rAr[i].replace("+",""));
+                            rAr[i] = c + rAr[i];
+                        }
+                    }
+                } else {
+                    rAr = range.split(":");
+                    for ( i = 0; i < 2; i++){
+                        rAr[i] = parseInt(rAr[i]);
+                    }
+                }
+                if (rAr[0] > rAr[1]){
+                    var t = rAr[0];
+                    rAr[0] = rAr[1];
+                    rAr[1] = t;
+                }
+                for( i = rAr[0]; i <= rAr[1]; i++){
+                    res.push(i.toString());
+                }
+            }
+            if (!res.length){
+                throw new Error("Unknown range of year!\r\nCheck your datepicker options");
+            }
+            return res;
+        },
+        getRangeMonth = function(range){
+            var res = [], i, length, k = 1;
+            if (isArray(range)){
+                length = range.length;
+                for (i = 0; i < length; i++){
+                    res.push(pickerOptions.monthNames[range[i] - 1]);
+                }
+            } else if (!isNaN(parseInt(range))){
+                length = pickerOptions.monthNames.length;
+                if (range > 1){
+                    k = parseInt(range);
+                }
+                for (i=0; i< length; i+=k){
+                    res.push(pickerOptions.monthNames[i]);
+                }
+            }
+            if (!res.length){
+                throw new Error("Unknown range of year!\r\nCheck your datepicker options");
+            }
+            return res;
         },
         getRange = function(range, step){
             var k = 1, res = [], i;
@@ -685,7 +749,7 @@ _datepicker = function(elementId, options){
                         counter,
                         days = 1,
                         lastDate,
-                        length = minDayNames.length,                        
+                        length = pickerOptions.minDayNames.length,
                         month,
                         monthInt,
                         year,
@@ -698,7 +762,7 @@ _datepicker = function(elementId, options){
                     if (!showingDate){
                         showingDate = (!current)? today : current;
                     }
-                    month = monthNames[12+showingDate.getMonth()];
+                    month = pickerOptions.monthNames[showingDate.getMonth()];
                     monthInt = showingDate.getMonth();
                     year = showingDate.getFullYear();
 
@@ -712,9 +776,9 @@ _datepicker = function(elementId, options){
                     arrTd = tableBody.querySelectorAll("td");
                     //clear and set days descriptions
                     clearChild(tableHead);
-                    minDaysAr = (pickerOptions.startWeekOnMonday)? minDayNames.slice(1) : minDayNames;
+                    minDaysAr = (pickerOptions.startWeekOnMonday)? pickerOptions.minDayNames.slice(1) : pickerOptions.minDayNames;
                     if (pickerOptions.startWeekOnMonday){
-                        minDaysAr.push(minDayNames[0]);
+                        minDaysAr.push(pickerOptions.minDayNames[0]);
                     }
                     for (var i = 0; i < length ; i++) {
                             var td = createElement("td", {}, {
@@ -728,14 +792,14 @@ _datepicker = function(elementId, options){
                     yearContainer.innerHTML  = year;
                     //attache entity selector if need it
                     if (!!pickerOptions.selectingMonth){
-                        monthContainer.onclick = funcForSelect(monthContainer, "month", month, monthNames.slice(12));
+                        monthContainer.onclick = funcForSelect(monthContainer, "month", month, rangeMonths);
                         addClass(monthContainer, "hover");
                     } else {
                         monthContainer.onclick = NOOP;
                         removeClass(monthContainer, "hover");
                     }
                     if (!!pickerOptions.selectingYear){
-                        yearContainer.onclick = funcForSelect(yearContainer, "year", year.toString(), [2000, 2005,2013,2014,2015,2016,2017,2018,2019,2020]);
+                        yearContainer.onclick = funcForSelect(yearContainer, "year", year.toString(), rangeYears);
                         addClass(yearContainer, "hover");
                     } else {
                         yearContainer.onclick = NOOP;
@@ -984,7 +1048,7 @@ _datepicker = function(elementId, options){
                 self.on("onChangeDate", onChangeDate);
             }
 
-            if ("ontouchstart" in document.documentElement){debugger;
+            if ("ontouchstart" in document.documentElement){
                 a.addEventListener("touchstart", preventDafeult);
                 a.addEventListener("touchend", preventDafeult);
                 a.addEventListener("focus", preventDafeult);
@@ -1057,19 +1121,12 @@ _datepicker = function(elementId, options){
             delete inputElement.datepicker
         },
         updateRangeOfTime = function(){
+            rangeMonths = getRangeMonth(pickerOptions.rangeMonths);
+            rangeYears = getRangeYear(pickerOptions.rangeYears);
             rangeHours = getRange(hoursAr, pickerOptions.stepHours);
             rangeMinutes = getRange(minutesAr, pickerOptions.stepMinutes);
             rangeSeconds = getRange(minutesAr, pickerOptions.stepSeconds);
         },
-        minDayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "St"],
-        dayNames = [
-            "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
-            "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
-        ],
-        monthNames = [
-            "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-            "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
-        ],
         getMinutes = function(){
             var res = [], text;
             for (var i=0; i<60; i++){
@@ -1089,6 +1146,8 @@ _datepicker = function(elementId, options){
         rangeHours,
         rangeMinutes,
         rangeSeconds,
+        rangeMonths,
+        rangeYears,
         currentDate = null,
         hoursAr = getHours(),
         minutesAr = getMinutes(),
@@ -1099,12 +1158,19 @@ _datepicker = function(elementId, options){
             datetimeFormat: "dd/mm/yy HH:MM:ss",
             type: "date",
             on: {},
+            rangeMonths: 0,
+            rangeYears:"c-50:c+50",
             hourText:"Hours",
             startWeekOnMonday: true,
             minutesText:"Minutes",
             secondsText:"Seconds",
             zoneText:"Zone",
             timeText:"Time",
+            minDayNames: ["Su", "Mo", "Tu", "We", "Th", "Fr", "St"],
+            shortDayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            shortMonthNames: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
             selectingMonth: true,
             selectingYear: true,
             shortYearCutoff: 50,
@@ -1139,7 +1205,7 @@ _datepicker = function(elementId, options){
             handlers[i].apply(this, [].slice.call(arguments, 1));
         }
     };
-    extend(true, pickerOptions,options || {});
+    extend(false, pickerOptions,options || {});
     getElement();
     if (inputElement.datepicker){
         return inputElement.datepicker;
