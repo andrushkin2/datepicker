@@ -755,7 +755,9 @@ _datepicker = function(elementId, options){
                         year,
                         i,
                         tr = createElement("tr"),
-                        minDaysAr;
+                        minDaysAr,
+                        prevDate,
+                        nextDate;
                     showOrHideElement(timeContainer, false);
                     showOrHideElement(myTab);
                     showOrHideElement(scheduler);
@@ -806,15 +808,18 @@ _datepicker = function(elementId, options){
                         removeClass(yearContainer, "hover");
                     }
                     //set buttons title
-                    leftButton.title = (monthInt === 0)? monthString[11]+" "+(year-1) : monthString[monthInt-1]+" "+year;
+                    prevDate = checkNewDate(new Date(((monthInt === 0)? year-1:year), ((monthInt === 0)? 11 : monthInt-1), 1, showingDate.getHours(), showingDate.getMinutes(), showingDate.getSeconds()), true);
+                    leftButton.title = pickerOptions.monthNames[prevDate.getMonth()]+ " "+ prevDate.getFullYear();
                     leftButton["data-day"] = rightButton["data-day"] = 1;
-                    leftButton["data-month"] = (monthInt === 0)? 11 : monthInt-1;
-                    leftButton["data-year"] = (monthInt === 0)? year-1 : year;
+                    leftButton["data-month"] = prevDate.getMonth();
+                    leftButton["data-year"] = prevDate.getFullYear();
                     leftButton.onclick = onButtonClick;
                     rightButton.onclick = onButtonClick;
-                    rightButton.title = (monthInt === 11)? monthString[0]+" "+(year+1) : monthString[monthInt+1]+" "+year;
-                    rightButton["data-month"] = (monthInt === 11)? 0 : monthInt+1;
-                    rightButton["data-year"] = (monthInt === 11)? year+1 : year;
+                    nextDate = checkNewDate(new Date(((monthInt === 11)? year+1:year), ((monthInt === 11)? 0 : monthInt+1), 1, showingDate.getHours(), showingDate.getMinutes(), showingDate.getSeconds()), false);
+                    debugger;
+                    rightButton.title = pickerOptions.monthNames[nextDate.getMonth()]+ " "+ nextDate.getFullYear();
+                    rightButton["data-month"] = nextDate.getMonth();
+                    rightButton["data-year"] = nextDate.getFullYear();
                     //set calendar
                     for (i=0; i<arrTd.length; i++){
                         var td = arrTd[i];
@@ -907,10 +912,124 @@ _datepicker = function(elementId, options){
                 }
             }
         })(),
+        checkNewDate = function(date, prev){
+            var dateNum = date.getDate(),
+                monthNum = date.getMonth(),
+                monthString = pickerOptions.monthNames[monthNum],
+                monthIncorrect = false,
+                monthNumAr = (function(){
+                    var res = [],
+                        length = rangeMonths.length, i;
+                    for (i=0; i<length; i++){
+                        res.push(searchInString(rangeMonths[i],pickerOptions.monthNames));
+                    }
+                    return res;
+                })(),
+                yearNum = date.getFullYear(),
+                yearString = yearNum.toString(),
+                yearIncorrect = false,
+                hour = (date.getHours() < 10)? "0"+date.getHours().toString() : date.getHours().toString(),
+                minutes = (date.getMinutes() < 10)? "0"+date.getMinutes().toString() : date.getMinutes().toString(),
+                second = (date.getSeconds() < 10)? "0"+date.getSeconds().toString() : date.getSeconds().toString(),
+                flag = false,
+                minMaxValue = function(ar, value){
+                    var length = ar.length, i, maxIndex
+                        res = {};
+                    if (value <= ar[0]){
+                        return {
+                            min:ar[0],
+                            max:ar[1]
+                        }
+                    }
+                    if (value >= ar[length-1]){
+                        return {
+                            min: ar[length-2],
+                            max: ar[length-1]
+                        }
+                    }
+                    for (i = 0; i < length; i++){
+                        if (value < ar[i]){
+                            return {
+                                min:ar[i-1],
+                                max:ar[i]
+                            }
+                            break;
+                        }
+                    }
+                },
+                some = function(value){
+                    return function(val){
+                        return val === value;
+                    }
+                };
+            if (searchInString(monthString, rangeMonths) === null){
+                monthIncorrect = true
+                flag = true;
+            }
+            if (!rangeYears.some(some(yearString))){
+                yearIncorrect = true;
+                flag = true;
+            }
+            if (!rangeHours.some(some(hour))){
+                flag = true;
+                hour = minMaxValue(rangeHours, hour);
+                hour = (typeof prev === undefined || !prev)? hour.max : hour.min;
+            }
+            if (!rangeMinutes.some(some(minutes))){
+                flag = true;
+                minutes = minMaxValue(rangeMinutes, minutes);
+                minutes = (typeof prev === "undefined" || !prev)? minutes.max : minutes.min;
+            }
+            if (!rangeSeconds.some(some(second))){
+                flag = true;
+                second = minMaxValue(rangeSeconds, second);
+                second = (typeof prev === "undefined" || !prev)? second.max : second.min;
+            }
+
+            if (typeof prev === "undefined" || !prev){
+                if ((monthIncorrect && yearIncorrect) || (!monthIncorrect && yearIncorrect)){
+                    monthNum = monthNumAr[0];
+                    yearNum = minMaxValue(rangeYears, yearNum).max;
+                    return new Date(yearNum, monthNum, dateNum, hour, minutes, second);
+                }
+                if (monthIncorrect && !yearIncorrect){
+                    monthNum = minMaxValue(monthNumAr, monthNum).max;
+                    /*if (monthNum === monthNumAr[monthNumAr.length-1]){
+                        monthNum = monthNumAr[0];
+                        yearNum = yearNum + 1;
+                        return new Date(yearNum, monthNum, dateNum, hour, minutes, second);
+                    }*/
+                }
+            } else {
+                if ((monthIncorrect && yearIncorrect) || (!monthIncorrect && yearIncorrect)){
+                    monthNum = monthNumAr[monthNumAr.length-1];
+                    yearNum = minMaxValue(rangeYears, yearNum).min;
+                    return new Date(yearNum, monthNum, dateNum, hour, minutes, second);
+                }
+                if (monthIncorrect && !yearIncorrect){
+                    monthNum = minMaxValue(monthNumAr, monthNum).min;
+                    /*if (monthNum === monthNumAr[monthNumAr.length-1]){
+                        monthNum = monthNumAr[0];
+                        yearNum = yearNum + 1;
+                        return new Date(yearNum, monthNum, dateNum, hour, minutes, second);
+                    }*/
+                }
+            }
+            return new Date(yearNum, monthNum, dateNum, hour, minutes, second);
+        },
         setNewDate = function(newDate, callback){
-            var d = (typeof newDate === "object")? newDate : (new Date(newDate));
+            var d = (typeof newDate === "object")? newDate : (new Date(newDate)),
+                correctDate;
             if (typeof d === "object" && !isNaN(d)){
-                self.trigger("onChangeDate", currentDate, d);
+                correctDate = checkNewDate(d);
+                if (correctDate.getTime() !== d.getTime()){debugger;
+                    if (pickerOptions.autoCorrectDate){
+                        self.trigger("onChangeDate", currentDate, correctDate);
+                    }
+                } else {
+                    self.trigger("onChangeDate", currentDate, correctDate);
+                }
+
                 callback && callback();
             } else {
                 //todo: throw error "Incorrect date"
@@ -1064,7 +1183,7 @@ _datepicker = function(elementId, options){
             hidePicker();
         },
         onShowPicker = function(){
-            var h, m, s;
+            var h, m, s, date;
             mainContainer.currentInput = inputElement;
             if (!currentDate){
                 clearChild(hour);
@@ -1074,7 +1193,8 @@ _datepicker = function(elementId, options){
                 h = (hour.value === "")? 0 : rangeHours[0];
                 m = (minutes.value === "")? 0 : rangeMinutes[0];
                 s = (seconds.value === "")? 0 : rangeSeconds[0];
-                setNewDate(new Date(todayDate.getFullYear(), todayDate.getMonth(),todayDate.getDate(), h, m, s));
+                date = new Date(todayDate.getFullYear(), todayDate.getMonth(),todayDate.getDate(), h, m, s);
+                setNewDate(checkNewDate(date));
             } else {
                 showType[pickerOptions.type]()
             }
@@ -1171,6 +1291,7 @@ _datepicker = function(elementId, options){
             dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
             shortMonthNames: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
             monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+            autoCorrectDate: true,
             selectingMonth: true,
             selectingYear: true,
             shortYearCutoff: 50,
