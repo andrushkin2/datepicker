@@ -964,14 +964,21 @@ _datepicker = function(elementId, options){
         },
         addEventsForInput = function(isAddEvents){
             var a = inputElement,
+                optionEvent,
                 event = (!isAddEvents)? "remove" : "add";
             if (!isAddEvents){
                 removeClass(inputElement,"hasDatePicker");
+                for (optionEvent in pickerOptions.on){
+                    self.off(optionEvent, pickerOptions.on[optionEvent]);
+                }
                 self.off("onHidePicker", onHidePicker);
                 self.off("onShowPicker", onShowPicker);
                 self.off("onChangeDate", onChangeDate);
             } else {
                 addClass(inputElement,"hasDatePicker");
+                for (optionEvent in pickerOptions.on){
+                    self.on(optionEvent, pickerOptions.on[optionEvent]);
+                }
                 self.on("onHidePicker", onHidePicker);
                 self.on("onShowPicker", onShowPicker);
                 self.on("onChangeDate", onChangeDate);
@@ -1091,6 +1098,7 @@ _datepicker = function(elementId, options){
             timeFormat: "HH:MM:ss",
             datetimeFormat: "dd/mm/yy HH:MM:ss",
             type: "date",
+            on: {},
             hourText:"Hours",
             startWeekOnMonday: true,
             minutesText:"Minutes",
