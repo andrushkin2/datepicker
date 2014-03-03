@@ -1381,6 +1381,7 @@ _datepicker = function(elementId, options){
     updateRangeOfTime();
     if (isMobile){
         alert(navigator.userAgent);
+        
     }
     return inputElement.datepicker = {
         attachEvent: function(event, handler){
