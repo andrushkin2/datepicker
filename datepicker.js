@@ -1262,6 +1262,45 @@ _datepicker = function(elementId, options){
             }
             return res;
         },
+        getOprions = function(options){
+            var res = {},
+                a,
+                type = typeof options;
+            if (type === "undefined"){
+                return pickerOptions;
+            }
+            if (type === "string"){
+                if (options in pickerOptions){
+                    return pickerOptions[options];
+                } else {
+                    return undefined;
+                }
+            }
+            if (type === "object"){
+                for (a in options){
+                    if (options[a] in pickerOptions){
+                        res[options[a]] = pickerOptions[options[a]];
+                    } else {
+                        res[options[a]] = undefined;
+                    }
+                }
+            }
+            return res;
+        },
+        setOptions = function(options){
+            var type = typeof options;
+            if (type === "undefined"){
+                return;
+            } else if (type === "object"){
+                addEventsForInput(false);
+                extend(false, pickerOptions, options);
+                addEventsForInput(true);
+                updateRangeOfTime();
+                setNewDate(currentDate);
+            } else {
+                return;
+            }
+        },
         rangeHours,
         rangeMinutes,
         rangeSeconds,
@@ -1358,6 +1397,12 @@ _datepicker = function(elementId, options){
         },
         getDate:function(){
             return currentDate;
+        },
+        getOptions: function(options){
+            return getOprions(options);
+        },
+        setOptions: function(options){
+            setOptions(options);
         },
         destroy: function(){
             destoy();
