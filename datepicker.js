@@ -10,7 +10,6 @@ window.onerror = function(message, source, lineno) {
 _datepicker = function(elementId, options){
 	var self = this,
         bd = document.body,
-        monthString = ["January","February","February","April","May","June","July","August","September","October","November","December"],
         inputElement,
         mainContainer,
         myTab,
@@ -586,10 +585,10 @@ _datepicker = function(elementId, options){
                     for ( i = 0; i < 2; i++){
                         if (/-/.test(rAr[i])){
                             rAr[i] = parseInt(rAr[i].replace("-",""));
-                            rAr[i] = c - rAr[i];
+                            rAr[i] = c - (rAr[i] || 0);
                         } else {
                             rAr[i] = parseInt(rAr[i].replace("+",""));
-                            rAr[i] = c + rAr[i];
+                            rAr[i] = c + (rAr[i] || 0);
                         }
                     }
                 } else {
@@ -816,7 +815,6 @@ _datepicker = function(elementId, options){
                     leftButton.onclick = onButtonClick;
                     rightButton.onclick = onButtonClick;
                     nextDate = checkNewDate(new Date(((monthInt === 11)? year+1:year), ((monthInt === 11)? 0 : monthInt+1), 1, showingDate.getHours(), showingDate.getMinutes(), showingDate.getSeconds()), false);
-                    debugger;
                     rightButton.title = pickerOptions.monthNames[nextDate.getMonth()]+ " "+ nextDate.getFullYear();
                     rightButton["data-month"] = nextDate.getMonth();
                     rightButton["data-year"] = nextDate.getFullYear();
@@ -964,24 +962,19 @@ _datepicker = function(elementId, options){
                 };
             if (searchInString(monthString, rangeMonths) === null){
                 monthIncorrect = true
-                flag = true;
             }
             if (!rangeYears.some(some(yearString))){
                 yearIncorrect = true;
-                flag = true;
             }
             if (!rangeHours.some(some(hour))){
-                flag = true;
                 hour = minMaxValue(rangeHours, hour);
                 hour = (typeof prev === undefined || !prev)? hour.max : hour.min;
             }
             if (!rangeMinutes.some(some(minutes))){
-                flag = true;
                 minutes = minMaxValue(rangeMinutes, minutes);
                 minutes = (typeof prev === "undefined" || !prev)? minutes.max : minutes.min;
             }
             if (!rangeSeconds.some(some(second))){
-                flag = true;
                 second = minMaxValue(rangeSeconds, second);
                 second = (typeof prev === "undefined" || !prev)? second.max : second.min;
             }
@@ -990,28 +983,34 @@ _datepicker = function(elementId, options){
                 if ((monthIncorrect && yearIncorrect) || (!monthIncorrect && yearIncorrect)){
                     monthNum = monthNumAr[0];
                     yearNum = minMaxValue(rangeYears, yearNum).max;
+                    if ((!monthIncorrect && yearIncorrect) && yearNum == rangeYears[rangeYears.length-1]){
+                        monthNum = monthNumAr[monthNumAr.length-1];
+                    }
                     return new Date(yearNum, monthNum, dateNum, hour, minutes, second);
                 }
                 if (monthIncorrect && !yearIncorrect){
                     monthNum = minMaxValue(monthNumAr, monthNum).max;
-                    /*if (monthNum === monthNumAr[monthNumAr.length-1]){
-                        monthNum = monthNumAr[0];
-                        yearNum = yearNum + 1;
-                        return new Date(yearNum, monthNum, dateNum, hour, minutes, second);
+                    /*if (monthNum.min === monthNum.max && yearNum == rangeYears[rangeYears.length-1]){
+                        monthNum = monthNumAr[monthNumAr.length-1];
+                    } else {
+                        monthNum = monthNum.max;
                     }*/
                 }
             } else {
                 if ((monthIncorrect && yearIncorrect) || (!monthIncorrect && yearIncorrect)){
                     monthNum = monthNumAr[monthNumAr.length-1];
                     yearNum = minMaxValue(rangeYears, yearNum).min;
+                    if ((!monthIncorrect && yearIncorrect) && yearNum == rangeYears[0]){
+                        monthNum = monthNumAr[0];
+                    }
                     return new Date(yearNum, monthNum, dateNum, hour, minutes, second);
                 }
                 if (monthIncorrect && !yearIncorrect){
                     monthNum = minMaxValue(monthNumAr, monthNum).min;
-                    /*if (monthNum === monthNumAr[monthNumAr.length-1]){
+                    /*if (monthNum.min === monthNum.max && yearNum == rangeYears[0]){
                         monthNum = monthNumAr[0];
-                        yearNum = yearNum + 1;
-                        return new Date(yearNum, monthNum, dateNum, hour, minutes, second);
+                    } else {
+                        monthNum = monthNum.min;
                     }*/
                 }
             }
@@ -1022,7 +1021,7 @@ _datepicker = function(elementId, options){
                 correctDate;
             if (typeof d === "object" && !isNaN(d)){
                 correctDate = checkNewDate(d);
-                if (correctDate.getTime() !== d.getTime()){debugger;
+                if (correctDate.getTime() !== d.getTime()){
                     if (pickerOptions.autoCorrectDate){
                         self.trigger("onChangeDate", currentDate, correctDate);
                     }
@@ -1339,6 +1338,7 @@ _datepicker = function(elementId, options){
         }
     }
     addEventsForInput(true);
+    updateRangeOfTime();
 
     return inputElement.datepicker = {
         attachEvent: function(event, handler){
