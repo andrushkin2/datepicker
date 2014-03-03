@@ -1301,6 +1301,7 @@ _datepicker = function(elementId, options){
                 return;
             }
         },
+        isMobile =  /Android|AppleWebKit|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/gim.test(navigator.userAgent.toLowerCase()),
         rangeHours,
         rangeMinutes,
         rangeSeconds,
@@ -1378,7 +1379,9 @@ _datepicker = function(elementId, options){
     }
     addEventsForInput(true);
     updateRangeOfTime();
-
+    if (isMobile){
+        alert(navigator.userAgent);
+    }
     return inputElement.datepicker = {
         attachEvent: function(event, handler){
             self.on(event,handler);
