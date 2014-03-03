@@ -77,32 +77,45 @@ _datepicker = function(elementId, options){
             myTab = createElement("div", {class:"month_year_tab"});
             mainContainer.appendChild(myTab);
 
-            //left button
-            leftButton = createElement("button", {class:"month_year_tab_button l_button"});
-            leftButton.innerHTML = "<";
-            myTab.appendChild(leftButton);
-
-            //right button
-            rightButton = createElement("button", {class:"month_year_tab_button r_button"});
-            rightButton.innerHTML = ">";
-            myTab.appendChild(rightButton);
-
             //central pane
             centralPane = document.createElement("div");
             centralPane.className = "central_pane";
             myTab.appendChild(centralPane);
 
-            //sub pane
-            subCentralPane = createElement("div", {class:"central_pane_sub"});
-            centralPane.appendChild(subCentralPane);
+            if (!isMobileVersion){
+                //sub pane
+                subCentralPane = createElement("div", {class:"central_pane_sub"});
+                centralPane.appendChild(subCentralPane);
 
-            //month container
-            monthContainer = createElement("div", {class:"central_pane_month"});
-            subCentralPane.appendChild(monthContainer);
+                //left button
+                leftButton = createElement("button", {class:"month_year_tab_button l_button"});
+                leftButton.innerHTML = "<";
+                myTab.appendChild(leftButton);
 
-            //year container
-            yearContainer = createElement("div", {class:"central_pane_year"});
-            subCentralPane.appendChild(yearContainer);
+                //right button
+                rightButton = createElement("button", {class:"month_year_tab_button r_button"});
+                rightButton.innerHTML = ">";
+                myTab.appendChild(rightButton);
+
+                //month container
+                monthContainer = createElement("div", {class:"central_pane_month"});
+                subCentralPane.appendChild(monthContainer);
+
+                //year container
+                yearContainer = createElement("div", {class:"central_pane_year"});
+                subCentralPane.appendChild(yearContainer);
+            } else {
+                //left button
+                leftButton = createElement("button", {class:"set_date_button"});
+                leftButton.innerHTML = pickerOptions.setDateText;
+                myTab.appendChild(leftButton);
+
+                //right button
+                rightButton = createElement("button", {class:"set_date_button"});
+                leftButton.innerHTML = pickerOptions.setTimeText;
+                myTab.appendChild(rightButton);
+            }
+
         },
         createElementsForSelect= function(entitiesAr){
             if (!entitySelect){
@@ -1302,6 +1315,9 @@ _datepicker = function(elementId, options){
             }
         },
         isMobile =  /Android|AppleWebKit|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/gim.test(navigator.userAgent.toLowerCase()),
+        isSupportTouchEvents = ("ontouchstart" in document.documentElement),
+        isSupportMSPointer = (!!window.navigator.msPointerEnabled),
+        isMobileVersion = (isMobile && (isSupportMSPointer || isSupportTouchEvents)),
         rangeHours,
         rangeMinutes,
         rangeSeconds,
@@ -1325,6 +1341,8 @@ _datepicker = function(elementId, options){
             secondsText:"Seconds",
             zoneText:"Zone",
             timeText:"Time",
+            setDateText: "Set date",
+            setTimeText: "Set time",
             minDayNames: ["Su", "Mo", "Tu", "We", "Th", "Fr", "St"],
             shortDayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
             dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
@@ -1379,9 +1397,9 @@ _datepicker = function(elementId, options){
     }
     addEventsForInput(true);
     updateRangeOfTime();
-    if (isMobile){
+    if (isMobileVersion){
         alert(navigator.userAgent);
-        
+
     }
     return inputElement.datepicker = {
         attachEvent: function(event, handler){
