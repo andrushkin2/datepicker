@@ -1237,7 +1237,8 @@ _datepicker = function(elementId, options){
             if(bd.querySelectorAll("input.hasDatePicker").length === 0){
                 bd.removeChild(mainContainer);
             }
-            delete inputElement.datepicker
+            delete inputElement.datepicker;
+            isDestroied = true;
         },
         updateRangeOfTime = function(){
             rangeMonths = getRangeMonth(pickerOptions.rangeMonths);
@@ -1301,6 +1302,7 @@ _datepicker = function(elementId, options){
                 return;
             }
         },
+        isDestroied = false,
         rangeHours,
         rangeMinutes,
         rangeSeconds,
@@ -1381,33 +1383,66 @@ _datepicker = function(elementId, options){
 
     return inputElement.datepicker = {
         attachEvent: function(event, handler){
-            self.on(event,handler);
+            if (!isDestroied) {
+                self.on(event,handler);
+            } else {
+                return undefined;
+            }
         },
         detachEvent: function(event, handler){
-            self.off(event, handler);
+            if (!isDestroied){
+                self.off(event, handler);
+            } else {
+                return undefined;
+            }
         },
         hide:function () {
-            self.trigger("onHidePicker");
+            if (!isDestroied){
+                self.trigger("onHidePicker");
+            } else {
+                return undefined;
+            }
         },
         show:function() {
-            self.trigger("onShowPicker");
+            if (!isDestroied){
+                self.trigger("onShowPicker");
+            } else {
+                return undefined;
+            }
         },
         setDate:function(newDate){
-            setNewDate(newDate);
+            if (!isDestroied){
+                setNewDate(newDate);
+            } else {
+                return undefined;
+            }
         },
         getDate:function(){
-            return currentDate;
+            if (!isDestroied){
+                return currentDate;
+            } else {
+                return undefined;
+            }
         },
         getOptions: function(options){
-            return getOprions(options);
+            if (!isDestroied){
+                return getOprions(options);
+            } else {
+                return undefined;
+            }
         },
         setOptions: function(options){
-            setOptions(options);
+            if (!isDestroied){
+                setOptions(options);
+            } else {
+                return undefined;
+            }
         },
         destroy: function(){
-            destoy();
-            // todo: Add method for remove container listeners
-            delete this;
+            if (!isDestroied){
+                destoy();
+            }
+            return isDestroied;
         }
     }
 
