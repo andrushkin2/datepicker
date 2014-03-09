@@ -88,7 +88,7 @@ _datepicker = function(elementId, options){
             myTab.appendChild(rightButton);
 
             //central pane
-            centralPane = document.createElement("div", {class: "central_pane"});
+            centralPane = createElement("div", {class: "central_pane"});
             myTab.appendChild(centralPane);
 
             //sub pane
