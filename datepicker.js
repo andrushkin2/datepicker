@@ -106,60 +106,88 @@ _datepicker = function(elementId, options){
                 subCentralPane.appendChild(yearContainer);
             } else {
                 //left button
-                leftButton = createElement("button", {class:"set_date_button left"});
-                leftButton.innerHTML = pickerOptions.setDateText;
+                leftButton = createElement("button",
+                    {class:"set_date_button left"},
+                    {innerHTML:pickerOptions.setDateText}
+                );
                 myTab.appendChild(leftButton);
 
                 //right button
-                rightButton = createElement("button", {class:"set_date_button right"});
-                rightButton.innerHTML = pickerOptions.setTimeText;
+                rightButton = createElement("button",
+                    {class:"set_date_button right"},
+                    {innerHTML:pickerOptions.setTimeText}
+                );
                 myTab.appendChild(rightButton);
             }
 
         },
-        createElementsForSelect= function(entitiesAr){
-            if (!entitySelect){
+        createMobileElement = function(node){
+            var topButton = createElement("button",{
+                    class: "top"
+                }, {innerHTML:"+"}),
+                bottomButton = createElement("button",{
+                    class: "bottom"
+                }, {innerHTML:"-"}),
+                selectEntity = createElement("div",{
+                    class: "entity_select mobile shown"
+                }),
+                div = createElement("div", {
+                        class: "mobile_entity"
+                    },
+                    {
+                        topButton: topButton,
+                        selectEntity: selectEntity,
+                        bottomButton: bottomButton
+                    });
+            div.appendChild(topButton);
+            div.appendChild(selectEntity);
+            div.appendChild(bottomButton);
+            return div;
+        },
+        createElementsForSelect= function(entitiesAr,entity){
+            entity = entity || entitySelect;
+            if (!entity){
                 return;
             }
-            clearChild(entitySelect);
+            clearChild(entity);
             var length = entitiesAr.length,
-                selectValue = entitySelect.value,
+                selectValue = entity.value,
                 onclick = function(){
                     var val = this.value,
                         tempVal,
                         int = parseInt(val),
                         isNan = isNaN(int),
                         newDate;
-                    if (val === entitySelect.value){
+                    if (val === entity.value){
                         return;
                     }
-                    switch (entitySelect.entity){
+                    switch (entity.entity){
                         case "month":
                             if (isNan){
                                 tempVal = searchInString(val, pickerOptions.shortMonthNames.concat(pickerOptions.monthNames));
                                 if (tempVal !== null){
-                                    entitySelect.value = tempVal;
+                                    entity.value = tempVal;
                                 } else {
                                     return;
                                 }
                             } else {
-                                entitySelect.value  = int;
+                                entity.value  = int;
                             }
-                            newDate = new Date(currentDate.getFullYear(), entitySelect.value, currentDate.getDate(), hour.value, minutes.value, seconds.value);
+                            newDate = new Date(currentDate.getFullYear(), entity.value, currentDate.getDate(), hour.value, minutes.value, seconds.value);
                             break;
                         case "year":
                             if (!isNan){
-                                entitySelect.value = int;
+                                entity.value = int;
                             } else {
                                 return;
                             }
-                            newDate = new Date(entitySelect.value, currentDate.getMonth(), currentDate.getDate(), hour.value, minutes.value, seconds.value);
+                            newDate = new Date(entity.value, currentDate.getMonth(), currentDate.getDate(), hour.value, minutes.value, seconds.value);
                             break;
                         default:
                             return;
                             break;
                     }
-                    showOrHideElement(entitySelect, false);
+                    showOrHideElement(entity, false);
                     if (!isNaN(newDate)){
                         setNewDate(newDate);
                     }
@@ -180,7 +208,7 @@ _datepicker = function(elementId, options){
                         onclick: onclick
                     })
                 child.appendChild(createElement("span",{},{ innerHTML:value}));
-                entitySelect.appendChild(child);
+                entity.appendChild(child);
                 if (isSelected){
                     res = child;
                 }
@@ -188,7 +216,7 @@ _datepicker = function(elementId, options){
             return res;
         },
         createSelect = function(className){
-            if (isMobileVersion){
+            if (!isMobileVersion){
                 entitySelect = createElement("div", {class:"entity_select hidden"});
                 mainContainer.appendChild(entitySelect);
             }
