@@ -87,12 +87,12 @@ _datepicker = function(elementId, options){
 
             //left button
             objects.leftButton = createElement("button", {class:"month_year_tab_button l_button"});
-            objects.leftButton.innerHTML = "<";
+            objects.leftButton.innerHTML = "&lt;";
             objects.myTab.appendChild(objects.leftButton);
 
             //right button
             objects.rightButton = createElement("button", {class:"month_year_tab_button r_button"});
-            objects.rightButton.innerHTML = ">";
+            objects.rightButton.innerHTML = "&gt;";
             objects.myTab.appendChild(objects.rightButton);
 
             //central pane
@@ -265,20 +265,26 @@ _datepicker = function(elementId, options){
             objects.tableBody = createElement("tbody", {
                 class:"calendar_body",
                 align:"center"
-            });
-            objects.tableBody.innerHTML = createTableBody();
+            });debugger;
+            createTableBody(objects.tableBody);
             objects.calendar.appendChild(objects.tableBody);
         },
-        createTableBody = function(){
-            var html = "", i, j;
+        createTableBody = function(body){
+            var i, j, tr, td;
             for ( i = 0; i < 6; i++){
-                html += (i + 1 === 6)? "<tr class=\"datepicker_scheduler_calendar_body_last_row\">" : "<tr>";
+                tr = createElement("tr", {
+                    class:((i + 1 === 6)? "datepicker_scheduler_calendar_body_last_row" : "")
+                });
                 for ( j = 0; j < 7; j++){
-                    html += "<td data-day=\"\" data-month=\"\" data-year=\"\"></td>";
+                    td = createElement("td",{
+                        "data-day":"",
+                        "data-month":"",
+                        "data-year":""
+                    });
+                    tr.appendChild(td);
                 }
-                html += "</tr>";
+                body.appendChild(tr);
             }
-            return html;
         },
         daysInMonth = function(date) {
             return 33 - new Date(date.getFullYear(), date.getMonth(), 33).getDate();
