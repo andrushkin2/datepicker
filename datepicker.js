@@ -54,6 +54,11 @@ _datepicker = function(elementId, options){
                 self.trigger("onHidePicker");
             }
         },
+        resizeEvent = function(e){
+            if (isPickerVisible()){
+                showPicker(objects.mainContainer.inputElemntLast);
+            }
+        },
         getElement = function () {
             if (typeof elementId == "string"){
                 inputElement = bd.querySelector("#"+elementId+"[type=text]")
@@ -696,17 +701,17 @@ _datepicker = function(elementId, options){
                 }
             }
         },
-        addEvents = function(){
-            bd.addEventListener("click", bdEvent);
+        addEvents = function(isAdd){
+            var event = (isAdd)? "add" : "remove";
+            bd[event + "EventListener"]("click", bdEvent);
+            window[event + "EventListener"]("resize", resizeEvent);
         },
         setDate = function(){
             var day = this["data-day"],
                 month = this["data-month"],
                 year = this["data-year"],
                 gmtDate = new Date(year, month, day, objects.hour.value, objects.minutes.value, objects.seconds.value);
-            setNewDate(gmtDate, function(){
-                //addClass(this, "selected_date");
-            })
+            setNewDate(gmtDate);
         },
         showType = (function(){
             return {
@@ -1127,7 +1132,7 @@ debugger;
             createScheduler();
             createTimeContainer();
             createSelect();
-            addEvents();
+            addEvents(true);
         },
         addEventsForInput = function(isAddEvents){
             var a = inputElement,
@@ -1197,6 +1202,7 @@ debugger;
         },
         onInput = function(e){
             e.preventDefault();
+            objects.mainContainer.inputElemntLast = this;
             var value = this.value,
                 date;
             date = dateParser.fromStringFormat(value, pickerOptions[pickerOptions.type+"Format"]);
@@ -1206,9 +1212,11 @@ debugger;
         },
         onChange = function(e){
             var value = this.value;
+            objects.mainContainer.inputElemntLast = this;
             dateParser.fromStringFormat(value, pickerOptions.dateFormat);
         },
         onClickAndFocus = function() {
+            objects.mainContainer.inputElemntLast = this;
             if ( true || !isPickerVisible() ){
                 inputElemntLast = this;
                 self.trigger("onShowPicker");
@@ -1221,6 +1229,7 @@ debugger;
             addEventsForInput(false);
             if(bd.querySelectorAll("input.hasDatePicker").length === 0){
                 bd.removeChild(objects.mainContainer);
+                addEvents(false);
             }
             delete inputElement.datepicker;
             isDestroied = true;
