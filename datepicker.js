@@ -1038,32 +1038,33 @@ _datepicker = function(elementId, options){
             showOrHideElement(mainContainer, false);
         },
         showPicker = function(input) {
+            css(mainContainer, {
+                display: "block"
+            });
             var input = input || inputElement,
                 top,
                 left,
+                bdRect = bd.getBoundingClientRect(),
                 rectContainer = mainContainer.getBoundingClientRect(),
                 inputRect = input.getBoundingClientRect(),
                 offsetParent = mainContainer.offsetParent,
                 isOffsetParentBody = !!offsetParent && offsetParent !== bd,
                 offsetParentRect = (isOffsetParentBody)? offsetParent.getBoundingClientRect() : null;
-
+debugger;
 
             offsetParentRect = {
-                top:(offsetParentRect)? offsetParentRect.top : 0,
-                left:(offsetParentRect)? offsetParentRect.left : 0
+                top: 0 - bd.scrollTop,
+                left: 0 - bd.scrollLeft
             }
-            if (!!isOffsetParentBody){
-                offsetParentRect.top = offsetParentRect.top - offsetParent.scrollTop;
-                offsetParentRect.left = offsetParentRect.left - offsetParent.scrollLeft;
-            }
-            top = inputRect.top - offsetParentRect.top + inputRect.height;
+
+            top = inputRect.bottom - offsetParentRect.top;
             left = inputRect.left - offsetParentRect.left;
-            /*if ( (top + rectContainer.height) > offsetParentRect.height){
+            if ( (top + rectContainer.height) > offsetParentRect.height){
                 top = offsetParentRect.height - 2 - rectContainer.height;
             }
             if ( (left + rectContainer.width) > offsetParentRect.width){
                 left = offsetParentRect.width - 2 - rectContainer.width;
-            }*/
+            }
             css(mainContainer, {
                 top: top + "px",
                 left: left + "px"
