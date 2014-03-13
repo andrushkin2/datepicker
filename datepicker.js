@@ -1037,11 +1037,13 @@ _datepicker = function(elementId, options){
             }
         },
         hidePicker = function() {
-            showOrHideElement(objects.mainContainer, false);
+            css(objects.mainContainer, {
+                display:"none"
+            });
         },
         showPicker = function(input) {
             css(objects.mainContainer, {
-                display: "block"
+                display:"block"
             });
             var input = input || inputElement,
                 top,
@@ -1049,9 +1051,7 @@ _datepicker = function(elementId, options){
                 bdRect = bd.getBoundingClientRect(),
                 rectContainer = objects.mainContainer.getBoundingClientRect(),
                 inputRect = input.getBoundingClientRect(),
-                offsetParent = objects.mainContainer.offsetParent,
-                isOffsetParentBody = !!offsetParent && offsetParent !== bd,
-                offsetParentRect = (isOffsetParentBody)? offsetParent.getBoundingClientRect() : null;
+                offsetParentRect;
 debugger;
 
             offsetParentRect = {
@@ -1061,20 +1061,23 @@ debugger;
 
             top = inputRect.bottom - offsetParentRect.top;
             left = inputRect.left - offsetParentRect.left;
-            if ( (top + rectContainer.height) > offsetParentRect.height){
-                top = offsetParentRect.height - 2 - rectContainer.height;
+            if ( (top + rectContainer.height) > bdRect.height){
+                if (inputRect.top - rectContainer.height >= 0){
+                    top = inputRect.top - rectContainer.height;
+                } else {
+                    top = bdRect.height - 2 - rectContainer.height;
+                }
             }
-            if ( (left + rectContainer.width) > offsetParentRect.width){
-                left = offsetParentRect.width - 2 - rectContainer.width;
+            if ( (left + rectContainer.width) > bdRect.width){
+                left = bdRect.width - 2 - rectContainer.width;
             }
             css(objects.mainContainer, {
                 top: top + "px",
                 left: left + "px"
             });
-            showOrHideElement(objects.mainContainer);
         },
         isPickerVisible = function() {
-            return isClassInElement(objects.mainContainer, "shown");
+            return objects.mainContainer.style.display === "block";
         },
         preventDafeult = function(e){
             //fixed bug with showing keyboard for tablets that don't support date type
