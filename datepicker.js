@@ -11,29 +11,32 @@ _datepicker = function(elementId, options){
 	var self = this,
         bd = document.body,
         inputElement,
-        mainContainer,
-        myTab,
-        leftButton,
-        rightButton,
-        centralPane,
-        subCentralPane,
-        monthContainer,
-        yearContainer,
-        timeContainer,
-        subTimeContainer,
-        timeText,
-        hour,
-        minutes,
-        seconds,
-        tContTable,
-        zones,
-        scheduler,
-        subSchedulerContainer,
-        calendar,
-        tableHead,
-        tableBody,
+        objects = {
+            mainContainer:null,
+            myTab:null,
+            leftButton:null,
+            rightButton:null,
+            centralPane:null,
+            subCentralPane:null,
+            monthContainer:null,
+            yearContainer:null,
+            timeContainer:null,
+            subTimeContainer:null,
+            timeText:null,
+            hour:null,
+            minutes:null,
+            seconds:null,
+            tContTable:null,
+            zones:null,
+            scheduler:null,
+            subSchedulerContainer:null,
+            calendar:null,
+            tableHead:null,
+            tableBody:null,
+            entitySelect:null
+        },
+
         inputElemntLast,
-        entitySelect,
         NOOP = function(){},
         bdEvent = function(e){
             var target = e.target,
@@ -42,7 +45,7 @@ _datepicker = function(elementId, options){
             if (isPickerVisible() && !target.datepicker ){
                 parent = target;
                 while (parent !== bd){
-                    if (parent === mainContainer){
+                    if (parent === objects.mainContainer){
                         return;
                     } else {
                         parent = parent.parentNode;
@@ -68,85 +71,84 @@ _datepicker = function(elementId, options){
             }
         },
         createMainContainer = function(){
-            if (!mainContainer){
-                mainContainer = createElement("div", {class:"datepicker_main_container"});
+            if (!objects.mainContainer){
+                objects.mainContainer = createElement("div", {class:"datepicker_main_container"});
             }
-            bd.appendChild(mainContainer);
+            bd.appendChild(objects.mainContainer);
         },
         createMonthYearTab = function(){
-            myTab = createElement("div", {class:"month_year_tab"});
-            mainContainer.appendChild(myTab);
+            objects.myTab = createElement("div", {class:"month_year_tab"});
+            objects.mainContainer.appendChild(objects.myTab);
 
             //left button
-            leftButton = createElement("button", {class:"month_year_tab_button l_button"});
-            leftButton.innerHTML = "<";
-            myTab.appendChild(leftButton);
+            objects.leftButton = createElement("button", {class:"month_year_tab_button l_button"});
+            objects.leftButton.innerHTML = "<";
+            objects.myTab.appendChild(objects.leftButton);
 
             //right button
-            rightButton = createElement("button", {class:"month_year_tab_button r_button"});
-            rightButton.innerHTML = ">";
-            myTab.appendChild(rightButton);
+            objects.rightButton = createElement("button", {class:"month_year_tab_button r_button"});
+            objects.rightButton.innerHTML = ">";
+            objects.myTab.appendChild(objects.rightButton);
 
             //central pane
-            centralPane = document.createElement("div");
-            centralPane.className = "central_pane";
-            myTab.appendChild(centralPane);
+            objects.centralPane = createElement("div", {class: "central_pane"});
+            objects.myTab.appendChild(objects.centralPane);
 
             //sub pane
-            subCentralPane = createElement("div", {class:"central_pane_sub"});
-            centralPane.appendChild(subCentralPane);
+            objects.subCentralPane = createElement("div", {class:"central_pane_sub"});
+            objects.centralPane.appendChild(objects.subCentralPane);
 
             //month container
-            monthContainer = createElement("div", {class:"central_pane_month"});
-            subCentralPane.appendChild(monthContainer);
+            objects.monthContainer = createElement("div", {class:"central_pane_month"});
+            objects.subCentralPane.appendChild(objects.monthContainer);
 
             //year container
-            yearContainer = createElement("div", {class:"central_pane_year"});
-            subCentralPane.appendChild(yearContainer);
+            objects.yearContainer = createElement("div", {class:"central_pane_year"});
+            objects.subCentralPane.appendChild(objects.yearContainer);
         },
         createElementsForSelect= function(entitiesAr){
-            if (!entitySelect){
+            if (!objects.entitySelect){
                 return;
             }
-            clearChild(entitySelect);
+            clearChild(objects.entitySelect);
             var length = entitiesAr.length,
-                selectValue = entitySelect.value,
+                selectValue = objects.entitySelect.value,
                 onclick = function(){
                     var val = this.value,
                         tempVal,
                         int = parseInt(val),
                         isNan = isNaN(int),
                         newDate;
-                    if (val === entitySelect.value){
+                    if (val === objects.entitySelect.value){
                         return;
                     }
-                    switch (entitySelect.entity){
+                    switch (objects.entitySelect.entity){
                         case "month":
                             if (isNan){
                                 tempVal = searchInString(val, pickerOptions.shortMonthNames.concat(pickerOptions.monthNames));
                                 if (tempVal !== null){
-                                    entitySelect.value = tempVal;
+                                    objects.entitySelect.value = tempVal;
                                 } else {
                                     return;
                                 }
                             } else {
-                                entitySelect.value  = int;
+                                objects.entitySelect.value  = int;
                             }
-                            newDate = new Date(currentDate.getFullYear(), entitySelect.value, currentDate.getDate(), hour.value, minutes.value, seconds.value);
+                            newDate = new Date(currentDate.getFullYear(), objects.entitySelect.value, currentDate.getDate(), objects.hour.value, objects.minutes.value, objects.seconds.value);
                             break;
                         case "year":
                             if (!isNan){
-                                entitySelect.value = int;
+                                objects.entitySelect.value = int;
                             } else {
                                 return;
                             }
-                            newDate = new Date(entitySelect.value, currentDate.getMonth(), currentDate.getDate(), hour.value, minutes.value, seconds.value);
+                            newDate = new Date(objects.entitySelect.value, currentDate.getMonth(), currentDate.getDate(), objects.hour.value, objects.minutes.value, objects.seconds.value);
                             break;
                         default:
                             return;
                             break;
                     }
-                    showOrHideElement(entitySelect, false);
+                    showOrHideElement(objects.entitySelect, false);
                     if (!isNaN(newDate)){
                         setNewDate(newDate);
                     }
@@ -167,7 +169,7 @@ _datepicker = function(elementId, options){
                         onclick: onclick
                     })
                 child.appendChild(createElement("span",{},{ innerHTML:value}));
-                entitySelect.appendChild(child);
+                objects.entitySelect.appendChild(child);
                 if (isSelected){
                     res = child;
                 }
@@ -175,28 +177,28 @@ _datepicker = function(elementId, options){
             return res;
         },
         createSelect = function(className){
-            entitySelect = createElement("div", {class:"entity_select hidden"});
-            mainContainer.appendChild(entitySelect);
+            objects.entitySelect = createElement("div", {class:"entity_select hidden"});
+            objects.mainContainer.appendChild(objects.entitySelect);
         },
         createTimeContainer = function(){
             var selectsAr, tr ,td, tdName, i;
-            timeContainer = createElement("div",{class:"time_container"});
-            mainContainer.appendChild(timeContainer);
+            objects.timeContainer = createElement("div",{class:"time_container"});
+            objects.mainContainer.appendChild(objects.timeContainer);
 
             //sub
-            subTimeContainer = createElement("div",{class:"datepicker_time_container_sub"});
-            timeContainer.appendChild(subTimeContainer);
+            objects.subTimeContainer = createElement("div",{class:"datepicker_time_container_sub"});
+            objects.timeContainer.appendChild(objects.subTimeContainer);
 
-            tContTable = createElement("table", {class:"t_cont_table"});
-            subTimeContainer.appendChild(tContTable);
+            objects.tContTable = createElement("table", {class:"t_cont_table"});
+            objects.subTimeContainer.appendChild(objects.tContTable);
             
-            timeText = createElement("span", {class:"t_cont_time_text"});
-            hour = createElement("select", {class:"select datepicker_time_hour"});
-            minutes = createElement("select", {class:"select datepicker_time_minutes"});
-            seconds = createElement("select", {class:"select datepicker_time_seconds"});
-            zones = createElement("select", {class:"select datepicker_time_zones"});
+            objects.timeText = createElement("span", {class:"t_cont_time_text"});
+            objects.hour = createElement("select", {class:"select datepicker_time_hour"});
+            objects.minutes = createElement("select", {class:"select datepicker_time_minutes"});
+            objects.seconds = createElement("select", {class:"select datepicker_time_seconds"});
+            objects.zones = createElement("select", {class:"select datepicker_time_zones"});
 
-            selectsAr = [timeText, hour, minutes, seconds, zones];
+            selectsAr = [objects.timeText, objects.hour, objects.minutes, objects.seconds, objects.zones];
             for (i=0; i<5; i++){
                 tr = createElement("tr", {class:"t_cont_table_row"});
                 switch (i){
@@ -232,35 +234,35 @@ _datepicker = function(elementId, options){
                 }
                 tr.appendChild(tdName);
                 tr.appendChild(td);
-                tContTable.appendChild(tr);
+                objects.tContTable.appendChild(tr);
             }
         },
         createScheduler = function(){
-            scheduler = createElement("div", {class:"scheduler"});
-            mainContainer.appendChild(scheduler);
+            objects.scheduler = createElement("div", {class:"scheduler"});
+            objects.mainContainer.appendChild(objects.scheduler);
 
             //sub container
-            subSchedulerContainer = createElement("div", {class:"scheduler_sub"});
-            scheduler.appendChild(subSchedulerContainer);
+            objects.subSchedulerContainer = createElement("div", {class:"scheduler_sub"});
+            objects.scheduler.appendChild(objects.subSchedulerContainer);
 
             //table
-            calendar = createElement("table", {class:"scheduler_calendar"});
-            subSchedulerContainer.appendChild(calendar);
+            objects.calendar = createElement("table", {class:"scheduler_calendar"});
+            objects.subSchedulerContainer.appendChild(objects.calendar);
 
             //table head
-            tableHead = createElement("thead", {
+            objects.tableHead = createElement("thead", {
                 class:"calendar_header",
                 align:"center"
             });
-            calendar.appendChild(tableHead);
+            objects.calendar.appendChild(objects.tableHead);
 
             //table body
-            tableBody = createElement("tbody", {
+            objects.tableBody = createElement("tbody", {
                 class:"calendar_body",
                 align:"center"
             });
-            tableBody.innerHTML = createTableBody();
-            calendar.appendChild(tableBody);
+            objects.tableBody.innerHTML = createTableBody();
+            objects.calendar.appendChild(objects.tableBody);
         },
         createTableBody = function(){
             var html = "", i, j;
@@ -277,12 +279,12 @@ _datepicker = function(elementId, options){
             return 33 - new Date(date.getFullYear(), date.getMonth(), 33).getDate();
         },
         onButtonClick = function(a, options, c){
-            var date = new Date(this["data-year"], this["data-month"], this["data-day"], hour.value, minutes.value, seconds.value);
+            var date = new Date(this["data-year"], this["data-month"], this["data-day"], objects.hour.value, objects.minutes.value, objects.seconds.value);
             showType[pickerOptions.type](date);
         },
         onChangeSelect = function(e){
             var date = currentDate || todayDate,
-                utcDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(hour.value), parseInt(minutes.value), parseInt(seconds.value));
+                utcDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(objects.hour.value), parseInt(objects.minutes.value), parseInt(objects.seconds.value));
             if (!isNaN(utcDate)){
                 setNewDate(utcDate);
             }
@@ -434,7 +436,7 @@ _datepicker = function(elementId, options){
                             });
                             switch (pickerOptions.type){
                                 case "date":
-                                    date.hours = (date.hours !== null)? date.hours : hour.value;
+                                    date.hours = (date.hours !== null)? date.hours : objects.hour.value;
                                     date.minutes = date.minutes || minutes.value;
                                     date.seconds = date.seconds || seconds.value;
                                     date.milliseconds = date.milliseconds || 0;
@@ -701,7 +703,7 @@ _datepicker = function(elementId, options){
             var day = this["data-day"],
                 month = this["data-month"],
                 year = this["data-year"],
-                gmtDate = new Date(year, month, day, hour.value, minutes.value, seconds.value);
+                gmtDate = new Date(year, month, day, objects.hour.value, objects.minutes.value, objects.seconds.value);
             setNewDate(gmtDate, function(){
                 //addClass(this, "selected_date");
             })
@@ -716,28 +718,28 @@ _datepicker = function(elementId, options){
                             return function(){
                                 var length,
                                     childsHeight,
-                                    heightCont = mainContainer.getBoundingClientRect().height,
+                                    heightCont = objects.mainContainer.getBoundingClientRect().height,
                                     selected;
-                                entitySelect.value = value;
-                                entitySelect.entity = type;
+                                objects.entitySelect.value = value;
+                                objects.entitySelect.entity = type;
                                 selected = createElementsForSelect(array);
-                                length = entitySelect.childElementCount;
-                                showOrHideElement(entitySelect);
-                                childsHeight = entitySelect.firstChild.offsetHeight * length;
-                                css(entitySelect, {
+                                length = objects.entitySelect.childElementCount;
+                                showOrHideElement(objects.entitySelect);
+                                childsHeight = objects.entitySelect.firstChild.offsetHeight * length;
+                                css(objects.entitySelect, {
                                     top: 0 +"px",
                                     left: this.offsetLeft + this.offsetParent.offsetLeft + "px"
                                 });
                                 if (childsHeight > heightCont){
-                                    addClass(entitySelect, "overflow_y");
+                                    addClass(objects.entitySelect, "overflow_y");
                                     if (selected){
                                         selected.scrollIntoView(false);
                                     }
                                 } else {
-                                    removeClass(entitySelect, "overflow_y");
+                                    removeClass(objects.entitySelect, "overflow_y");
                                 }
-                                entitySelect.onmouseenter = function(){
-                                    entitySelect.onmouseleave = function(){
+                                objects.entitySelect.onmouseenter = function(){
+                                    objects.entitySelect.onmouseleave = function(){
                                         showOrHideElement(this, false);
                                     }
                                 }
@@ -757,9 +759,9 @@ _datepicker = function(elementId, options){
                         minDaysAr,
                         prevDate,
                         nextDate;
-                    showOrHideElement(timeContainer, false);
-                    showOrHideElement(myTab);
-                    showOrHideElement(scheduler);
+                    showOrHideElement(objects.timeContainer, false);
+                    showOrHideElement(objects.myTab);
+                    showOrHideElement(objects.scheduler);
                     if (!showingDate){
                         showingDate = (!current)? today : current;
                     }
@@ -774,9 +776,9 @@ _datepicker = function(elementId, options){
                         //counter = counter - 1;
                     }
                     lastDate = daysInMonth(showingDate);
-                    arrTd = tableBody.querySelectorAll("td");
+                    arrTd = objects.tableBody.querySelectorAll("td");
                     //clear and set days descriptions
-                    clearChild(tableHead);
+                    clearChild(objects.tableHead);
                     minDaysAr = (pickerOptions.startWeekOnMonday)? pickerOptions.minDayNames.slice(1) : pickerOptions.minDayNames;
                     if (pickerOptions.startWeekOnMonday){
                         minDaysAr.push(pickerOptions.minDayNames[0]);
@@ -787,37 +789,37 @@ _datepicker = function(elementId, options){
                             });
                             tr.appendChild(td);
                     }
-                    tableHead.appendChild(tr);
+                    objects.tableHead.appendChild(tr);
                     //set month and year
-                    monthContainer.innerHTML = month;
-                    yearContainer.innerHTML  = year;
+                    objects.monthContainer.innerHTML = month;
+                    objects.yearContainer.innerHTML  = year;
                     //attache entity selector if need it
                     if (!!pickerOptions.selectingMonth){
-                        monthContainer.onclick = funcForSelect(monthContainer, "month", month, rangeMonths);
-                        addClass(monthContainer, "hover");
+                        objects.monthContainer.onclick = funcForSelect(objects.monthContainer, "month", month, rangeMonths);
+                        addClass(objects.monthContainer, "hover");
                     } else {
-                        monthContainer.onclick = NOOP;
-                        removeClass(monthContainer, "hover");
+                        objects.monthContainer.onclick = NOOP;
+                        removeClass(objects.monthContainer, "hover");
                     }
                     if (!!pickerOptions.selectingYear){
-                        yearContainer.onclick = funcForSelect(yearContainer, "year", year.toString(), rangeYears);
-                        addClass(yearContainer, "hover");
+                        objects.yearContainer.onclick = funcForSelect(objects.yearContainer, "year", year.toString(), rangeYears);
+                        addClass(objects.yearContainer, "hover");
                     } else {
-                        yearContainer.onclick = NOOP;
-                        removeClass(yearContainer, "hover");
+                        objects.yearContainer.onclick = NOOP;
+                        removeClass(objects.yearContainer, "hover");
                     }
                     //set buttons title
                     prevDate = checkNewDate(new Date(((monthInt === 0)? year-1:year), ((monthInt === 0)? 11 : monthInt-1), 1, showingDate.getHours(), showingDate.getMinutes(), showingDate.getSeconds()), true);
-                    leftButton.title = pickerOptions.monthNames[prevDate.getMonth()]+ " "+ prevDate.getFullYear();
-                    leftButton["data-day"] = rightButton["data-day"] = 1;
-                    leftButton["data-month"] = prevDate.getMonth();
-                    leftButton["data-year"] = prevDate.getFullYear();
-                    leftButton.onclick = onButtonClick;
-                    rightButton.onclick = onButtonClick;
+                    objects.leftButton.title = pickerOptions.monthNames[prevDate.getMonth()]+ " "+ prevDate.getFullYear();
+                    objects.leftButton["data-day"] = objects.rightButton["data-day"] = 1;
+                    objects.leftButton["data-month"] = prevDate.getMonth();
+                    objects.leftButton["data-year"] = prevDate.getFullYear();
+                    objects.leftButton.onclick = onButtonClick;
+                    objects.rightButton.onclick = onButtonClick;
                     nextDate = checkNewDate(new Date(((monthInt === 11)? year+1:year), ((monthInt === 11)? 0 : monthInt+1), 1, showingDate.getHours(), showingDate.getMinutes(), showingDate.getSeconds()), false);
-                    rightButton.title = pickerOptions.monthNames[nextDate.getMonth()]+ " "+ nextDate.getFullYear();
-                    rightButton["data-month"] = nextDate.getMonth();
-                    rightButton["data-year"] = nextDate.getFullYear();
+                    objects.rightButton.title = pickerOptions.monthNames[nextDate.getMonth()]+ " "+ nextDate.getFullYear();
+                    objects.rightButton["data-month"] = nextDate.getMonth();
+                    objects.rightButton["data-year"] = nextDate.getFullYear();
                     //set calendar
                     for (i=0; i<arrTd.length; i++){
                         var td = arrTd[i];
@@ -854,7 +856,7 @@ _datepicker = function(elementId, options){
                             }
                         }
                     }
-                    lastTr = tableBody.querySelector("tr.datepicker_scheduler_calendar_body_last_row");
+                    lastTr = objects.tableBody.querySelector("tr.datepicker_scheduler_calendar_body_last_row");
                     (lastTr.querySelectorAll(".space").length < 7 )? lastTr.style.display = "table-row" : lastTr.style.display = "none";
 
                     return true;
@@ -868,43 +870,43 @@ _datepicker = function(elementId, options){
                         sec,
                         isTime = /\s?(tt|t|TT|T)\s?/.exec(pickerOptions.timeFormat);
 
-                    showOrHideElement(timeContainer);
-                    showOrHideElement(myTab, false);
-                    showOrHideElement(scheduler, false);
-                    showOrHideElement(tContTable.querySelector(".t_cont_table_row.seconds"), pickerOptions.showSeconds);
-                    showOrHideElement(tContTable.querySelector(".t_cont_table_row.zones"), pickerOptions.showZones);
+                    showOrHideElement(objects.timeContainer);
+                    showOrHideElement(objects.myTab, false);
+                    showOrHideElement(objects.scheduler, false);
+                    showOrHideElement(objects.tContTable.querySelector(".t_cont_table_row.seconds"), pickerOptions.showSeconds);
+                    showOrHideElement(objects.tContTable.querySelector(".t_cont_table_row.zones"), pickerOptions.showZones);
                     if (!showingDate){
                         showingDate = (!current)? today : current;
                     }
-                    clearChild(hour);
-                    clearChild(minutes);
-                    clearChild(seconds);
-                    addOptionsToSelect(hour, rangeHours, ((isTime && isTime.length === 2)? isTime[1] : false));
-                    addOptionsToSelect(minutes, rangeMinutes);
-                    addOptionsToSelect(seconds, rangeSeconds);
+                    clearChild(objects.hour);
+                    clearChild(objects.minutes);
+                    clearChild(objects.seconds);
+                    addOptionsToSelect(objects.hour, rangeHours, ((isTime && isTime.length === 2)? isTime[1] : false));
+                    addOptionsToSelect(objects.minutes, rangeMinutes);
+                    addOptionsToSelect(objects.seconds, rangeSeconds);
 
                     if (currentDate){
                         h = (currentDate.getHours()<10)? "0"+currentDate.getHours().toString() : currentDate.getHours().toString();
                         min = (currentDate.getMinutes()<10)? "0"+currentDate.getMinutes().toString() : currentDate.getMinutes().toString();
                         sec = (currentDate.getSeconds()<10)? "0"+currentDate.getSeconds().toString() : currentDate.getSeconds().toString();
-                        timeText.innerHTML = dateParser.toStringFormat(currentDate, pickerOptions.timeFormat);
-                        hour.value = h;
-                        minutes.value = min;
-                        seconds.value = sec;
+                        objects.timeText.innerHTML = dateParser.toStringFormat(currentDate, pickerOptions.timeFormat);
+                        objects.hour.value = h;
+                        objects.minutes.value = min;
+                        objects.seconds.value = sec;
                     }
 
-                    hour.onchange = onChangeSelect;
-                    minutes.onchange = onChangeSelect;
-                    seconds.onchange = onChangeSelect;
+                    objects.hour.onchange = onChangeSelect;
+                    objects.minutes.onchange = onChangeSelect;
+                    objects.seconds.onchange = onChangeSelect;
 
                 	return true;
                 },
                 datetime: function(date){
                     showType.date(date);
                     showType.time();
-                    showOrHideElement(timeContainer);
-                    showOrHideElement(myTab);
-                    showOrHideElement(scheduler);
+                    showOrHideElement(objects.timeContainer);
+                    showOrHideElement(objects.myTab);
+                    showOrHideElement(objects.scheduler);
 
                     return true;
                 }
@@ -1035,19 +1037,19 @@ _datepicker = function(elementId, options){
             }
         },
         hidePicker = function() {
-            showOrHideElement(mainContainer, false);
+            showOrHideElement(objects.mainContainer, false);
         },
         showPicker = function(input) {
-            css(mainContainer, {
+            css(objects.mainContainer, {
                 display: "block"
             });
             var input = input || inputElement,
                 top,
                 left,
                 bdRect = bd.getBoundingClientRect(),
-                rectContainer = mainContainer.getBoundingClientRect(),
+                rectContainer = objects.mainContainer.getBoundingClientRect(),
                 inputRect = input.getBoundingClientRect(),
-                offsetParent = mainContainer.offsetParent,
+                offsetParent = objects.mainContainer.offsetParent,
                 isOffsetParentBody = !!offsetParent && offsetParent !== bd,
                 offsetParentRect = (isOffsetParentBody)? offsetParent.getBoundingClientRect() : null;
 debugger;
@@ -1065,14 +1067,14 @@ debugger;
             if ( (left + rectContainer.width) > offsetParentRect.width){
                 left = offsetParentRect.width - 2 - rectContainer.width;
             }
-            css(mainContainer, {
+            css(objects.mainContainer, {
                 top: top + "px",
                 left: left + "px"
             });
-            showOrHideElement(mainContainer);
+            showOrHideElement(objects.mainContainer);
         },
         isPickerVisible = function() {
-            return isClassInElement(mainContainer, "shown");
+            return isClassInElement(objects.mainContainer, "shown");
         },
         preventDafeult = function(e){
             //fixed bug with showing keyboard for tablets that don't support date type
@@ -1114,28 +1116,7 @@ debugger;
             return res;
         },
         searchNodes = function(){
-            mainContainer = document.querySelector(".datepicker_main_container");
-            myTab = mainContainer.querySelector(".month_year_tab");
-            leftButton = mainContainer.querySelector(".month_year_tab_button.l_button");
-            rightButton = mainContainer.querySelector(".month_year_tab_button.r_button");
-            centralPane = mainContainer.querySelector(".central_pane");
-            subCentralPane = mainContainer.querySelector(".central_pane_sub");
-            monthContainer = mainContainer.querySelector(".central_pane_month");
-            yearContainer = mainContainer.querySelector(".central_pane_year");
-            scheduler = mainContainer.querySelector(".scheduler");
-            subSchedulerContainer = mainContainer.querySelector(".scheduler_sub");
-            calendar = mainContainer.querySelector(".scheduler_calendar");
-            tableHead = mainContainer.querySelector(".calendar_header");
-            tableBody = mainContainer.querySelector(".calendar_body");
-            timeContainer = mainContainer.querySelector(".time_container");
-            subTimeContainer = mainContainer.querySelector(".datepicker_time_container_sub");
-            tContTable = mainContainer.querySelector(".t_cont_table");
-            timeText = mainContainer.querySelector(".t_cont_time_text");
-            zones = mainContainer.querySelector(".datepicker_time_zones");
-            hour = mainContainer.querySelector(".select.datepicker_time_hour");
-            minutes = mainContainer.querySelector(".select.datepicker_time_minutes");
-            seconds = mainContainer.querySelector(".select.datepicker_time_seconds");
-            entitySelect = mainContainer.querySelector(".entity_select");
+            objects = document.querySelector(".datepicker_main_container").objects;
         },
         createNodes = function(){
             createMainContainer();
@@ -1184,15 +1165,15 @@ debugger;
         },
         onShowPicker = function(){
             var h, m, s, date;
-            mainContainer.currentInput = inputElement;
+            objects.mainContainer.currentInput = inputElement;
             if (!currentDate){
-                clearChild(hour);
-                clearChild(minutes);
-                clearChild(seconds);
+                clearChild(objects.hour);
+                clearChild(objects.minutes);
+                clearChild(objects.seconds);
                 updateRangeOfTime();
-                h = (hour.value === "")? 0 : rangeHours[0];
-                m = (minutes.value === "")? 0 : rangeMinutes[0];
-                s = (seconds.value === "")? 0 : rangeSeconds[0];
+                h = (objects.hour.value === "")? 0 : rangeHours[0];
+                m = (objects.minutes.value === "")? 0 : rangeMinutes[0];
+                s = (objects.seconds.value === "")? 0 : rangeSeconds[0];
                 date = new Date(todayDate.getFullYear(), todayDate.getMonth(),todayDate.getDate(), h, m, s);
                 setNewDate(checkNewDate(date));
             } else {
@@ -1207,7 +1188,7 @@ debugger;
             if (inputElement.value !== stringDate){
                 inputElement.value = stringDate
             }
-            if (!mainContainer.currentInput || mainContainer.currentInput === inputElement){
+            if (!objects.mainContainer.currentInput || objects.mainContainer.currentInput === inputElement){
                 showType[pickerOptions.type](newDate);
             }
         },
@@ -1236,7 +1217,7 @@ debugger;
         destoy = function(){
             addEventsForInput(false);
             if(bd.querySelectorAll("input.hasDatePicker").length === 0){
-                bd.removeChild(mainContainer);
+                bd.removeChild(objects.mainContainer);
             }
             delete inputElement.datepicker;
             isDestroied = true;
@@ -1372,9 +1353,10 @@ debugger;
     if (inputElement.datepicker){
         return inputElement.datepicker;
     }
-    if (!mainContainer){
+    if (!objects.mainContainer){
         if (document.querySelectorAll(".datepicker_main_container").length < 1){
             createNodes();
+            objects.mainContainer.objects = objects;
         } else{
             searchNodes();
         }
