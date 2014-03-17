@@ -63,9 +63,9 @@ _datepicker = function(elementId, options){
             if (typeof elementId == "string"){
                 inputElement = bd.querySelector("#"+elementId+"[type=text]")
             } else {
-                if (typeof element == "array"){
+                if (typeof elementId == "array"){
                     inputElement = elementId[0];
-                } else if (typeof element === "object"){
+                } else if (typeof elementId === "object"){
                         inputElement = elementId;
                 } else{
                     throw new Error("Undefined input element");
