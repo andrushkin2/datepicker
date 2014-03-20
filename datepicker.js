@@ -707,10 +707,15 @@ _datepicker = function(elementId, options){
                 }
             }
         },
+        onMousewheelAndScroll = function(e){
+            e.stopPropagation();
+        },  
         addEvents = function(isAdd){
             var event = (isAdd)? "add" : "remove";
             bd[event + "EventListener"]("click", bdEvent);
             window[event + "EventListener"]("resize", resizeEvent);
+            objects.entitySelect[event+"EventListener"]("mousewheel", onMousewheelAndScroll);
+            objects.entitySelect[event+"EventListener"]("scroll", onMousewheelAndScroll);
         },
         setDate = function(){
             var day = this["data-day"],
