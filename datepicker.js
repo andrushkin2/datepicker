@@ -448,8 +448,8 @@ _datepicker = function(elementId, options){
                             switch (pickerOptions.type){
                                 case "date":
                                     date.hours = (date.hours !== null)? date.hours : objects.hour.value;
-                                    date.minutes = date.minutes || minutes.value;
-                                    date.seconds = date.seconds || seconds.value;
+                                    date.minutes = date.minutes || objects.minutes.value;
+                                    date.seconds = date.seconds || objects.seconds.value;
                                     date.milliseconds = date.milliseconds || 0;
                                     break;
                                 case "time":
@@ -460,7 +460,7 @@ _datepicker = function(elementId, options){
                                     date.milliseconds = date.milliseconds || 0;
                                     break;
                                 case "datetime":
-                                    date.seconds = date.seconds || seconds.value;
+                                    date.seconds = date.seconds || objects.seconds.value;
                                     date.milliseconds = date.milliseconds || 0;
                             }
                             isNan = false;
