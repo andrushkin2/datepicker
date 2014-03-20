@@ -1233,10 +1233,11 @@ debugger;
         },
         destoy = function(){
             addEventsForInput(false);
-            if(bd.querySelectorAll("input.hasDatePicker").length === 0){
+            if((objects.mainContainer.amount - 1) === 0){
                 bd.removeChild(objects.mainContainer);
                 addEvents(false);
             }
+            objects.mainContainer.amount -= 1;
             delete inputElement.datepicker;
             isDestroied = true;
         },
@@ -1375,8 +1376,10 @@ debugger;
         if (document.querySelectorAll(".datepicker_main_container").length < 1){
             createNodes();
             objects.mainContainer.objects = objects;
+            objects.mainContainer.amount = 1;
         } else{
             searchNodes();
+            objects.mainContainer.amount += 1;
         }
     }
     addEventsForInput(true);
