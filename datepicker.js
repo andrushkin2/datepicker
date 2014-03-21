@@ -456,7 +456,7 @@ _datepicker = function(elementId, options){
                                     date.date = (date.date !== null)? date.date : currentDate.getDate();
                                     date.month = (date.month !== null)? date.month : currentDate.getMonth();
                                     date.year = date.year || currentDate.getFullYear();
-                                    date.seconds = date.seconds || seconds.value;
+                                    date.seconds = date.seconds || objects.seconds.value;
                                     date.milliseconds = date.milliseconds || 0;
                                     break;
                                 case "datetime":
