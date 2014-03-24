@@ -889,7 +889,11 @@ _datepicker = function(elementId, options){
                     showOrHideElement(objects.timeContainer);
                     showOrHideElement(objects.myTab, false);
                     showOrHideElement(objects.scheduler, false);
-                    showOrHideElement(objects.tContTable.querySelector(".t_cont_table_row.seconds"), pickerOptions.showSeconds);
+                    if (!pickerOptions.showSeconds){
+                        addClass(objects.tContTable.querySelector(".t_cont_table_row.seconds"),"hidden");
+                    } else {
+                        removeClass(objects.tContTable.querySelector(".t_cont_table_row.seconds"),"hidden");
+                    }
                     showOrHideElement(objects.tContTable.querySelector(".t_cont_table_row.zones"), pickerOptions.showZones);
                     if (!showingDate){
                         showingDate = (!current)? today : current;
