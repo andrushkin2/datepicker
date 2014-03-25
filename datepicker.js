@@ -713,6 +713,7 @@ _datepicker = function(elementId, options){
         addEvents = function(isAdd){
             var event = (isAdd)? "add" : "remove";
             bd[event + "EventListener"]("click", bdEvent);
+            objects.mainContainer[event + "EventListener"]("click", onMousewheelAndScroll);
             window[event + "EventListener"]("resize", resizeEvent);
             objects.entitySelect[event+"EventListener"]("mousewheel", onMousewheelAndScroll);
             objects.entitySelect[event+"EventListener"]("scroll", onMousewheelAndScroll);
