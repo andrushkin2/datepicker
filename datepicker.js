@@ -265,7 +265,7 @@ _datepicker = function(elementId, options){
             objects.tableBody = createElement("tbody", {
                 class:"calendar_body",
                 align:"center"
-            });debugger;
+            });
             createTableBody(objects.tableBody);
             objects.calendar.appendChild(objects.tableBody);
         },
@@ -1045,11 +1045,13 @@ _datepicker = function(elementId, options){
             if (typeof d === "object" && !isNaN(d)){
                 correctDate = checkNewDate(d);
                 if (correctDate.getTime() !== d.getTime()){
-                    if (pickerOptions.autoCorrectDate){
+                    if (pickerOptions.autoCorrectDate && (!currentDate || correctDate.getTime() !== currentDate.getTime())){
                         self.trigger("onChangeDate", currentDate, correctDate);
                     }
                 } else {
-                    self.trigger("onChangeDate", currentDate, correctDate);
+                    if (!currentDate || correctDate.getTime() !== currentDate.getTime()){
+                        self.trigger("onChangeDate", currentDate, correctDate);
+                    }
                 }
 
                 callback && callback();
@@ -1073,7 +1075,6 @@ _datepicker = function(elementId, options){
                 rectContainer = objects.mainContainer.getBoundingClientRect(),
                 inputRect = input.getBoundingClientRect(),
                 offsetParentRect;
-debugger;
 
             offsetParentRect = {
                 top: 0 - bd.scrollTop,
@@ -1215,6 +1216,7 @@ debugger;
             if (!objects.mainContainer.currentInput || objects.mainContainer.currentInput === inputElement){
                 showType[pickerOptions.type](newDate);
             }
+            self.trigger("onAfterChangeDate", oldDate, newDate);
         },
         onInput = function(e){
             e.preventDefault();
