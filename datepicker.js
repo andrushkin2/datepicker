@@ -1229,9 +1229,10 @@ _datepicker = function(elementId, options){
             }
         },
         onChange = function(e){
-            var value = this.value;
+            var value = this.value, date;
             objects.mainContainer.inputElemntLast = this;
-            dateParser.fromStringFormat(value, pickerOptions.dateFormat);
+            date = dateParser.fromStringFormat(value, pickerOptions.dateFormat);
+            setNewDate(date);
         },
         onClickAndFocus = function() {
             objects.mainContainer.inputElemntLast = this;
