@@ -725,6 +725,13 @@ _datepicker = function(elementId, options){
                 gmtDate = new Date(year, month, day, objects.hour.value, objects.minutes.value, objects.seconds.value);
             setNewDate(gmtDate);
         },
+        updateInputText = function(){
+            var text = dateParser.toStringFormat(currentDate, pickerOptions[pickerOptions.type + "Format"]),
+                inputText = inputElement.value;
+            if (text !== inputText){
+                inputElement.value = text;
+            }
+        },
         showType = (function(){
             return {
                 date: function(date){
@@ -776,6 +783,7 @@ _datepicker = function(elementId, options){
                         minDaysAr,
                         prevDate,
                         nextDate;
+                    updateInputText();
                     showOrHideElement(objects.timeContainer, false);
                     showOrHideElement(objects.myTab);
                     showOrHideElement(objects.scheduler);
@@ -887,6 +895,7 @@ _datepicker = function(elementId, options){
                         sec,
                         isTime = /\s?(tt|t|TT|T)\s?/.exec(pickerOptions.timeFormat);
 
+                    updateInputText();
                     showOrHideElement(objects.timeContainer);
                     showOrHideElement(objects.myTab, false);
                     showOrHideElement(objects.scheduler, false);
@@ -1042,7 +1051,7 @@ _datepicker = function(elementId, options){
         setNewDate = function(newDate, callback){
             var d = (typeof newDate === "object")? newDate : (new Date(newDate)),
                 correctDate;
-            if (typeof d === "object" && !isNaN(d)){
+            if (typeof d === "object" && !!d && !isNaN(d)){
                 correctDate = checkNewDate(d);
                 if (correctDate.getTime() !== d.getTime()){
                     if (pickerOptions.autoCorrectDate && (!currentDate || correctDate.getTime() !== currentDate.getTime())){
