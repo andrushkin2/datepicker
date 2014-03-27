@@ -2,13 +2,13 @@
 
 
 window.onerror = function(message, source, lineno) {
-		  alert("Error:"+message +"\n" +
-		    "File:" + source + "\n" +
-		    "Line:" + lineno);
+    alert("Error:"+message +"\n" +
+        "File:" + source + "\n" +
+        "Line:" + lineno);
 };
 
 _datepicker = function(elementId, options){
-	var self = this,
+    var self = this,
         bd = document.body,
         inputElement,
         objects = {
@@ -69,7 +69,7 @@ _datepicker = function(elementId, options){
                 if (typeof elementId == "array"){
                     inputElement = elementId[0];
                 } else if (typeof elementId === "object"){
-                        inputElement = elementId;
+                    inputElement = elementId;
                 } else{
                     throw new Error("Undefined input element");
                 }
@@ -159,6 +159,7 @@ _datepicker = function(elementId, options){
                     showOrHideElement(objects.entitySelect, false);
                     if (!isNaN(newDate)){
                         showType[pickerOptions.type](newDate);
+                        showPicker();
                     }
                 },
                 value,
@@ -213,7 +214,7 @@ _datepicker = function(elementId, options){
 
             objects.tContTable = createElement("table", {class:"t_cont_table"});
             objects.subTimeContainer.appendChild(objects.tContTable);
-            
+
             objects.timeText = createElement("span", {class:"t_cont_time_text"});
             objects.hour = createElement("select", {class:"select datepicker_time_hour"});
             objects.minutes = createElement("select", {class:"select datepicker_time_minutes"});
@@ -309,6 +310,7 @@ _datepicker = function(elementId, options){
         onButtonClick = function(a, options, c){
             var date = new Date(this["data-year"], this["data-month"], this["data-day"], objects.hour.value, objects.minutes.value, objects.seconds.value);
             showType[pickerOptions.type](date);
+            showPicker();
         },
         onChangeSelect = function(e){
             var date = currentDate || todayDate,
@@ -726,7 +728,7 @@ _datepicker = function(elementId, options){
         },
         onMousewheelAndScroll = function(e){
             e.stopPropagation();
-        },  
+        },
         addEvents = function(isAdd){
             var event = (isAdd)? "add" : "remove";
             bd[event + "EventListener"]("click", bdEvent);
@@ -837,10 +839,10 @@ _datepicker = function(elementId, options){
                         minDaysAr.push(pickerOptions.minDayNames[0]);
                     }
                     for (i = 0; i < length ; i++) {
-                            var td = createElement("td", {}, {
-                                innerHTML: minDaysAr[i]
-                            });
-                            tr.appendChild(td);
+                        var td = createElement("td", {}, {
+                            innerHTML: minDaysAr[i]
+                        });
+                        tr.appendChild(td);
                     }
                     objects.tableHead.appendChild(tr);
                     //set month and year
@@ -958,7 +960,7 @@ _datepicker = function(elementId, options){
                     objects.minutes.onchange = onChangeSelect;
                     objects.seconds.onchange = onChangeSelect;
 
-                	return true;
+                    return true;
                 },
                 datetime: function(date){
                     showType.date(date);
@@ -994,7 +996,7 @@ _datepicker = function(elementId, options){
                 flag = false,
                 minMaxValue = function(ar, value){
                     var length = ar.length, i, maxIndex
-                        res = {};
+                    res = {};
                     if (value <= ar[0]){
                         return {
                             min:ar[0],
@@ -1053,10 +1055,10 @@ _datepicker = function(elementId, options){
                 if (monthIncorrect && !yearIncorrect){
                     monthNum = minMaxValue(monthNumAr, monthNum).max;
                     /*if (monthNum.min === monthNum.max && yearNum == rangeYears[rangeYears.length-1]){
-                        monthNum = monthNumAr[monthNumAr.length-1];
-                    } else {
-                        monthNum = monthNum.max;
-                    }*/
+                     monthNum = monthNumAr[monthNumAr.length-1];
+                     } else {
+                     monthNum = monthNum.max;
+                     }*/
                 }
             } else {
                 if ((monthIncorrect && yearIncorrect) || (!monthIncorrect && yearIncorrect)){
@@ -1070,10 +1072,10 @@ _datepicker = function(elementId, options){
                 if (monthIncorrect && !yearIncorrect){
                     monthNum = minMaxValue(monthNumAr, monthNum).min;
                     /*if (monthNum.min === monthNum.max && yearNum == rangeYears[0]){
-                        monthNum = monthNumAr[0];
-                    } else {
-                        monthNum = monthNum.min;
-                    }*/
+                     monthNum = monthNumAr[0];
+                     } else {
+                     monthNum = monthNum.min;
+                     }*/
                 }
             }
             return new Date(yearNum, monthNum, dateNum, hour, minutes, second);
@@ -1218,11 +1220,11 @@ _datepicker = function(elementId, options){
                 a.addEventListener("touchend", preventDafeult);
                 a.addEventListener("focus", preventDafeult);
             } else {
-            		a[event+"EventListener"]("input", onInput);
-            		a[event+"EventListener"]("change", onChange);
-            		a[event+"EventListener"]("click", onClickAndFocus);
-            		a[event+"EventListener"]("focus", onClickAndFocus);
-            		a[event+"EventListener"]("blur", onBlur);
+                a[event+"EventListener"]("input", onInput);
+                a[event+"EventListener"]("change", onChange);
+                a[event+"EventListener"]("click", onClickAndFocus);
+                a[event+"EventListener"]("focus", onClickAndFocus);
+                a[event+"EventListener"]("blur", onBlur);
             }
         },
         onHidePicker = function(){
@@ -1274,9 +1276,12 @@ _datepicker = function(elementId, options){
             date = dateParser.fromStringFormat(value, pickerOptions[pickerOptions.type + "Format"]);
             setNewDate(date);
         },
-        onClickAndFocus = function() {
+        onClickAndFocus = function(e) {
             objects.mainContainer.inputElemntLast = this;
             if ( true || !isPickerVisible() ){
+                if (e.type === "focus" && objects.mainContainer.currentInput === this){
+                    return;
+                }
                 inputElemntLast = this;
                 self.trigger("onShowPicker");
             }
