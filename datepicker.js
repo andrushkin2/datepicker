@@ -33,7 +33,10 @@ _datepicker = function(elementId, options){
             calendar:null,
             tableHead:null,
             tableBody:null,
-            entitySelect:null
+            entitySelect:null,
+            buttonPanel: null,
+            buttonNow: null,
+            buttonDone: null
         },
 
         inputElemntLast,
@@ -180,6 +183,20 @@ _datepicker = function(elementId, options){
                 }
             }
             return res;
+        },
+        createButtonPanel = function(){
+            objects.buttonPanel = createElement("div", {class:"button_panel"});
+            objects.mainContainer.appendChild(objects.buttonPanel);
+
+            objects.buttonNow = createElement("button",{
+                class:"button button_now"
+            }, {innerHTML:pickerOptions.currentText});
+            objects.buttonPanel.appendChild(objects.buttonNow);
+
+            objects.buttonDone = createElement("button",{
+                class:"button button_done"
+            }, {innerHTML:pickerOptions.closeText});
+            objects.buttonPanel.appendChild(objects.buttonDone);
         },
         createSelect = function(className){
             objects.entitySelect = createElement("div", {class:"entity_select hidden"});
@@ -732,6 +749,16 @@ _datepicker = function(elementId, options){
                 inputElement.value = text;
             }
         },
+        updateButtonPanelFunc = function(){
+            showOrHideElement(objects.buttonPanel, pickerOptions.showButtonPanel);
+            objects.buttonDone.onclick = function(){
+                hidePicker();
+            };
+            objects.buttonNow.onclick = function(){
+                var date = checkNewDate((new Date()));
+                setNewDate(date);
+            };
+        },
         showType = (function(){
             return {
                 date: function(date){
@@ -784,6 +811,7 @@ _datepicker = function(elementId, options){
                         prevDate,
                         nextDate;
                     updateInputText();
+                    updateButtonPanelFunc();
                     showOrHideElement(objects.timeContainer, false);
                     showOrHideElement(objects.myTab);
                     showOrHideElement(objects.scheduler);
@@ -896,6 +924,7 @@ _datepicker = function(elementId, options){
                         isTime = /\s?(tt|t|TT|T)\s?/.exec(pickerOptions.timeFormat);
 
                     updateInputText();
+                    updateButtonPanelFunc();
                     showOrHideElement(objects.timeContainer);
                     showOrHideElement(objects.myTab, false);
                     showOrHideElement(objects.scheduler, false);
@@ -934,6 +963,7 @@ _datepicker = function(elementId, options){
                 datetime: function(date){
                     showType.date(date);
                     showType.time();
+                    updateButtonPanelFunc();
                     showOrHideElement(objects.timeContainer);
                     showOrHideElement(objects.myTab);
                     showOrHideElement(objects.scheduler);
@@ -1158,6 +1188,7 @@ _datepicker = function(elementId, options){
             createScheduler();
             createTimeContainer();
             createSelect();
+            createButtonPanel();
             addEvents(true);
         },
         addEventsForInput = function(isAddEvents){
@@ -1349,6 +1380,9 @@ _datepicker = function(elementId, options){
             secondsText:"Seconds",
             zoneText:"Zone",
             timeText:"Time",
+            currentText:"Now",
+            closeText: "Done",
+            showButtonPanel: false,
             minDayNames: ["Su", "Mo", "Tu", "We", "Th", "Fr", "St"],
             shortDayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
             dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
