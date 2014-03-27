@@ -155,7 +155,7 @@ _datepicker = function(elementId, options){
                     }
                     showOrHideElement(objects.entitySelect, false);
                     if (!isNaN(newDate)){
-                        setNewDate(newDate);
+                        showType[pickerOptions.type](newDate);
                     }
                 },
                 value,
