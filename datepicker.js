@@ -172,7 +172,7 @@ _datepicker = function(elementId, options){
                     {
                         value: value,
                         onclick: onclick
-                    })
+                    });
                 child.appendChild(createElement("span",{},{ innerHTML:value}));
                 objects.entitySelect.appendChild(child);
                 if (isSelected){
@@ -376,7 +376,7 @@ _datepicker = function(elementId, options){
                     var _ = utc ? "getUTC" : "get",
                         getRegexpText = function(start, end, arr){
                             var res = "(", i;
-                            for (var i=start; i<end; i++){
+                            for (i=start; i<end; i++){
                                 res += (i !== (end-1))? arr[i]+"|" : arr[i];
                             }
                             res += ")";
@@ -672,7 +672,7 @@ _datepicker = function(elementId, options){
             }
         },
         createElement = function(nodeName, options, methods){
-            var elem = document.createElement(nodeName), otp;
+            var elem = document.createElement(nodeName), opt;
             for (opt in options){
                 elem.setAttribute(opt,options[opt]);
             }
@@ -800,7 +800,7 @@ _datepicker = function(elementId, options){
                     if (pickerOptions.startWeekOnMonday){
                         minDaysAr.push(pickerOptions.minDayNames[0]);
                     }
-                    for (var i = 0; i < length ; i++) {
+                    for (i = 0; i < length ; i++) {
                             var td = createElement("td", {}, {
                                 innerHTML: minDaysAr[i]
                             });
@@ -1183,7 +1183,7 @@ _datepicker = function(elementId, options){
             		a[event+"EventListener"]("click", onClickAndFocus);
             		a[event+"EventListener"]("focus", onClickAndFocus);
             		a[event+"EventListener"]("blur", onBlur);
-            };
+            }
         },
         onHidePicker = function(){
             hidePicker();
@@ -1231,7 +1231,7 @@ _datepicker = function(elementId, options){
         onChange = function(e){
             var value = this.value, date;
             objects.mainContainer.inputElemntLast = this;
-            date = dateParser.fromStringFormat(value, pickerOptions.dateFormat);
+            date = dateParser.fromStringFormat(value, pickerOptions[pickerOptions.type + "Format"]);
             setNewDate(date);
         },
         onClickAndFocus = function() {
