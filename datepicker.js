@@ -126,7 +126,8 @@ _datepicker = function(elementId, options){
                         tempVal,
                         int = parseInt(val),
                         isNan = isNaN(int),
-                        newDate;
+                        newDate,
+                        showingDate = objects.entitySelect.showingDate || currentDate;
                     if (val === objects.entitySelect.value){
                         return;
                     }
@@ -142,7 +143,7 @@ _datepicker = function(elementId, options){
                             } else {
                                 objects.entitySelect.value  = int;
                             }
-                            newDate = new Date(currentDate.getFullYear(), objects.entitySelect.value, currentDate.getDate(), objects.hour.value, objects.minutes.value, objects.seconds.value);
+                            newDate = new Date(showingDate.getFullYear(), objects.entitySelect.value, showingDate.getDate(), objects.hour.value, objects.minutes.value, objects.seconds.value);
                             break;
                         case "year":
                             if (!isNan){
@@ -150,7 +151,7 @@ _datepicker = function(elementId, options){
                             } else {
                                 return;
                             }
-                            newDate = new Date(objects.entitySelect.value, currentDate.getMonth(), currentDate.getDate(), objects.hour.value, objects.minutes.value, objects.seconds.value);
+                            newDate = new Date(objects.entitySelect.value, showingDate.getMonth(), showingDate.getDate(), objects.hour.value, objects.minutes.value, objects.seconds.value);
                             break;
                         default:
                             return;
@@ -767,12 +768,13 @@ _datepicker = function(elementId, options){
                     var today = todayDate,
                         current = currentDate,
                         showingDate = date || null,
-                        funcForSelect = function(node, type, value, array){
+                        funcForSelect = function(node, type, value, array, showingDate){
                             return function(){
                                 var length,
                                     childsHeight,
                                     heightCont = objects.mainContainer.getBoundingClientRect().height,
                                     selected;
+                                    objects.entitySelect.showingDate = showingDate;
                                 objects.entitySelect.value = value;
                                 objects.entitySelect.entity = type;
                                 selected = createElementsForSelect(array);
@@ -850,14 +852,14 @@ _datepicker = function(elementId, options){
                     objects.yearContainer.innerHTML  = year;
                     //attache entity selector if need it
                     if (!!pickerOptions.selectingMonth){
-                        objects.monthContainer.onclick = funcForSelect(objects.monthContainer, "month", month, rangeMonths);
+                        objects.monthContainer.onclick = funcForSelect(objects.monthContainer, "month", month, rangeMonths, showingDate);
                         addClass(objects.monthContainer, "hover");
                     } else {
                         objects.monthContainer.onclick = NOOP;
                         removeClass(objects.monthContainer, "hover");
                     }
                     if (!!pickerOptions.selectingYear){
-                        objects.yearContainer.onclick = funcForSelect(objects.yearContainer, "year", year.toString(), rangeYears);
+                        objects.yearContainer.onclick = funcForSelect(objects.yearContainer, "year", year.toString(), rangeYears, showingDate);
                         addClass(objects.yearContainer, "hover");
                     } else {
                         objects.yearContainer.onclick = NOOP;
