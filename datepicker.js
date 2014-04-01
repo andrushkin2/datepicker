@@ -1359,6 +1359,7 @@ _datepicker = function(elementId, options){
                 addEventsForInput(true);
                 updateRangeOfTime();
                 setNewDate(currentDate);
+                updateInputText();
             } else {
                 return;
             }
