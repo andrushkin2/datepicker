@@ -789,8 +789,8 @@ _datepicker = function(elementId, options){
                                 });
                                 if (childsHeight > heightCont){
                                     addClass(objects.entitySelect, "overflow_y");
-                                    if (selected){
-                                        selected.scrollIntoView(false);
+                                    if (selected){debugger;
+                                        objects.entitySelect.scrollTop = selected.offsetTop + selected.offsetHeight - this.getBoundingClientRect().top;
                                     }
                                 } else {
                                     removeClass(objects.entitySelect, "overflow_y");
