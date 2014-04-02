@@ -330,7 +330,7 @@ _datepicker = function(elementId, options){
             return res;
         },
         dateParser = (function(){
-            var	token = /d{1,4}|M{1,4}|yy(?:yy)?|([HhmsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
+            var	token = /d{1,4}|M{1,4}|yy(?:yy)?|y|([HhmsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
                 timezone = /\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)\b/g,
                 timezoneClip = /[^-+\dA-Z]/g,
                 pad = function (val, len) {
@@ -364,6 +364,7 @@ _datepicker = function(elementId, options){
                             MM:   pad(m + 1),
                             MMM:  pickerOptions.shortMonthNames[m],
                             MMMM: pickerOptions.monthNames[m],
+                            y:    parseInt(String(y).slice(2)),
                             yy:   String(y).slice(2),
                             yyyy: y,
                             h:    H % 12 || 12,
@@ -519,6 +520,7 @@ _datepicker = function(elementId, options){
                             MM:     flagFunc("month", d2),
                             MMM:    flagFunc("month", getRegexpText(0, 12, pickerOptions.shortMonthNames)),
                             MMMM:   flagFunc("month", getRegexpText(0, 12, pickerOptions.monthNames)),
+                            y:      flagFunc("yearShort", d1_2),
                             yy:     flagFunc("yearShort", d2),
                             yyyy:   flagFunc("year", "(\\d{3,4})"),
                             h:      flagFunc("hours", d1_2),
