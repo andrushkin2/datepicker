@@ -774,7 +774,7 @@ _datepicker = function(elementId, options){
                                     childsHeight,
                                     heightCont = objects.mainContainer.getBoundingClientRect().height,
                                     selected;
-                                    objects.entitySelect.showingDate = showingDate;
+                                objects.entitySelect.showingDate = showingDate;
                                 objects.entitySelect.value = value;
                                 objects.entitySelect.entity = type;
                                 selected = createElementsForSelect(array);
@@ -1359,7 +1359,12 @@ _datepicker = function(elementId, options){
                 addEventsForInput(true);
                 updateRangeOfTime();
                 setNewDate(currentDate);
-                updateInputText();
+                if (!!currentDate){
+                    if (objects.mainContainer.currentInput === inputElement && isPickerVisible()){
+                        showType[pickerOptions.type]();
+                    }
+                    updateInputText();
+                }
             } else {
                 return;
             }
