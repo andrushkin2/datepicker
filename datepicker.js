@@ -1,12 +1,4 @@
 
-
-
-window.onerror = function(message, source, lineno) {
-    alert("Error:"+message +"\n" +
-        "File:" + source + "\n" +
-        "Line:" + lineno);
-};
-
 _datepicker = function(elementId, options){
     var self = this,
         bd = document.body,
@@ -747,11 +739,22 @@ _datepicker = function(elementId, options){
                 gmtDate = new Date(year, month, day, objects.hour.value, objects.minutes.value, objects.seconds.value);
             setNewDate(gmtDate);
         },
-        updateInputText = function(){
+        updateInputText = function(flag){
             var text = dateParser.toStringFormat(currentDate, pickerOptions[pickerOptions.type + "Format"]),
-                inputText = inputElement.value;
+                inputText = inputElement.value, date;
             if (text !== inputText){
-                inputElement.value = text;
+                if (!flag){
+                    inputElement.value = text;
+                } else {
+                    date = dateParser.fromStringFormat(inputText, pickerOptions[pickerOptions.type+"Format"]);
+                    if (!!date && !isNaN(date) && date !== null){
+                        date = checkNewDate(date);
+                        if (date!== null){
+                            setNewDate(date);
+                        }
+                    }
+                }
+
             }
         },
         updateButtonPanelFunc = function(){
@@ -789,8 +792,8 @@ _datepicker = function(elementId, options){
                                 });
                                 if (childsHeight > heightCont){
                                     addClass(objects.entitySelect, "overflow_y");
-                                    if (selected){debugger;
-                                        objects.entitySelect.scrollTop = selected.offsetTop + selected.offsetHeight - this.getBoundingClientRect().top;
+                                    if (selected){
+                                        selected.scrollIntoView(false);
                                     }
                                 } else {
                                     removeClass(objects.entitySelect, "overflow_y");
@@ -1287,6 +1290,7 @@ _datepicker = function(elementId, options){
                     return;
                 }
                 inputElemntLast = this;
+                updateInputText(true);
                 self.trigger("onShowPicker");
             }
         },
