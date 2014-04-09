@@ -309,7 +309,9 @@ _datepicker = function(elementId, options){
             var date = currentDate || todayDate,
                 utcDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(objects.hour.value), parseInt(objects.minutes.value), parseInt(objects.seconds.value));
             if (!isNaN(utcDate)){
-                setNewDate(utcDate);
+                setNewDate(utcDate, function(){
+                    self.trigger("onChange");
+                });
             }
         },
         searchInString = function(value, arr){
@@ -737,7 +739,9 @@ _datepicker = function(elementId, options){
                 month = this["data-month"],
                 year = this["data-year"],
                 gmtDate = new Date(year, month, day, objects.hour.value, objects.minutes.value, objects.seconds.value);
-            setNewDate(gmtDate);
+            setNewDate(gmtDate, function(){
+                self.trigger("onChange");
+            });
         },
         updateInputText = function(flag){
             var text = dateParser.toStringFormat(currentDate, pickerOptions[pickerOptions.type + "Format"]),
@@ -750,7 +754,9 @@ _datepicker = function(elementId, options){
                     if (!!date && !isNaN(date) && date !== null){
                         date = checkNewDate(date);
                         if (date!== null){
-                            setNewDate(date);
+                            setNewDate(date, function(){
+                                self.trigger("onChange");
+                            });
                         }
                     }
                 }
@@ -764,7 +770,9 @@ _datepicker = function(elementId, options){
             };
             objects.buttonNow.onclick = function(){
                 var date = checkNewDate((new Date()));
-                setNewDate(date);
+                setNewDate(date, function(){
+                    self.trigger("onChange");
+                });
             };
         },
         showType = (function(){
@@ -793,7 +801,8 @@ _datepicker = function(elementId, options){
                                 if (childsHeight > heightCont){
                                     addClass(objects.entitySelect, "overflow_y");
                                     if (selected){
-                                        selected.scrollIntoView(false);
+                                        selected.scrollIntoView(true);
+                                        objects.entitySelect.scrollTop = selected.offsetTop;
                                     }
                                 } else {
                                     removeClass(objects.entitySelect, "overflow_y");
@@ -1274,14 +1283,18 @@ _datepicker = function(elementId, options){
                 date;
             date = dateParser.fromStringFormat(value, pickerOptions[pickerOptions.type+"Format"]);
             if (!isNaN(date) && date !== null){
-                setNewDate(date);
+                setNewDate(date, function(){
+                    self.trigger("onChange");
+                });
             }
         },
         onChange = function(e){
             var value = this.value, date;
             objects.mainContainer.inputElemntLast = this;
             date = dateParser.fromStringFormat(value, pickerOptions[pickerOptions.type + "Format"]);
-            setNewDate(date);
+            setNewDate(date, function(){
+                self.trigger("onChange");
+            });
         },
         onClickAndFocus = function(e) {
             objects.mainContainer.inputElemntLast = this;
@@ -1290,7 +1303,9 @@ _datepicker = function(elementId, options){
                     return;
                 }
                 inputElemntLast = this;
-                updateInputText(true);
+                if(currentDate){
+                    updateInputText(true);
+                }
                 self.trigger("onShowPicker");
             }
         },
