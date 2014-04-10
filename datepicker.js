@@ -1279,9 +1279,16 @@ _datepicker = function(elementId, options){
         onInput = function(e){
             e.preventDefault();
             objects.mainContainer.inputElemntLast = this;
-            var value = this.value,
-                date;
-            date = dateParser.fromStringFormat(value, pickerOptions[pickerOptions.type+"Format"]);
+            var value = this.value = this.value.trim(),
+                date,
+                format = pickerOptions[pickerOptions.type+"Format"];
+            if (/[^\/\s\d:\.-]/.test(value)){
+                if (!/tt|TT|T|t|MMMM|MMM|dddd|ddd/.test(format)){
+                    this.value = value.replace(/[^\/\s\d:\.-]/gi, "").trim();
+                    return;
+                }
+            }
+            date = dateParser.fromStringFormat(value, format);
             if (!isNaN(date) && date !== null){
                 setNewDate(date, function(){
                     self.trigger("onChange");
