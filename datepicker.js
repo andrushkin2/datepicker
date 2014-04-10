@@ -1281,14 +1281,15 @@ _datepicker = function(elementId, options){
             objects.mainContainer.inputElemntLast = this;
             var value = this.value = this.value.trim(),
                 date,
+                dateSecond = new Date(value),
                 format = pickerOptions[pickerOptions.type+"Format"];
-            if (/[^\/\s\d:\.-]/.test(value)){
+            if ( !(!!dateSecond && !isNaN(dateSecond) && dateSecond !== null) && /[^\/\s\d:\.-]/.test(value)){
                 if (!/tt|TT|T|t|MMMM|MMM|dddd|ddd/.test(format)){
                     this.value = value.replace(/[^\/\s\d:\.-]/gi, "").trim();
                     return;
                 }
             }
-            date = dateParser.fromStringFormat(value, format);
+            date = dateParser.fromStringFormat(value, format) || dateSecond;
             if (!isNaN(date) && date !== null){
                 setNewDate(date, function(){
                     self.trigger("onChange");
