@@ -765,6 +765,7 @@ _datepicker = function(elementId, options){
         },
         updateButtonPanelFunc = function(){
             showOrHideElement(objects.buttonPanel, pickerOptions.showButtonPanel);
+            showOrHideElement(objects.buttonNow, pickerOptions.showNowButton);
             objects.buttonDone.onclick = function(){
                 hidePicker();
             };
@@ -1232,9 +1233,11 @@ _datepicker = function(elementId, options){
             }
 
             if ("ontouchstart" in document.documentElement){
-                a.addEventListener("touchstart", preventDafeult);
-                a.addEventListener("touchend", preventDafeult);
-                a.addEventListener("focus", preventDafeult);
+                a[event+"EventListener"]("touchstart", preventDafeult);
+                a[event+"EventListener"]("touchend", preventDafeult);
+                a[event+"EventListener"]("focus", preventDafeult);
+                a[event+"EventListener"]("input", onInput);
+                a[event+"EventListener"]("change", onChange);
             } else {
                 a[event+"EventListener"]("input", onInput);
                 a[event+"EventListener"]("change", onChange);
@@ -1425,6 +1428,7 @@ _datepicker = function(elementId, options){
             currentText:"Now",
             closeText: "Done",
             showButtonPanel: false,
+            showNowButton: true,
             minDayNames: ["Su", "Mo", "Tu", "We", "Th", "Fr", "St"],
             shortDayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
             dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
