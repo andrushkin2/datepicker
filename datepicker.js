@@ -324,18 +324,18 @@
                 return res;
             },
             dateParser = (function(){
-                var	token = /d{1,4}|M{1,4}|yy(?:yy)?|y|([HhmsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
-                    padString = function (val, len) {
-                        val = val.toString();
-                        len = len || 2;
-                        while (val.length < len) {
-                            val = "0" + val;
-                        }
-                        return val;
-                    };
                 return {
-                    toStringFormat: function(date, format){
-                        var	_ = "get",
+                    toStringFormat: /*toString*/function(date, format){
+                        var	token = /d{1,4}|M{1,4}|yy(?:yy)?|y|([HhmsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
+                            padString = function (val, len) {
+                                val = val.toString();
+                                len = len || 2;
+                                while (val.length < len) {
+                                    val = "0" + val;
+                                }
+                                return val;
+                            },
+                            _ = "get",
                             d = date[_ + "Date"](),
                             D = date[_ + "Day"](),
                             m = date[_ + "Month"](),
@@ -374,9 +374,10 @@
                         return format.replace(token, function (char) {
                             return char in flags ? flags[char] : char.slice(1, char.length - 1);
                         });
-                    },
-                    fromStringFormat: function(dateString, format){
-                        var getRegexpText = function(start, end, arr){
+                    }/*toStringEnd*/,
+                    fromStringFormat: /*fromString*/function(dateString, format){
+                        var token = /d{1,4}|M{1,4}|yy(?:yy)?|y|([HhmsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
+                            getRegexpText = function(start, end, arr){
                                 var res = "(", i;
                                 for (i=start; i<end; i++){
                                     res += (i !== (end-1))? arr[i]+"|" : arr[i];
@@ -406,7 +407,8 @@
                                     a,
                                     isNan,
                                     t = 0,
-                                    H = false;
+                                    H = false,
+                                    dateNow = new Date();
                                 dateAr.forEach(function(elem, index){
                                     var curIndex = index+ 1,
                                         value = res[curIndex],
@@ -453,24 +455,13 @@
                                             }
                                     }
                                 });
-                                switch (pickerOptions.type){
-                                    case "date":
-                                        date.hours = (date.hours !== null)? date.hours : objects.hour.value;
-                                        date.minutes = date.minutes || objects.minutes.value;
-                                        date.seconds = date.seconds || objects.seconds.value;
-                                        date.milliseconds = date.milliseconds || 0;
-                                        break;
-                                    case "time":
-                                        date.date = (date.date !== null)? date.date : currentDate.getDate();
-                                        date.month = (date.month !== null)? date.month : currentDate.getMonth();
-                                        date.year = date.year || currentDate.getFullYear();
-                                        date.seconds = date.seconds || objects.seconds.value;
-                                        date.milliseconds = date.milliseconds || 0;
-                                        break;
-                                    case "datetime":
-                                        date.seconds = date.seconds || objects.seconds.value;
-                                        date.milliseconds = date.milliseconds || 0;
-                                }
+                                date.date = (date.date !== null)? date.date : dateNow.getDate();
+                                date.month = (date.month !== null)? date.month : dateNow.getMonth();
+                                date.year = date.year || dateNow.getFullYear();
+                                date.hours = (date.hours !== null)? date.hours : 0;
+                                date.minutes = date.minutes || 0;
+                                date.seconds = date.seconds || 0;
+                                date.milliseconds = date.milliseconds || 0;
                                 isNan = false;
                                 for (a in date){
                                     if (a === null){
@@ -537,7 +528,7 @@
                         } else {
                             return null;
                         }
-                    }
+                    }/*fromStringEnd*/
                 }
             })(),
             addClass = function(element, className){
