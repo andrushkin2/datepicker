@@ -29,6 +29,28 @@
                 buttonPanel: null,
                 buttonNow: null,
                 buttonDone: null
+                /*periodVariables*/,
+                myTab2:null,
+                leftButton2:null,
+                rightButton2:null,
+                centralPane2:null,
+                subCentralPane2:null,
+                monthContainer2:null,
+                yearContainer2:null,
+                timeContainer2:null,
+                subTimeContainer2:null,
+                timeText2:null,
+                hour2:null,
+                minutes2:null,
+                seconds2:null,
+                tContTable2:null,
+                zones2:null,
+                scheduler2:null,
+                subSchedulerContainer2:null,
+                calendar2:null,
+                tableHead2:null,
+                tableBody2:null
+                /*periodVariablesEnd*/
             },
 
             inputElemntLast,
@@ -76,35 +98,36 @@
                 }
                 bd.appendChild(objects.mainContainer);
             },
-            createMonthYearTab = function(){
-                objects.myTab = createElement("div", {class:"month_year_tab"});
-                objects.mainContainer.appendChild(objects.myTab);
+            createMonthYearTab = function(part){
+                var partObj = part || "";
+                objects["myTab"+partObj] = createElement("div", {class:"month_year_tab" + ((!part)? "" : " float_right")});
+                objects.mainContainer.appendChild(objects["myTab"+partObj]);
 
                 //left button
-                objects.leftButton = createElement("button", {class:"month_year_tab_button l_button"});
-                objects.leftButton.innerHTML = "&lt;";
-                objects.myTab.appendChild(objects.leftButton);
+                objects["leftButton"+partObj] = createElement("button", {class:"month_year_tab_button l_button"});
+                objects["leftButton"+partObj].innerHTML = "&lt;";
+                objects["myTab"+partObj].appendChild(objects["leftButton"+partObj]);
 
                 //right button
-                objects.rightButton = createElement("button", {class:"month_year_tab_button r_button"});
-                objects.rightButton.innerHTML = "&gt;";
-                objects.myTab.appendChild(objects.rightButton);
+                objects["rightButton"+partObj] = createElement("button", {class:"month_year_tab_button r_button"});
+                objects["rightButton"+partObj].innerHTML = "&gt;";
+                objects["myTab"+partObj].appendChild(objects["rightButton"+partObj]);
 
                 //central pane
-                objects.centralPane = createElement("div", {class: "central_pane"});
-                objects.myTab.appendChild(objects.centralPane);
+                objects["centralPane"+partObj] = createElement("div", {class: "central_pane"});
+                objects["myTab"+partObj].appendChild(objects["centralPane"+partObj]);
 
                 //sub pane
-                objects.subCentralPane = createElement("div", {class:"central_pane_sub"});
-                objects.centralPane.appendChild(objects.subCentralPane);
+                objects["subCentralPane"+partObj]= createElement("div", {class:"central_pane_sub"});
+                objects["centralPane"+partObj].appendChild(objects["subCentralPane"+partObj]);
 
                 //month container
-                objects.monthContainer = createElement("div", {class:"central_pane_month"});
-                objects.subCentralPane.appendChild(objects.monthContainer);
+                objects["monthContainer"+partObj] = createElement("div", {class:"central_pane_month"});
+                objects["subCentralPane"+partObj].appendChild(objects["monthContainer"+partObj]);
 
                 //year container
-                objects.yearContainer = createElement("div", {class:"central_pane_year"});
-                objects.subCentralPane.appendChild(objects.yearContainer);
+                objects["yearContainer"+partObj] = createElement("div", {class:"central_pane_year"});
+                objects["subCentralPane"+partObj].appendChild(objects["yearContainer"+partObj]);
             },
             createElementsForSelect= function(entitiesAr){
                 if (!objects.entitySelect){
@@ -196,25 +219,26 @@
                 objects.entitySelect = createElement("div", {class:"entity_select hidden"});
                 objects.mainContainer.appendChild(objects.entitySelect);
             },
-            createTimeContainer = function(){
-                var selectsAr, tr ,td, tdName, i;
-                objects.timeContainer = createElement("div",{class:"time_container"});
-                objects.mainContainer.appendChild(objects.timeContainer);
+            createTimeContainer = function(part){
+                var selectsAr, tr ,td, tdName, i,
+                    partObj = part || "";
+                objects["timeContainer"+partObj] = createElement("div",{class:"time_container" + ((!part)? "" : " float_right")});
+                objects.mainContainer.appendChild(objects["timeContainer"+partObj]);
 
                 //sub
-                objects.subTimeContainer = createElement("div",{class:"datepicker_time_container_sub"});
-                objects.timeContainer.appendChild(objects.subTimeContainer);
+                objects["subTimeContainer"+partObj] = createElement("div",{class:"datepicker_time_container_sub"});
+                objects["timeContainer"+partObj].appendChild(objects["subTimeContainer"+partObj]);
 
-                objects.tContTable = createElement("table", {class:"t_cont_table"});
-                objects.subTimeContainer.appendChild(objects.tContTable);
+                objects["tContTable"+partObj] = createElement("table", {class:"t_cont_table"});
+                objects["subTimeContainer"+partObj].appendChild(objects["tContTable"+partObj]);
 
-                objects.timeText = createElement("span", {class:"t_cont_time_text"});
-                objects.hour = createElement("select", {class:"select datepicker_time_hour"});
-                objects.minutes = createElement("select", {class:"select datepicker_time_minutes"});
-                objects.seconds = createElement("select", {class:"select datepicker_time_seconds"});
-                objects.zones = createElement("select", {class:"select datepicker_time_zones"});
+                objects["timeText"+partObj] = createElement("span", {class:"t_cont_time_text"});
+                objects["hour"+partObj] = createElement("select", {class:"select datepicker_time_hour"});
+                objects["minutes"+partObj] = createElement("select", {class:"select datepicker_time_minutes"});
+                objects["seconds"+partObj] = createElement("select", {class:"select datepicker_time_seconds"});
+                objects["zones"+partObj] = createElement("select", {class:"select datepicker_time_zones"});
 
-                selectsAr = [objects.timeText, objects.hour, objects.minutes, objects.seconds, objects.zones];
+                selectsAr = [objects["timeText"+partObj], objects["hour"+partObj], objects["minutes"+partObj], objects["seconds"+partObj], objects["zones"+partObj]];
                 for (i=0; i<5; i++){
                     tr = createElement("tr", {class:"t_cont_table_row"});
                     switch (i){
@@ -250,35 +274,36 @@
                     }
                     tr.appendChild(tdName);
                     tr.appendChild(td);
-                    objects.tContTable.appendChild(tr);
+                    objects["tContTable"+partObj].appendChild(tr);
                 }
             },
-            createScheduler = function(){
-                objects.scheduler = createElement("div", {class:"scheduler"});
-                objects.mainContainer.appendChild(objects.scheduler);
+            createScheduler = function(part){
+                var partObj = part || "";
+                objects["scheduler"+partObj] = createElement("div", {class:"scheduler" + ((!part)? "" : " float_right")});
+                objects.mainContainer.appendChild(objects["scheduler"+partObj]);
 
                 //sub container
-                objects.subSchedulerContainer = createElement("div", {class:"scheduler_sub"});
-                objects.scheduler.appendChild(objects.subSchedulerContainer);
+                objects["subSchedulerContainer"+partObj] = createElement("div", {class:"scheduler_sub"});
+                objects["scheduler"+partObj].appendChild(objects["subSchedulerContainer"+partObj]);
 
                 //table
-                objects.calendar = createElement("table", {class:"scheduler_calendar"});
-                objects.subSchedulerContainer.appendChild(objects.calendar);
+                objects["calendar"+partObj] = createElement("table", {class:"scheduler_calendar"});
+                objects["subSchedulerContainer"+partObj].appendChild(objects["calendar"+partObj]);
 
                 //table head
-                objects.tableHead = createElement("thead", {
+                objects["tableHead"+partObj] = createElement("thead", {
                     class:"calendar_header",
                     align:"center"
                 });
-                objects.calendar.appendChild(objects.tableHead);
+                objects["calendar"+partObj].appendChild(objects["tableHead"]);
 
                 //table body
-                objects.tableBody = createElement("tbody", {
+                objects["tableBody"+partObj] = createElement("tbody", {
                     class:"calendar_body",
                     align:"center"
                 });
-                createTableBody(objects.tableBody);
-                objects.calendar.appendChild(objects.tableBody);
+                createTableBody(objects["tableBody"+partObj]);
+                objects["calendar"+partObj].appendChild(objects["tableBody"+partObj]);
             },
             createTableBody = function(body){
                 var i, j, tr, td;
@@ -655,7 +680,12 @@
                     }
                 }
                 return res;
-            },
+            },/*showOrHidePeriodElements*/
+            showOrHidePeriodElements = function(isShow){
+                showOrHideElement(objects.myTab2,isShow);
+                showOrHideElement(objects.calendar2, isShow);
+                showOrHideElement(objects.timeContainer2, isShow);
+            },/*showOrHidePeriodElementsEnd*/
             showOrHideElement = function(element, isShow){
                 if (!element){
                     return;
@@ -816,7 +846,8 @@
                             prevDate,
                             nextDate;
                         updateInputText();
-                        updateButtonPanelFunc();
+                        updateButtonPanelFunc();/*hidePeriodForDate*/
+                        showOrHidePeriodElements(false);/*hidePeriodForDate*/
                         showOrHideElement(objects.timeContainer, false);
                         showOrHideElement(objects.myTab);
                         showOrHideElement(objects.scheduler);
@@ -926,7 +957,8 @@
                             isTime = /\s?(tt|t|TT|T)\s?/.exec(pickerOptions.timeFormat);
 
                         updateInputText();
-                        updateButtonPanelFunc();
+                        updateButtonPanelFunc();/*hidePeriodForTime*/
+                        showOrHidePeriodElements(false);/*hidePeriodForTime*/
                         showOrHideElement(objects.timeContainer);
                         showOrHideElement(objects.myTab, false);
                         showOrHideElement(objects.scheduler, false);
@@ -962,7 +994,8 @@
                     datetime: function(date){
                         showType.date(date);
                         showType.time();
-                        updateButtonPanelFunc();
+                        updateButtonPanelFunc();/*hidePeriodForDateTime*/
+                        showOrHidePeriodElements(false);/*hidePeriodForDateTime*/
                         showOrHideElement(objects.timeContainer);
                         showOrHideElement(objects.myTab);
                         showOrHideElement(objects.scheduler);
@@ -1182,6 +1215,11 @@
                 createMonthYearTab();
                 createScheduler();
                 createTimeContainer();
+                /*createPeriod*/
+                createMonthYearTab("2");
+                createScheduler("2");
+                createTimeContainer("2");
+                /*createPeriodEnd*/
                 createSelect();
                 createButtonPanel();
                 addEvents(true);
