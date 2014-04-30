@@ -46,5 +46,5 @@ module.exports = function(grunt) {
       customBuildRun();
   });
   
-  grunt.registerTask('default', ["customBuild"]);
+  grunt.registerTask('default', []);
 };
