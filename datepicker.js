@@ -4,9 +4,13 @@
             bd = document.body,
             inputElement,
             dateFormat = "dateFormat",
+            isPeriodPicker = false,
             objects = {},
             inputElemntLast,
             NOOP = function(){},
+            updatePeriodPickerState = function(){
+                isPeriodPicker = (/period/.test(pickerOptions.type))? true : false;
+            },
             updateDateFormat = function(){
                 var type = pickerOptions.type;
                 dateFormat = type.replace("period", "") + "Format";
@@ -68,10 +72,51 @@
                 }
                 bd.appendChild(objects["mainContainer"]);
             },
+            onClickSlider = function(){
+                var value = this.value;
+                if (!objects["slider_container"].value || objects["slider_container"].value != value){
+                    self.trigger("onChangeSliderValue", this, value);
+                }
+            },
+            createSlider = function(){
+                objects["slider_container"] = createElement("div", {class: "slider_container"});
+                objects["mainContainer"].appendChild(objects["slider_container"]);
+                objects["sub_slider"] = createElement("div", {class: "sub_slider_container"});
+                objects["slider_container"].appendChild(objects["sub_slider"]);
+                objects["slider_left"] = createElement("div", {
+                    class: "slider_left"
+                }, {
+                    innerHTML: "Start date",
+                    value: 0
+                });
+                objects["slider_right"] = createElement("div", {
+                    class: "slider_right"
+                }, {
+                    innerHTML: "End date",
+                    value: 1
+                });
+                objects["sub_slider"].appendChild(objects["slider_left"]);
+                objects["sub_slider"].appendChild(objects["slider_right"]);
+
+                objects["slider_left"].onclick = onClickSlider;
+                objects["slider_right"].onclick = onClickSlider;
+            },
+            createLine = function(){
+                objects["line"] = createElement("div", {
+                    class: "line"
+                },{
+                    innerHTML: "&nbsp;"
+                });
+                objects["calendarsContainer"].appendChild(objects["line"]);
+            },
+            createCalendarsContainer = function(){
+                objects["calendarsContainer"] = createElement("div", {class:"calendarsContainer"});
+                objects["mainContainer"].appendChild(objects["calendarsContainer"]);
+            },
             createSubContainer = function(part){
                 var partObj = part || "";
                 objects["subMainContainer" + partObj] = createElement("div", {class:"sub_main_container" + ((!part)? "" : " float_right")});
-                objects["mainContainer"].appendChild(objects["subMainContainer" + partObj]);
+                objects["calendarsContainer"].appendChild(objects["subMainContainer" + partObj]);
             },
             createMonthYearTab = function(part){
                 var partObj = part || "";
@@ -270,7 +315,7 @@
                     class:"calendar_header",
                     align:"center"
                 });
-                objects["calendar"+partObj].appendChild(objects["tableHead"]);
+                objects["calendar"+partObj].appendChild(objects["tableHead"+partObj]);
 
                 //table body
                 objects["tableBody"+partObj] = createElement("tbody", {
@@ -303,6 +348,12 @@
             onButtonClick = function(){
                 var date = new Date(this["data-year"], this["data-month"], this["data-day"], objects["hour"].value, objects["minutes"].value, objects["seconds"].value);
                 showType[pickerOptions.type](date);
+                showPicker();
+            },
+            onButtonClickPeriod = function(){
+                var date = new Date(this["data-year"], this["data-month"], this["data-day"], objects["hour"].value, objects["minutes"].value, objects["seconds"].value),
+                    type = pickerOptions.type.replace("period", "");
+                showType[type](date);
                 showPicker();
             },
             onChangeSelect = function(){
@@ -706,8 +757,21 @@
                 });
             },
             updateInputText = function(flag){
-                var text = dateParser.toStringFormat(currentDate, pickerOptions[pickerOptions.type + "Format"]),
-                    inputText = inputElement.value, date;
+                var text = "",
+                    inputText = inputElement.value, date
+                if (isPeriodPicker){
+                    if (!!currentDate.fromDate){
+                        text += dateParser.toStringFormat(currentDate.fromDate, pickerOptions[dateFormat]);
+                    }
+                    if (!!currentDate.fromDate && !!currentDate.toDate){
+                        text += " : ";
+                    }
+                    if (!!currentDate.toDate){
+                        text += dateParser.toStringFormat(currentDate.toDate, pickerOptions[dateFormat]);
+                    }
+                } else {
+                    text = dateParser.toStringFormat(currentDate, pickerOptions[dateFormat]);
+                }
                 if (text !== inputText){
                     if (!flag){
                         inputElement.value = text;
@@ -740,8 +804,9 @@
             },
             showType = (function(){
                 return {
-                    date: function(date){
-                        var today = todayDate,
+                    date: function(date, part){
+                        var partObj = part || "",
+                            today = todayDate,
                             current = currentDate,
                             showingDate = date || null,
                             funcForSelect = function(node, type, value, array, showingDate){
@@ -759,7 +824,7 @@
                                     childsHeight = objects["entitySelect"].firstChild.offsetHeight * length;
                                     css(objects["entitySelect"], {
                                         top: 0 +"px",
-                                        left: this.offsetLeft + this.offsetParent.offsetLeft + "px"
+                                        left: this.offsetLeft + this.offsetParent.offsetParent.offsetParent.offsetLeft + this.offsetParent.offsetLeft + "px"
                                     });
                                     if (childsHeight > heightCont){
                                         addClass(objects["entitySelect"], "overflow_y");
@@ -793,10 +858,10 @@
                             nextDate;
                         updateInputText();
                         updateButtonPanelFunc();/*hidePeriodForDate*/
-                        showOrHidePeriodElements(false);/*hidePeriodForDate*/
-                        showOrHideElement(objects["timeContainer"], false);
-                        showOrHideElement(objects["myTab"]);
-                        showOrHideElement(objects["scheduler"]);
+                        showOrHidePeriodElements(!!part);/*hidePeriodForDate*/
+                        showOrHideElement(objects["timeContainer" + partObj], false);
+                        showOrHideElement(objects["myTab" + partObj]);
+                        showOrHideElement(objects["scheduler" + partObj]);
                         if (!showingDate){
                             showingDate = (!current)? today : current;
                         }
@@ -811,9 +876,9 @@
                             //counter = counter - 1;
                         }
                         lastDate = daysInMonth(showingDate);
-                        arrTd = objects["tableBody"].querySelectorAll("td");
+                        arrTd = objects["tableBody" + partObj].querySelectorAll("td");
                         //clear and set days descriptions
-                        clearChild(objects["tableHead"]);
+                        clearChild(objects["tableHead" + partObj]);
                         minDaysAr = (pickerOptions.startWeekOnMonday)? pickerOptions.minDayNames.slice(1) : pickerOptions.minDayNames;
                         if (pickerOptions.startWeekOnMonday){
                             minDaysAr.push(pickerOptions.minDayNames[0]);
@@ -824,37 +889,37 @@
                             });
                             tr.appendChild(td);
                         }
-                        objects["tableHead"].appendChild(tr);
+                        objects["tableHead" + partObj].appendChild(tr);
                         //set month and year
-                        objects["monthContainer"].innerHTML = month;
-                        objects["yearContainer"].innerHTML  = year;
+                        objects["monthContainer" + partObj].innerHTML = month;
+                        objects["yearContainer" + partObj].innerHTML  = year;
                         //attache entity selector if need it
                         if (!!pickerOptions.selectingMonth){
-                            objects["monthContainer"].onclick = funcForSelect(objects["monthContainer"], "month", month, rangeMonths, showingDate);
-                            addClass(objects["monthContainer"], "hover");
+                            objects["monthContainer" + partObj].onclick = funcForSelect(objects["monthContainer" + partObj], "month", month, rangeMonths, showingDate);
+                            addClass(objects["monthContainer" + partObj], "hover");
                         } else {
-                            objects["monthContainer"].onclick = NOOP;
-                            removeClass(objects["monthContainer"], "hover");
+                            objects["monthContainer" + partObj].onclick = NOOP;
+                            removeClass(objects["monthContainer" + partObj], "hover");
                         }
                         if (!!pickerOptions.selectingYear){
-                            objects["yearContainer"].onclick = funcForSelect(objects["yearContainer"], "year", year.toString(), rangeYears, showingDate);
-                            addClass(objects["yearContainer"], "hover");
+                            objects["yearContainer" + partObj].onclick = funcForSelect(objects["yearContainer" + partObj], "year", year.toString(), rangeYears, showingDate);
+                            addClass(objects["yearContainer" + partObj], "hover");
                         } else {
-                            objects["yearContainer"].onclick = NOOP;
-                            removeClass(objects["yearContainer"], "hover");
+                            objects["yearContainer" + partObj].onclick = NOOP;
+                            removeClass(objects["yearContainer" + partObj], "hover");
                         }
                         //set buttons title
                         prevDate = checkNewDate(new Date(((monthInt === 0)? year-1:year), ((monthInt === 0)? 11 : monthInt-1), 1, showingDate.getHours(), showingDate.getMinutes(), showingDate.getSeconds()), true);
-                        objects["leftButton"].title = pickerOptions.monthNames[prevDate.getMonth()]+ " "+ prevDate.getFullYear();
-                        objects["leftButton"]["data-day"] = objects["rightButton"]["data-day"] = 1;
-                        objects["leftButton"]["data-month"] = prevDate.getMonth();
-                        objects["leftButton"]["data-year"] = prevDate.getFullYear();
-                        objects["leftButton"].onclick = onButtonClick;
-                        objects["rightButton"].onclick = onButtonClick;
+                        objects["leftButton" + partObj].title = pickerOptions.monthNames[prevDate.getMonth()]+ " "+ prevDate.getFullYear();
+                        objects["leftButton" + partObj]["data-day"] = objects["rightButton" + partObj]["data-day"] = 1;
+                        objects["leftButton" + partObj]["data-month"] = prevDate.getMonth();
+                        objects["leftButton" + partObj]["data-year"] = prevDate.getFullYear();
+                        objects["leftButton" + partObj].onclick = onButtonClick;
+                        objects["rightButton" + partObj].onclick = onButtonClick;
                         nextDate = checkNewDate(new Date(((monthInt === 11)? year+1:year), ((monthInt === 11)? 0 : monthInt+1), 1, showingDate.getHours(), showingDate.getMinutes(), showingDate.getSeconds()), false);
-                        objects["rightButton"].title = pickerOptions.monthNames[nextDate.getMonth()]+ " "+ nextDate.getFullYear();
-                        objects["rightButton"]["data-month"] = nextDate.getMonth();
-                        objects["rightButton"]["data-year"] = nextDate.getFullYear();
+                        objects["rightButton" + partObj].title = pickerOptions.monthNames[nextDate.getMonth()]+ " "+ nextDate.getFullYear();
+                        objects["rightButton" + partObj]["data-month"] = nextDate.getMonth();
+                        objects["rightButton" + partObj]["data-year"] = nextDate.getFullYear();
                         //set calendar
                         for (i=0; i<arrTd.length; i++){
                             var td = arrTd[i];
@@ -891,7 +956,7 @@
                                 }
                             }
                         }
-                        lastTr = objects["tableBody"].querySelector("tr.datepicker_scheduler_calendar_body_last_row");
+                        lastTr = objects["tableBody" + partObj].querySelector("tr.datepicker_scheduler_calendar_body_last_row");
                         (lastTr.querySelectorAll(".space").length < 7 )? lastTr.style.display = "table-row" : lastTr.style.display = "none";
 
                         return true;
@@ -947,7 +1012,28 @@
                         showOrHideElement(objects["scheduler"]);
 
                         return true;
+                    }/*showTypePeriod*/,
+                    perioddate: function(date){
+                        var dateObj = !!date && date.fromDate || currentDate.fromDate,
+                            nowDate = new Date(),
+                            nextMonth = new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, nowDate.getDate()),
+                            toDate = !!date && date.toDate || currentDate.toDate;
+                        if (!dateObj && !toDate){
+                            dateObj = nowDate;
+                            toDate = nextMonth;
+                        } else if (!!dateObj && !toDate){
+                            toDate = new Date(dateObj.getFullYear(), dateObj.getMonth() + 1, dateObj.getDate());
+                        } else if (!dateObj && !!toDate){
+                            dateObj = new Date(toDate.getFullYear(), toDate.getMonth() - 1, toDate.getDate());
+                        }
+                        showType.date(dateObj);
+                        showType.date(toDate, "2");
+                        objects["leftButton"].onclick = onButtonClickPeriod;
+                        objects["rightButton"].onclick = onButtonClickPeriod;
+                        objects["leftButton2"].onclick = onButtonClickPeriod;
+                        objects["rightButton2"].onclick = onButtonClickPeriod;
                     }
+                    /*showTypePeriod*/
                 }
             })(),
             checkNewDate = function(date, prev){
@@ -1054,23 +1140,53 @@
                 return new Date(yearNum, monthNum, dateNum, hour, minutes, second);
             },
             setNewDate = function(newDate, callback){
-                var d = (typeof newDate === "object")? newDate : (new Date(newDate)),
+                var nowDate = new Date(),
+                    d = (typeof newDate === "object")? newDate : nowDate,
+                    d2,
+                    tempDate,
+                    correctDate2,
                     correctDate;
-                if (typeof d === "object" && !!d && !isNaN(d)){
-                    correctDate = checkNewDate(d);
-                    if (correctDate.getTime() !== d.getTime()){
-                        if (pickerOptions.autoCorrectDate && (!currentDate || correctDate.getTime() !== currentDate.getTime())){
-                            self.trigger("onChangeDate", currentDate, correctDate);
+                if(!isPeriodPicker){
+                    if (typeof d === "object" && !!d && !isNaN(d)){
+                        correctDate = checkNewDate(d);
+                        if (correctDate.getTime() !== d.getTime()){
+                            if (pickerOptions.autoCorrectDate && (!currentDate || correctDate.getTime() !== currentDate.getTime())){
+                                self.trigger("onChangeDate", currentDate, correctDate);
+                            }
+                        } else {
+                            if (!currentDate || correctDate.getTime() !== currentDate.getTime()){
+                                self.trigger("onChangeDate", currentDate, correctDate);
+                            }
                         }
+
+                        callback && callback();
                     } else {
-                        if (!currentDate || correctDate.getTime() !== currentDate.getTime()){
-                            self.trigger("onChangeDate", currentDate, correctDate);
+                        //todo: throw error "Incorrect date"
+                    }
+                } else {
+                    d = (typeof newDate["fromDate"] === "object")? newDate["fromDate"] : null;
+                    d2 = (typeof newDate["toDate"] === "object")? newDate["toDate"] : null;
+                    if (!!d && !!d2 && !isNaN(d) && !isNaN(d2)){
+                        correctDate = checkNewDate(d);
+                        correctDate2 = checkNewDate(d2);
+                        if (pickerOptions.autoCorrectDate){
+                            if (correctDate.getTime() !== d.getTime()){
+                                d = correctDate;
+                            }
+                            if (correctDate2.getTime() !== d2.getTime()){
+                                d2 = correctDate2;
+                            }
+                        }
+                        if (d.getTime() > d2.getTime()){
+                            tempDate = d;
+                            d = d2;
+                            d2 = tempDate;
                         }
                     }
-
-                    callback && callback();
-                } else {
-                    //todo: throw error "Incorrect date"
+                    self.trigger("onChangeDate", currentDate, {
+                        fromDate: d,
+                        toDate: d2
+                    });
                 }
             },
             hidePicker = function() {
@@ -1085,6 +1201,9 @@
                 input = input || inputElement;
                 var top,
                     left,
+                    firstCalendar = objects["subMainContainer"].getBoundingClientRect().height,
+                    secondCalendar = objects["subMainContainer2"].getBoundingClientRect().height,
+                    heigth = (firstCalendar > secondCalendar)? firstCalendar - 4 : secondCalendar,
                     bdRect = bd.getBoundingClientRect(),
                     rectContainer = objects["mainContainer"].getBoundingClientRect(),
                     inputRect = input.getBoundingClientRect(),
@@ -1109,6 +1228,12 @@
                 css(objects["mainContainer"], {
                     top: top + "px",
                     left: left + "px"
+                });
+                css(objects["line"], {
+                    height: (heigth - 4) + "px"
+                });
+                css(objects["calendarsContainer"], {
+                    height: heigth + "px"
                 });
             },
             isPickerVisible = function() {
@@ -1158,10 +1283,13 @@
             },
             createNodes = function(){
                 createMainContainer();
+                createSlider();
+                createCalendarsContainer();
                 createSubContainer();
                 createMonthYearTab();
                 createScheduler();
                 createTimeContainer();/*createPeriod*/
+                createLine();
                 createSubContainer("2");
                 createMonthYearTab("2");
                 createScheduler("2");
@@ -1185,6 +1313,7 @@
                     self.off("onHidePicker", onHidePicker);
                     self.off("onShowPicker", onShowPicker);
                     self.off("onChangeDate", onChangeDate);
+                    self.off("onChangeSliderValue", onChangeSliderValue);
                 } else {
                     addClass(inputElement,"hasDatePicker");
                     for (optionEvent in pickerOptions.on){
@@ -1195,6 +1324,7 @@
                     self.on("onHidePicker", onHidePicker);
                     self.on("onShowPicker", onShowPicker);
                     self.on("onChangeDate", onChangeDate);
+                    self.on("onChangeSliderValue", onChangeSliderValue);
                 }
 
                 if ("ontouchstart" in document.documentElement){
@@ -1233,8 +1363,25 @@
                 showPicker();
 
             },
+            onChangeSliderValue = function(element, value){
+                addClass(element, "selected");
+                removeClass((value === 0)? objects["slider_right"] : objects["slider_left"], "selected");
+            },
             onChangeDate = function(oldDate, newDate){
-                var stringDate = dateParser.toStringFormat(newDate, pickerOptions[dateFormat]);
+                var stringDate = "";
+                if (isPeriodPicker){
+                    if (!!newDate.fromDate){
+                        stringDate += dateParser.toStringFormat(newDate.fromDate, pickerOptions[dateFormat]);
+                    }
+                    if (!!newDate.fromDate && !!newDate.toDate){
+                        stringDate += " : ";
+                    }
+                    if (!!newDate.toDate){
+                        stringDate += dateParser.toStringFormat(newDate.toDate, pickerOptions[dateFormat]);
+                    }
+                } else {
+                    stringDate = dateParser.toStringFormat(newDate, pickerOptions[dateFormat]);
+                }
                 currentDate = newDate;
                 if (inputElement.value !== stringDate){
                     inputElement.value = stringDate
@@ -1267,7 +1414,7 @@
             onChange = function(){
                 var value = this.value, date;
                 objects["mainContainer"].inputElemntLast = this;
-                date = dateParser.fromStringFormat(value, pickerOptions[pickerOptions.type + "Format"]);
+                date = dateParser.fromStringFormat(value, pickerOptions[dateFormat]);
                 setNewDate(date, function(){
                     self.trigger("onChange");
                 });
@@ -1358,6 +1505,7 @@
                     addEventsForInput(false);
                     extend(false, pickerOptions, options);
                     updateDateFormat();
+                    updatePeriodPickerState();
                     addEventsForInput(true);
                     updateRangeOfTime();
                     setNewDate(currentDate);
@@ -1452,6 +1600,7 @@
         extend(false, pickerOptions,options || {});
         getElement();
         updateDateFormat();
+        updatePeriodPickerState();
         if (inputElement && inputElement.datepicker){
             return inputElement.datepicker;
         }
