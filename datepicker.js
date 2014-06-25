@@ -758,7 +758,7 @@
             },
             updateInputText = function(flag){
                 var text = "",
-                    inputText = inputElement.value, date
+                    inputText = inputElement.value, date;
                 if (isPeriodPicker){
                     if (!!currentDate.fromDate){
                         text += dateParser.toStringFormat(currentDate.fromDate, pickerOptions[dateFormat]);
