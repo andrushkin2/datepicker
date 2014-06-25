@@ -1,5 +1,5 @@
 (function(){
-    var _datepicker = function(elementId, options){
+    var _datepicker = function(elementId, options, toStringFunc, fromStringFunc){
         var self = this,
             bd = document.body,
             inputElement,
@@ -325,210 +325,8 @@
             },
             dateParser = (function(){
                 return {
-                    toStringFormat: /*toString*/function(date, format){
-                        var	token = /d{1,4}|M{1,4}|yy(?:yy)?|y|([HhmsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
-                            padString = function (val, len) {
-                                val = val.toString();
-                                len = len || 2;
-                                while (val.length < len) {
-                                    val = "0" + val;
-                                }
-                                return val;
-                            },
-                            _ = "get",
-                            d = date[_ + "Date"](),
-                            D = date[_ + "Day"](),
-                            m = date[_ + "Month"](),
-                            y = date[_ + "FullYear"](),
-                            H = date[_ + "Hours"](),
-                            M = date[_ + "Minutes"](),
-                            s = date[_ + "Seconds"](),
-                            L = date[_ + "Milliseconds"](),
-                            flags = {
-                                d:    d,
-                                dd:   padString(d),
-                                ddd:  pickerOptions.shortDayNames[D],
-                                dddd: pickerOptions.dayNames[D],
-                                M:    m + 1,
-                                MM:   padString(m + 1),
-                                MMM:  pickerOptions.shortMonthNames[m],
-                                MMMM: pickerOptions.monthNames[m],
-                                y:    parseInt(y.toString().slice(2)),
-                                yy:   y.toString().slice(2),
-                                yyyy: y,
-                                h:    H % 12 || 12,
-                                hh:   padString(H % 12 || 12),
-                                H:    H,
-                                HH:   padString(H),
-                                m:    M,
-                                mm:   padString(M),
-                                s:    s,
-                                ss:   padString(s),
-                                l:    padString(L, 3),
-                                L:    padString(L > 99 ? Math.round(L / 10) : L),
-                                t:    H < 12 ? "a"  : "p",
-                                tt:   H < 12 ? "am" : "pm",
-                                T:    H < 12 ? "A"  : "P",
-                                TT:   H < 12 ? "AM" : "PM"
-                            };
-                        return format.replace(token, function (char) {
-                            return char in flags ? flags[char] : char.slice(1, char.length - 1);
-                        });
-                    }/*toStringEnd*/,
-                    fromStringFormat: /*fromString*/function(dateString, format){
-                        var token = /d{1,4}|M{1,4}|yy(?:yy)?|y|([HhmsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
-                            getRegexpText = function(start, end, arr){
-                                var res = "(", i;
-                                for (i=start; i<end; i++){
-                                    res += (i !== (end-1))? arr[i]+"|" : arr[i];
-                                }
-                                res += ")";
-                                return res;
-                            },
-                            searchInString = function(value, arr){
-                                var res = null;
-                                (arr || []).forEach(function(val, index){
-                                    if (val.toLowerCase() === value.toLowerCase()){
-                                        res = (index > 11)? index-12 : index;
-                                    }
-                                });
-                                return res;
-                            },
-                            getDateUTC = function(res, dateAr){
-                                var date = {
-                                        date: null,
-                                        month: null,
-                                        year: null,
-                                        hours: 12,
-                                        minutes: 0,
-                                        seconds: 0,
-                                        milliseconds: 0
-                                    },
-                                    a,
-                                    isNan,
-                                    t = 0,
-                                    H = false,
-                                    dateNow = new Date();
-                                dateAr.forEach(function(elem, index){
-                                    var curIndex = index+ 1,
-                                        value = res[curIndex],
-                                        intValue =  parseInt(value);
-                                    isNan = isNaN(intValue);
-                                    switch (elem){
-                                        case "month":
-                                            date.month = (isNan)? searchInString(value, pickerOptions.shortMonthNames.concat(pickerOptions.monthNames)) : intValue - 1;
-                                            break;
-                                        case "year":
-                                            if (!isNan){
-                                                date.year = (value.length > 2)? intValue : 2000 + intValue;
-                                            }
-                                            break;
-                                        case "yearShort":
-                                            if (!isNan){
-                                                var centery = (intValue <= pickerOptions.shortYearCutoff)? 2000 : 1900;
-                                                date.year = centery + intValue;
-                                            }
-                                            break;
-                                        case "Hours":
-                                            H = true;
-                                            date.hours = (!isNan)? intValue : null;
-                                            break;
-                                        case "date":
-                                        case "hours":
-                                        case "minutes":
-                                        case "seconds":
-                                        case "milliseconds":
-                                            date[elem] = (!isNan)? intValue : null;
-                                            break;
-                                        case "t":
-                                            if (!H && date.hours !== null){
-                                                intValue = value.toLowerCase();
-                                                if (/(a|am)/.test(intValue) && date.hours >= 12){
-                                                    if (date.hours === 12){
-                                                        date.hours = 0;
-                                                    } else {
-                                                        date.hours = date.hours - 12;
-                                                    }
-                                                } else if (/(p|pm)/.test(intValue) && date.hours < 12){
-                                                    date.hours = date.hours + 12;
-                                                }
-                                            }
-                                    }
-                                });
-                                date.date = (date.date !== null)? date.date : dateNow.getDate();
-                                date.month = (date.month !== null)? date.month : dateNow.getMonth();
-                                date.year = date.year || dateNow.getFullYear();
-                                date.hours = (date.hours !== null)? date.hours : 0;
-                                date.minutes = date.minutes || 0;
-                                date.seconds = date.seconds || 0;
-                                date.milliseconds = date.milliseconds || 0;
-                                isNan = false;
-                                for (a in date){
-                                    if (a === null){
-                                        isNan = true;
-                                        break
-                                    }
-                                }
-                                if (!isNan){
-                                    res = new Date(date.year,date.month, date.date, date.hours, date.minutes, date.seconds, date.milliseconds);
-                                    return res;
-                                } else {
-                                    return null;
-                                }
-                            },
-                            dateAr = [],
-                            regexpText,
-                            regexp,
-                            newDate,
-                            res,
-                            d1_2 = "(\\d{1,2})",
-                            d2 = "(\\d{2})",
-                            flagFunc = function(name, returnVal){
-                                return function(){
-                                    dateAr.push(name);
-                                    return returnVal;
-                                };
-                            },
-                            flags = {
-                                d:      flagFunc("date", d1_2),
-                                dd:     flagFunc("date", d2),
-                                ddd:    flagFunc("dateStr", getRegexpText(0, 7, pickerOptions.shortDayNames)),
-                                dddd:   flagFunc("dateStr", getRegexpText(0, 7, pickerOptions.dayNames)),
-                                M:      flagFunc("month", d1_2),
-                                MM:     flagFunc("month", d2),
-                                MMM:    flagFunc("month", getRegexpText(0, 12, pickerOptions.shortMonthNames)),
-                                MMMM:   flagFunc("month", getRegexpText(0, 12, pickerOptions.monthNames)),
-                                y:      flagFunc("yearShort", d1_2),
-                                yy:     flagFunc("yearShort", d2),
-                                yyyy:   flagFunc("year", "(\\d{3,4})"),
-                                h:      flagFunc("hours", d1_2),
-                                hh:     flagFunc("hours", d2),
-                                H:      flagFunc("Hour", d1_2),
-                                HH:     flagFunc("Hours", d2),
-                                m:      flagFunc("minutes", d1_2),
-                                mm:     flagFunc("minutes", d2),
-                                s:      flagFunc("seconds", d1_2),
-                                ss:     flagFunc("seconds", d2),
-                                l:      flagFunc("milliseconds", d1_2),
-                                L:      flagFunc("milliseconds", d2),
-                                t:      flagFunc("t", "(a|p)"),
-                                tt:     flagFunc("t", "(am|pm)"),
-                                T:      flagFunc("t", "(A|P)"),
-                                TT:     flagFunc("t", "(AM|PM)")
-                            };
-
-                        regexpText = format.replace(token, function (char) {
-                            return char in flags ? flags[char]() : char.toString();
-                        });
-                        regexp = new RegExp(regexpText, "g");
-                        res = regexp.exec(dateString);
-                        if (!!res && res.length && (res.length-1) === dateAr.length){
-                            newDate = getDateUTC(res, dateAr);
-                            return newDate;
-                        } else {
-                            return null;
-                        }
-                    }/*fromStringEnd*/
+                    toStringFormat: toStringFunc,
+                    fromStringFormat: fromStringFunc
                 }
             })(),
             addClass = function(element, className){
@@ -1558,8 +1356,8 @@
         }
     };
     if (!window.datepicker){
-        window.datepicker = function(elementId, options){
-            return new _datepicker(elementId, options);
+        window.datepicker = function(elementId, options, toStringFunc, fromStringFunc){
+            return new _datepicker(elementId, options, toStringFunc, fromStringFunc);
         };
     } else {
         throw new Error("datepicker is already exist");
