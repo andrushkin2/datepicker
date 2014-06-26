@@ -558,7 +558,7 @@
                 var length = data.length, i, opt,
                     withTime = function(hour){
                         var int = parseInt(hour),
-                            hours = hour + ((int < 12)? " AM" : " PM");
+                            hours = ((int < 13)? hour : hour-12) + ((int < 12)? " AM" : " PM");
 
                         if (int === 0){
                             hours += " (12 AM)";
