@@ -30,7 +30,11 @@
                 buttonNow: null,
                 buttonDone: null
             },
-
+            isMobile =  /Android|AppleWebKit|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/gim.test(navigator.userAgent.toLowerCase()),
+            isSupportTouchEvents = ("ontouchstart" in document.documentElement),
+            isSupportMSPointer = (!!window.navigator.msPointerEnabled),
+            isSupportPointer = (!!window.PointerEvent),
+            isMobileVersion = (isMobile && (isSupportPointer || isSupportMSPointer || isSupportTouchEvents)),
             inputElemntLast,
             NOOP = function(){},
             bdEvent = function(e){
@@ -41,6 +45,7 @@
                     parent = target;
                     while (parent !== bd){
                         if (parent === objects.mainContainer){
+                            showOrHideElement(objects.entitySelect, false);
                             return;
                         } else {
                             parent = parent.parentNode;
@@ -121,7 +126,11 @@
                             newDate,
                             showingDate = objects.entitySelect.showingDate || currentDate;
                         if (val === objects.entitySelect.value){
-                            return;
+                            if (isMobileVersion){
+                                showOrHideElement(objects.entitySelect, false);
+                            } else {
+                                return;
+                            }
                         }
                         switch (objects.entitySelect.entity){
                             case "month":
@@ -314,6 +323,12 @@
                     });
                 }
             },
+            mainBlockClick = function(e){
+                e.stopPropagation();
+                if (isElementVisible(objects.entitySelect)){
+                    showOrHideElement(objects.entitySelect, false);
+                }
+            },
             searchInString = function(value, arr){
                 var res = null;
                 (arr || []).forEach(function(val, index){
@@ -494,26 +509,29 @@
                     }
                 }
             },
-        /*isClassInElement = function(element, className){
-         if ("classList" in document.documentElement){
-         return element.classList.contains(className);
-         } else {
-         var reg = new RegExp("\\s?"+className, "gim"),
-         classObj = element.attributes.getNamedItem("class");
-         if (!!classObj){
-         return reg.test(classObj.textContent)
-         } else {
-         return false;
-         }
-         }
-         },*/
+            isClassInElement = function(element, className){
+                if ("classList" in document.documentElement){
+                    return element.classList.contains(className);
+                } else {
+                    var reg = new RegExp("\\s?"+className, "gim"),
+                        classObj = element.attributes.getNamedItem("class");
+                    if (!!classObj){
+                        return reg.test(classObj.textContent)
+                    } else {
+                        return false;
+                    }
+                }
+            },
+            isElementVisible = function(element){
+                return isClassInElement(element, "shown");
+            },
             onMousewheelAndScroll = function(e){
                 e.stopPropagation();
             },
             addEvents = function(isAdd){
                 var event = (isAdd)? "add" : "remove";
                 bd[event + "EventListener"]("click", bdEvent);
-                objects.mainContainer[event + "EventListener"]("click", onMousewheelAndScroll);
+                objects.mainContainer[event + "EventListener"]("click", mainBlockClick);
                 window[event + "EventListener"]("resize", resizeEvent);
                 objects.entitySelect[event+"EventListener"]("mousewheel", onMousewheelAndScroll);
                 objects.entitySelect[event+"EventListener"]("scroll", onMousewheelAndScroll);
@@ -567,11 +585,12 @@
                             current = currentDate,
                             showingDate = date || null,
                             funcForSelect = function(node, type, value, array, showingDate){
-                                return function(){
+                                return function(e){
                                     var length,
                                         childsHeight,
                                         heightCont = objects.mainContainer.getBoundingClientRect().height,
                                         selected;
+                                    e.stopPropagation();
                                     objects.entitySelect.showingDate = showingDate;
                                     objects.entitySelect.value = value;
                                     objects.entitySelect.entity = type;
@@ -592,9 +611,11 @@
                                     } else {
                                         removeClass(objects.entitySelect, "overflow_y");
                                     }
-                                    objects.entitySelect.onmouseenter = function(){
-                                        objects.entitySelect.onmouseleave = function(){
-                                            showOrHideElement(this, false);
+                                    if(!isMobileVersion){
+                                        objects.entitySelect.onmouseenter = function(){
+                                            objects.entitySelect.onmouseleave = function(){
+                                                showOrHideElement(this, false);
+                                            }
                                         }
                                     }
                                 }
