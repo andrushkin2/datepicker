@@ -809,6 +809,7 @@
                     hour = (date.getHours() < 10)? "0"+date.getHours().toString() : date.getHours().toString(),
                     minutes = (date.getMinutes() < 10)? "0"+date.getMinutes().toString() : date.getMinutes().toString(),
                     second = (date.getSeconds() < 10)? "0"+date.getSeconds().toString() : date.getSeconds().toString(),
+                    milliseconds = date.getMilliseconds() || 0,
                     minMaxValue = function(ar, value){
                         var length = ar.length, i;
                         if (value <= ar[0]){
@@ -891,7 +892,7 @@
                          }*/
                     }
                 }
-                return new Date(yearNum, monthNum, dateNum, hour, minutes, second);
+                return new Date(yearNum, monthNum, dateNum, hour, minutes, second, milliseconds);
             },
             setNewDate = function(newDate, callback){
                 var getUTCDateFromString = function(dateString){
