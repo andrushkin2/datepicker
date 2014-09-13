@@ -23,7 +23,9 @@ module.exports = function(grunt) {
           var text = readFile(fileForLoad),
               toStringFunc = "toStringFunc",
               fromStringFunc = "fromStringFunc",
-              addedTextWithProps = ", "+ toStringFunc + ", " + fromStringFunc,
+              toLocalDateTimeFunc = "toLocalDateTimeFunc",
+              toLocalDateTimeFuncText = "toLocalDateTimeFunc(new Date())",
+              addedTextWithProps = ", "+ toStringFunc + ", " + fromStringFunc + ", " + toLocalDateTimeFunc,
               globalFunc = "window.datepicker = function(elementId, options",
               _datePickFunc = "return new _datepicker(elementId, options",
               init_datePickFunc = "var _datepicker = function(elementId, options";
@@ -32,7 +34,9 @@ module.exports = function(grunt) {
                         .replace(_datePickFunc, _datePickFunc + addedTextWithProps)
                         .replace(init_datePickFunc, init_datePickFunc + addedTextWithProps)
                         .replace(/\/\*toString\*\/[^`]*\/\*toStringEnd\*\//gim, toStringFunc)
-                        .replace(/\/\*fromString\*\/[^`]*\/\*fromStringEnd\*\//gim, fromStringFunc);
+                        .replace(/\/\*fromString\*\/[^`]*\/\*fromStringEnd\*\//gim, fromStringFunc)
+                        .replace(/\/\*toLocalDateTimeFunc\*\/[^`]*\/\*toLocalDateTimeFuncEnd\*\//gim, toLocalDateTimeFuncText)
+                        .replace(/\/\*toLocalDateTimeFunc\*\/[^`]*\/\*toLocalDateTimeFuncEnd2\*\//gim, toLocalDateTimeFuncText);
 
             grunt.file.write(fileForWrite, text, options);
             grunt.log.write("\n\t\tFile " + fileName + " has been created.");

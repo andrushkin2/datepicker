@@ -1,5 +1,5 @@
 (function(){
-    var _datepicker = function(elementId, options, toStringFunc, fromStringFunc){
+    var _datepicker = function(elementId, options, toStringFunc, fromStringFunc, toLocalDateTimeFunc){
         var self = this,
             bd = document.body,
             inputElement,
@@ -497,7 +497,7 @@
                 return elem;
             },
             removeClass = function(element, className){
-                if ("classList" in document.documentElement){
+                if (element.classList){
                     element.classList.remove(className);
                 } else {
                     var reg = new RegExp("\\s?"+className, "gim"),
@@ -510,7 +510,7 @@
                 }
             },
             isClassInElement = function(element, className){
-                if ("classList" in document.documentElement){
+                if (element.classList){
                     return element.classList.contains(className);
                 } else {
                     var reg = new RegExp("\\s?"+className, "gim"),
@@ -572,7 +572,7 @@
                     hidePicker();
                 };
                 objects.buttonNow.onclick = function(){
-                    var date = checkNewDate((new Date()));
+                    var date = checkNewDate(toLocalDateTimeFunc(new Date()));
                     setNewDate(date, function(){
                         self.trigger("onChange");
                     });
@@ -1100,7 +1100,7 @@
                         return;
                     }
                 }
-                date = dateParser.fromStringFormat(value, format) || dateSecond;
+                date = dateParser.fromStringFormat(value, format);
                 if (!isNaN(date) && date !== null){
                     setNewDate(date, function(){
                         self.trigger("onChange");
@@ -1222,7 +1222,7 @@
             currentDate = null,
             hoursAr = getHours(),
             minutesAr = getMinutes(),
-            todayDate = new Date(),
+            todayDate = toLocalDateTimeFunc(new Date()),
             pickerOptions = {
                 dateFormat: "dd/MM/yy",
                 timeFormat: "HH:mm:ss",
@@ -1378,8 +1378,8 @@
         }
     };
     if (!window.datepicker){
-        window.datepicker = function(elementId, options, toStringFunc, fromStringFunc){
-            return new _datepicker(elementId, options, toStringFunc, fromStringFunc);
+        window.datepicker = function(elementId, options, toStringFunc, fromStringFunc, toLocalDateTimeFunc){
+            return new _datepicker(elementId, options, toStringFunc, fromStringFunc, toLocalDateTimeFunc);
         };
     } else {
         throw new Error("datepicker is already exist");
