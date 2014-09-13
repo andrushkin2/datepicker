@@ -1292,7 +1292,7 @@
             onInput = function(e){
                 e.preventDefault();
                 objects.mainContainer.inputElemntLast = this;
-                var value = this.value = this.value.trim(),
+                var value = this.value.trim(),
                     date,
                     dateSecond = new Date(value),
                     format = pickerOptions[pickerOptions.type+"Format"];
