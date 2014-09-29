@@ -786,6 +786,7 @@
                         var today = todayDate,
                             current = currentDate,
                             showingDate = date || null,
+                            difDate,
                             funcForSelect = function(node, type, value, array, showingDate){
                                 return function(e){
                                     var length,
@@ -904,9 +905,23 @@
                             var td = arrTd[i];
                             td.setAttribute("class", "");
                             if (i < counter){
-                                td.onclick = NOOP;
-                                td.innerHTML = "";
-                                addClass(td, "space");
+                                if (pickerOptions.showSiblingMonthsDays){
+                                    difDate = new Date(year, monthInt, 1 -(counter - i), 12, 0, 0);
+                                    td["data-day"]  = difDate.getDate();
+                                    td["data-month"] = difDate.getMonth() ;
+                                    td["data-year"] = difDate.getFullYear();
+                                    td.onclick = setDate;
+                                    td.innerHTML = difDate.getDate();
+                                    addClass(td, "number");
+                                    addClass(td, "grey");
+                                } else {
+                                    td.onclick = NOOP;
+                                    td.innerHTML = "";
+                                    td["data-day"]  = "";
+                                    td["data-month"] = "" ;
+                                    td["data-year"] = "";
+                                    addClass(td, "space");
+                                }
                             } else {
                                 if (days <= lastDate){
                                     td.onclick = setDate;
@@ -926,18 +941,31 @@
                                     }
                                     days++;
                                 } else {
-                                    td.onclick = NOOP;
-                                    td.innerHTML = "";
-                                    td["data-day"]  = "";
-                                    td["data-month"] = "" ;
-                                    td["data-year"] = "";
-                                    addClass(td, "space");
+                                    if (pickerOptions.showSiblingMonthsDays){
+                                        difDate = new Date(year, monthInt, days, 12, 0, 0);
+                                        td["data-day"]  = difDate.getDate();
+                                        td["data-month"] = difDate.getMonth() ;
+                                        td["data-year"] = difDate.getFullYear();
+                                        td.onclick = setDate;
+                                        td.innerHTML = difDate.getDate();
+                                        addClass(td, "number");
+                                        addClass(td, "grey");
+                                        days++;
+                                    } else {
+                                        td.onclick = NOOP;
+                                        td.innerHTML = "";
+                                        td["data-day"]  = "";
+                                        td["data-month"] = "" ;
+                                        td["data-year"] = "";
+                                        addClass(td, "space");
+                                    }
                                 }
                             }
                         }
-                        lastTr = objects.tableBody.querySelector("tr.datepicker_scheduler_calendar_body_last_row");
-                        (lastTr.querySelectorAll(".space").length < 7 )? lastTr.style.display = "table-row" : lastTr.style.display = "none";
-
+                        if (!pickerOptions.showSiblingMonthsDays){
+                            lastTr = objects.tableBody.querySelector("tr.datepicker_scheduler_calendar_body_last_row");
+                            (lastTr.querySelectorAll(".space").length < 7 )? lastTr.style.display = "table-row" : lastTr.style.display = "none";
+                        }
                         return true;
                     },
                     time: function(){
@@ -1443,6 +1471,7 @@
                 closeText: "Done",
                 showButtonPanel: false,
                 showNowButton: true,
+                showSiblingMonthsDays: false,
                 minDayNames: ["Su", "Mo", "Tu", "We", "Th", "Fr", "St"],
                 shortDayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
                 dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
