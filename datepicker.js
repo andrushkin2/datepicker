@@ -160,8 +160,13 @@
                         }
                         showOrHideElement(objects.entitySelect, false);
                         if (!isNaN(newDate)){
-                            showType[pickerOptions.type](newDate);
-                            showPicker();
+                            if (pickerOptions.changeDateOnClickNewYear && objects.entitySelect.entity === "year"){
+                                setNewDate(newDate);
+                                showPicker();
+                            } else {
+                                showType[pickerOptions.type](newDate);
+                                showPicker();
+                            }
                         }
                     },
                     value,
@@ -1472,6 +1477,7 @@
                 showButtonPanel: false,
                 showNowButton: true,
                 showSiblingMonthsDays: false,
+                changeDateOnClickNewYear: false,
                 minDayNames: ["Su", "Mo", "Tu", "We", "Th", "Fr", "St"],
                 shortDayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
                 dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
