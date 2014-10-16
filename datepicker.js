@@ -1428,6 +1428,10 @@
                 }
                 return res;
             },
+            clearPicker = function(){
+                currentDate = null;
+                inputElement.value = "";
+            },
             setOptions = function(options){
                 var type = typeof options;
                 if (type === "undefined"){
@@ -1600,6 +1604,13 @@
                 setOptions: function(options){
                     if (!isDestroied){
                         setOptions(options);
+                    } else {
+                        return undefined;
+                    }
+                },
+                clear: function(){
+                    if (!isDestroied){
+                        clearPicker();
                     } else {
                         return undefined;
                     }
