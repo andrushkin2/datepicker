@@ -1,0 +1,16 @@
+{
+	"dependencies":{
+		"grunt": ">0.0.1",
+		"gulp-watch": ">0.0.1",
+		"gulp-less": ">0.0.1",
+		"gulp-autoprefixer": ">0.0.1",
+		"gulp-minify-css": ">0.0.1",
+		"gulp-uglify": ">0.0.1",
+		"gulp-rename": ">0.0.1",
+		"gulp-notify": ">0.0.1",
+		"gulp-sync": ">0.0.1",
+		"gulp-serve": ">0.0.1",
+		"del": ">0.0.1",
+		"gulp": ">0.0.1"
+	}
+}
