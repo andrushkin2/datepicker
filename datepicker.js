@@ -1,40 +1,41 @@
-(function(){
+(function() {
+    "use strict";
     var objects = {
-            mainContainer:null,
-            myTab:null,
-            leftButton:null,
-            rightButton:null,
-            centralPane:null,
-            subCentralPane:null,
-            monthContainer:null,
-            yearContainer:null,
-            timeContainer:null,
-            subTimeContainer:null,
-            timeText:null,
-            hour:null,
-            minutes:null,
-            seconds:null,
-            tContTable:null,
-            zones:null,
-            scheduler:null,
-            subSchedulerContainer:null,
-            calendar:null,
-            tableHead:null,
-            tableBody:null,
-            entitySelect:null,
+            mainContainer: null,
+            myTab: null,
+            leftButton: null,
+            rightButton: null,
+            centralPane: null,
+            subCentralPane: null,
+            monthContainer: null,
+            yearContainer: null,
+            timeContainer: null,
+            subTimeContainer: null,
+            timeText: null,
+            hour: null,
+            minutes: null,
+            seconds: null,
+            tContTable: null,
+            zones: null,
+            scheduler: null,
+            subSchedulerContainer: null,
+            calendar: null,
+            tableHead: null,
+            tableBody: null,
+            entitySelect: null,
             buttonPanel: null,
             buttonNow: null,
             buttonDone: null,
             amount: null
         },
-        resetObjects = function(){
+        resetObjects = function() {
             var keys = Object.keys(objects),
                 len = keys.length, i;
-            for (i = 0; i < len; i++){
+            for (i = 0; i < len; i++) {
                 objects[keys[i]] = null;
             }
         },
-        _datepicker = function(elementId, options, toStringFunc, fromStringFunc, toLocalDateTimeFunc){
+        _datepicker = function(elementId, options) {
         var self = this,
             bd = document.body,
             inputElement,
@@ -44,15 +45,15 @@
             isSupportPointer = (!!window.PointerEvent),
             isMobileVersion = (isMobile && (isSupportPointer || isSupportMSPointer || isSupportTouchEvents)),
             inputElemntLast,
-            NOOP = function(){},
-            bdEvent = function(e){
+            NOOP = function() {},
+            bdEvent = function(e) {
                 var target = e.target,
                     parent;
 
-                if (isPickerVisible() && !target.datepicker ){
+                if (isPickerVisible() && !target.datepicker) {
                     parent = target;
-                    while (parent !== bd && parent){
-                        if (parent === objects.mainContainer){
+                    while (parent !== bd && parent) {
+                        if (parent === objects.mainContainer) {
                             showOrHideElement(objects.entitySelect, false);
                             return;
                         } else {
@@ -62,44 +63,44 @@
                     self.trigger("onHidePicker");
                 }
             },
-            resizeEvent = function(){
-                if (isPickerVisible()){
+            resizeEvent = function() {
+                if (isPickerVisible()) {
                     showPicker(objects.mainContainer.inputElemntLast);
                 }
             },
-            getElement = function () {
-                if (typeof elementId === "string"){
-                    inputElement = bd.querySelector("#"+elementId+"[type='text']");
+            getElement = function() {
+                if (typeof elementId === "string") {
+                    inputElement = bd.querySelector("#" + elementId + "[type=\"text\"]");
                 } else {
-                    if (elementId.jquery){
+                    if (elementId.jquery) {
                         inputElement = elementId[0];
-                    } else if (typeof elementId === "object"){
+                    } else if (typeof elementId === "object") {
                         inputElement = elementId;
-                    } else{
+                    } else {
                         throw new Error("Undefined input element");
                     }
                 }
-                if ( !inputElement){
+                if (!inputElement) {
                     throw new Error("Undefined input element");
                 }
             },
-            createMainContainer = function(){
-                if (!objects.mainContainer){
-                    objects.mainContainer = createElement("div", {class:"datepicker_main_container"});
+            createMainContainer = function() {
+                if (!objects.mainContainer) {
+                    objects.mainContainer = createElement("div", {class: "datepicker_main_container"});
                 }
                 bd.appendChild(objects.mainContainer);
             },
-            createMonthYearTab = function(){
-                objects.myTab = createElement("div", {class:"month_year_tab"});
+            createMonthYearTab = function() {
+                objects.myTab = createElement("div", {class: "month_year_tab"});
                 objects.mainContainer.appendChild(objects.myTab);
 
                 //left button
-                objects.leftButton = createElement("button", {class:"month_year_tab_button l_button"});
+                objects.leftButton = createElement("button", {class: "month_year_tab_button l_button"});
                 objects.leftButton.innerHTML = "&lt;";
                 objects.myTab.appendChild(objects.leftButton);
 
                 //right button
-                objects.rightButton = createElement("button", {class:"month_year_tab_button r_button"});
+                objects.rightButton = createElement("button", {class: "month_year_tab_button r_button"});
                 objects.rightButton.innerHTML = "&gt;";
                 objects.myTab.appendChild(objects.rightButton);
 
@@ -108,33 +109,33 @@
                 objects.myTab.appendChild(objects.centralPane);
 
                 //sub pane
-                objects.subCentralPane = createElement("div", {class:"central_pane_sub"});
+                objects.subCentralPane = createElement("div", {class: "central_pane_sub"});
                 objects.centralPane.appendChild(objects.subCentralPane);
 
                 //month container
-                objects.monthContainer = createElement("div", {class:"central_pane_month"});
+                objects.monthContainer = createElement("div", {class: "central_pane_month"});
                 objects.subCentralPane.appendChild(objects.monthContainer);
 
                 //year container
-                objects.yearContainer = createElement("div", {class:"central_pane_year"});
+                objects.yearContainer = createElement("div", {class: "central_pane_year"});
                 objects.subCentralPane.appendChild(objects.yearContainer);
             },
-            createElementsForSelect= function(entitiesAr){
-                if (!objects.entitySelect){
+            createElementsForSelect = function(entitiesAr) {
+                if (!objects.entitySelect) {
                     return;
                 }
                 clearChild(objects.entitySelect);
                 var length = entitiesAr.length,
                     selectValue = objects.entitySelect.value,
-                    onclick = function(){
+                    onclick = function() {
                         var val = this.value,
                             tempVal,
                             int = parseInt(val),
                             isNan = isNaN(int),
                             newDate,
                             showingDate = objects.entitySelect.showingDate || currentDate;
-                        if (val === objects.entitySelect.value){
-                            if (isMobileVersion){
+                        if (val === objects.entitySelect.value) {
+                            if (isMobileVersion) {
                                 showOrHideElement(objects.entitySelect, false);
                             } else {
                                 return;
@@ -142,9 +143,9 @@
                         }
                         switch (objects.entitySelect.entity){
                             case "month":
-                                if (isNan){
+                                if (isNan) {
                                     tempVal = searchInString(val, pickerOptions.shortMonthNames.concat(pickerOptions.monthNames));
-                                    if (tempVal !== null){
+                                    if (tempVal !== null) {
                                         objects.entitySelect.value = tempVal;
                                     } else {
                                         return;
@@ -155,7 +156,7 @@
                                 newDate = new Date(showingDate.getFullYear(), objects.entitySelect.value, showingDate.getDate(), objects.hour.value, objects.minutes.value, objects.seconds.value);
                                 break;
                             case "year":
-                                if (!isNan){
+                                if (!isNan) {
                                     objects.entitySelect.value = int;
                                 } else {
                                     return;
@@ -166,8 +167,8 @@
                                 return;
                         }
                         showOrHideElement(objects.entitySelect, false);
-                        if (!isNaN(newDate)){
-                            if (pickerOptions.changeDateOnClickNewYear && objects.entitySelect.entity === "year"){
+                        if (!isNaN(newDate)) {
+                            if (pickerOptions.changeDateOnClickNewYear && objects.entitySelect.entity === "year") {
                                 setNewDate(newDate);
                                 showPicker();
                             } else {
@@ -181,92 +182,92 @@
                     child,
                     isSelected,
                     res;
-                for (i = 0; i < length; i++){
+                for (i = 0; i < length; i++) {
                     value = entitiesAr[i];
                     isSelected = value.toString() === selectValue.toString();
-                    child = createElement("div",{
-                            class: "entity_child" + ((isSelected)? " selected" : "")
+                    child = createElement("div", {
+                            class: "entity_child" + ((isSelected) ? " selected" : "")
                         },
                         {
                             value: value,
                             onclick: onclick
                         });
-                    child.appendChild(createElement("span",{},{ innerHTML:value}));
+                    child.appendChild(createElement("span", {}, {innerHTML: value}));
                     objects.entitySelect.appendChild(child);
-                    if (isSelected){
+                    if (isSelected) {
                         res = child;
                     }
                 }
                 return res;
             },
-            createButtonPanel = function(){
-                objects.buttonPanel = createElement("div", {class:"button_panel"});
+            createButtonPanel = function() {
+                objects.buttonPanel = createElement("div", {class: "button_panel"});
                 objects.mainContainer.appendChild(objects.buttonPanel);
 
-                objects.buttonNow = createElement("button",{
-                    class:"button button_now"
-                }, {innerHTML:pickerOptions.currentText});
+                objects.buttonNow = createElement("button", {
+                    class: "button button_now"
+                }, {innerHTML: pickerOptions.currentText});
                 objects.buttonPanel.appendChild(objects.buttonNow);
 
-                objects.buttonDone = createElement("button",{
-                    class:"button button_done"
-                }, {innerHTML:pickerOptions.closeText});
+                objects.buttonDone = createElement("button", {
+                    class: "button button_done"
+                }, {innerHTML: pickerOptions.closeText});
                 objects.buttonPanel.appendChild(objects.buttonDone);
             },
-            createSelect = function(){
-                objects.entitySelect = createElement("div", {class:"entity_select hidden"});
+            createSelect = function() {
+                objects.entitySelect = createElement("div", {class: "entity_select hidden"});
                 objects.mainContainer.appendChild(objects.entitySelect);
             },
-            createTimeContainer = function(){
-                var selectsAr, tr ,td, tdName, i;
-                objects.timeContainer = createElement("div",{class:"time_container"});
+            createTimeContainer = function() {
+                var selectsAr, tr , td, tdName, i;
+                objects.timeContainer = createElement("div", {class: "time_container"});
                 objects.mainContainer.appendChild(objects.timeContainer);
 
                 //sub
-                objects.subTimeContainer = createElement("div",{class:"datepicker_time_container_sub"});
+                objects.subTimeContainer = createElement("div", {class: "datepicker_time_container_sub"});
                 objects.timeContainer.appendChild(objects.subTimeContainer);
 
-                objects.tContTable = createElement("table", {class:"t_cont_table"});
+                objects.tContTable = createElement("table", {class: "t_cont_table"});
                 objects.subTimeContainer.appendChild(objects.tContTable);
 
-                objects.timeText = createElement("span", {class:"t_cont_time_text"});
-                objects.hour = createElement("select", {class:"select datepicker_time_hour"});
-                objects.minutes = createElement("select", {class:"select datepicker_time_minutes"});
-                objects.seconds = createElement("select", {class:"select datepicker_time_seconds"});
-                objects.zones = createElement("select", {class:"select datepicker_time_zones"});
+                objects.timeText = createElement("span", {class: "t_cont_time_text"});
+                objects.hour = createElement("select", {class: "select datepicker_time_hour"});
+                objects.minutes = createElement("select", {class: "select datepicker_time_minutes"});
+                objects.seconds = createElement("select", {class: "select datepicker_time_seconds"});
+                objects.zones = createElement("select", {class: "select datepicker_time_zones"});
 
                 selectsAr = [objects.timeText, objects.hour, objects.minutes, objects.seconds, objects.zones];
-                for (i=0; i<5; i++){
-                    tr = createElement("tr", {class:"t_cont_table_row"});
+                for (i = 0; i < 5; i++) {
+                    tr = createElement("tr", {class: "t_cont_table_row"});
                     switch (i){
                         case 0:
                             addClass(tr, "time");
-                            tdName = createElement("td", {class:"descr"}, {innerHTML:pickerOptions.timeText});
-                            td = createElement("td", {class:"controls"});
+                            tdName = createElement("td", {class: "descr"}, {innerHTML: pickerOptions.timeText});
+                            td = createElement("td", {class: "controls"});
                             td.appendChild(selectsAr[i]);
                             break;
                         case 1:
                             addClass(tr, "hours");
-                            tdName = createElement("td", {class:"descr"}, {innerHTML:pickerOptions.hourText});
-                            td = createElement("td", {class:"controls"});
+                            tdName = createElement("td", {class: "descr"}, {innerHTML: pickerOptions.hourText});
+                            td = createElement("td", {class: "controls"});
                             td.appendChild(selectsAr[i]);
                             break;
                         case 2:
                             addClass(tr, "minutes");
-                            tdName = createElement("td", {class:"descr"}, {innerHTML:pickerOptions.minutesText});
-                            td = createElement("td", {class:"controls"});
+                            tdName = createElement("td", {class: "descr"}, {innerHTML: pickerOptions.minutesText});
+                            td = createElement("td", {class: "controls"});
                             td.appendChild(selectsAr[i]);
                             break;
                         case 3:
                             addClass(tr, "seconds");
-                            tdName = createElement("td", {class:"descr"}, {innerHTML:pickerOptions.secondsText});
-                            td = createElement("td", {class:"controls"});
+                            tdName = createElement("td", {class: "descr"}, {innerHTML: pickerOptions.secondsText});
+                            td = createElement("td", {class: "controls"});
                             td.appendChild(selectsAr[i]);
                             break;
                         case 4:
                             addClass(tr, "zones");
-                            tdName = createElement("td", {class:"descr"}, {innerHTML:pickerOptions.zoneText});
-                            td = createElement("td", {class:"controls"});
+                            tdName = createElement("td", {class: "descr"}, {innerHTML: pickerOptions.zoneText});
+                            td = createElement("td", {class: "controls"});
                             td.appendChild(selectsAr[i]);
                     }
                     tr.appendChild(tdName);
@@ -274,44 +275,44 @@
                     objects.tContTable.appendChild(tr);
                 }
             },
-            createScheduler = function(){
-                objects.scheduler = createElement("div", {class:"scheduler"});
+            createScheduler = function() {
+                objects.scheduler = createElement("div", {class: "scheduler"});
                 objects.mainContainer.appendChild(objects.scheduler);
 
                 //sub container
-                objects.subSchedulerContainer = createElement("div", {class:"scheduler_sub"});
+                objects.subSchedulerContainer = createElement("div", {class: "scheduler_sub"});
                 objects.scheduler.appendChild(objects.subSchedulerContainer);
 
                 //table
-                objects.calendar = createElement("table", {class:"scheduler_calendar"});
+                objects.calendar = createElement("table", {class: "scheduler_calendar"});
                 objects.subSchedulerContainer.appendChild(objects.calendar);
 
                 //table head
                 objects.tableHead = createElement("thead", {
-                    class:"calendar_header",
-                    align:"center"
+                    class: "calendar_header",
+                    align: "center"
                 });
                 objects.calendar.appendChild(objects.tableHead);
 
                 //table body
                 objects.tableBody = createElement("tbody", {
-                    class:"calendar_body",
-                    align:"center"
+                    class: "calendar_body",
+                    align: "center"
                 });
                 createTableBody(objects.tableBody);
                 objects.calendar.appendChild(objects.tableBody);
             },
-            createTableBody = function(body){
+            createTableBody = function(body) {
                 var i, j, tr, td;
-                for ( i = 0; i < 6; i++){
+                for (i = 0; i < 6; i++) {
                     tr = createElement("tr", {
-                        class:((i + 1 === 6)? "datepicker_scheduler_calendar_body_last_row" : "")
+                        class: (i + 1 === 6) ? "datepicker_scheduler_calendar_body_last_row" : ""
                     });
-                    for ( j = 0; j < 7; j++){
+                    for (j = 0; j < 7; j++) {
                         td = createElement("td", null, {
-                            "data-day":"",
-                            "data-month":"",
-                            "data-year":""
+                            "data-day": "",
+                            "data-month": "",
+                            "data-year": ""
                         });
                         tr.appendChild(td);
                     }
@@ -321,40 +322,40 @@
             daysInMonth = function(date) {
                 return 33 - new Date(date.getFullYear(), date.getMonth(), 33).getDate();
             },
-            onButtonClick = function(){
+            onButtonClick = function() {
                 var date = new Date(this["data-year"], this["data-month"], this["data-day"], objects.hour.value, objects.minutes.value, objects.seconds.value);
                 showType[pickerOptions.type](date);
                 showPicker();
             },
-            onChangeSelect = function(){
+            onChangeSelect = function() {
                 var date = currentDate || todayDate,
                     utcDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(objects.hour.value), parseInt(objects.minutes.value), parseInt(objects.seconds.value));
-                if (!isNaN(utcDate)){
-                    setNewDate(utcDate, function(){
+                if (!isNaN(utcDate)) {
+                    setNewDate(utcDate, function() {
                         self.trigger("onChange");
                     });
                 }
             },
-            mainBlockClick = function(e){
+            mainBlockClick = function(e) {
                 e.stopPropagation();
-                if (isElementVisible(objects.entitySelect)){
+                if (isElementVisible(objects.entitySelect)) {
                     showOrHideElement(objects.entitySelect, false);
                 }
             },
-            searchInString = function(value, arr){
+            searchInString = function(value, arr) {
                 var res = null;
-                (arr || []).forEach(function(val, index){
-                    if (val.toLowerCase() === value.toLowerCase()){
-                        res = (index > 11)? index-12 : index;
+                (arr || []).forEach(function(val, index) {
+                    if (val.toLowerCase() === value.toLowerCase()) {
+                        res = (index > 11) ? index - 12 : index;
                     }
                 });
                 return res;
             },
-            dateParser = (function(){
+            dateParser = (function() {
                 return {
-                    toStringFormat: /*toString*/function(date, format){
+                    toStringFormat: /*toString*/function(date, format) {
                         var	token = /d{1,4}|M{1,4}|yy(?:yy)?|y|([HhmsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
-                            padString = function (val, len) {
+                            padString = function(val, len) {
                                 val = val.toString();
                                 len = len || 2;
                                 while (val.length < len) {
@@ -398,30 +399,30 @@
                                 T:    H < 12 ? "A"  : "P",
                                 TT:   H < 12 ? "AM" : "PM"
                             };
-                        return format.replace(token, function (char) {
+                        return format.replace(token, function(char) {
                             return char in flags ? flags[char] : char.slice(1, char.length - 1);
                         });
                     }/*toStringEnd*/,
-                    fromStringFormat: /*fromString*/function(dateString, format){
+                    fromStringFormat: /*fromString*/function(dateString, format) {
                         var token = /d{1,4}|M{1,4}|yy(?:yy)?|y|([HhmsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
-                            getRegexpText = function(start, end, arr){
+                            getRegexpText = function(start, end, arr) {
                                 var res = "(", i;
-                                for (i=start; i<end; i++){
-                                    res += (i !== (end-1))? arr[i]+"|" : arr[i];
+                                for (i = start; i < end; i++) {
+                                    res += (i !== (end - 1)) ? arr[i] + "|" : arr[i];
                                 }
                                 res += ")";
                                 return res;
                             },
-                            searchInString = function(value, arr){
+                            searchInString = function(value, arr) {
                                 var res = null;
-                                (arr || []).forEach(function(val, index){
-                                    if (val.toLowerCase() === value.toLowerCase()){
-                                        res = (index > 11)? index-12 : index;
+                                (arr || []).forEach(function(val, index) {
+                                    if (val.toLowerCase() === value.toLowerCase()) {
+                                        res = (index > 11) ? index - 12 : index;
                                     }
                                 });
                                 return res;
                             },
-                            getDateUTC = function(res, dateAr){
+                            getDateUTC = function(res, dateAr) {
                                 var date = {
                                         date: null,
                                         month: null,
@@ -436,68 +437,68 @@
                                     t = 0,
                                     H = false,
                                     dateNow = new Date();
-                                dateAr.forEach(function(elem, index){
-                                    var curIndex = index+ 1,
+                                dateAr.forEach(function(elem, index) {
+                                    var curIndex = index + 1,
                                         value = res[curIndex],
                                         intValue =  parseInt(value);
                                     isNan = isNaN(intValue);
                                     switch (elem){
                                         case "month":
-                                            date.month = (isNan)? searchInString(value, pickerOptions.shortMonthNames.concat(pickerOptions.monthNames)) : intValue - 1;
+                                            date.month = (isNan) ? searchInString(value, pickerOptions.shortMonthNames.concat(pickerOptions.monthNames)) : intValue - 1;
                                             break;
                                         case "year":
-                                            if (!isNan){
-                                                date.year = (value.length > 2)? intValue : 2000 + intValue;
+                                            if (!isNan) {
+                                                date.year = (value.length > 2) ? intValue : 2000 + intValue;
                                             }
                                             break;
                                         case "yearShort":
-                                            if (!isNan){
-                                                var centery = (intValue <= pickerOptions.shortYearCutoff)? 2000 : 1900;
+                                            if (!isNan) {
+                                                var centery = (intValue <= pickerOptions.shortYearCutoff) ? 2000 : 1900;
                                                 date.year = centery + intValue;
                                             }
                                             break;
                                         case "Hours":
                                             H = true;
-                                            date.hours = (!isNan)? intValue : null;
+                                            date.hours = (!isNan) ? intValue : null;
                                             break;
                                         case "date":
                                         case "hours":
                                         case "minutes":
                                         case "seconds":
                                         case "milliseconds":
-                                            date[elem] = (!isNan)? intValue : null;
+                                            date[elem] = (!isNan) ? intValue : null;
                                             break;
                                         case "t":
-                                            if (!H && date.hours !== null){
+                                            if (!H && date.hours !== null) {
                                                 intValue = value.toLowerCase();
-                                                if (/(a|am)/.test(intValue) && date.hours >= 12){
-                                                    if (date.hours === 12){
+                                                if (/(a|am)/.test(intValue) && date.hours >= 12) {
+                                                    if (date.hours === 12) {
                                                         date.hours = 0;
                                                     } else {
                                                         date.hours = date.hours - 12;
                                                     }
-                                                } else if (/(p|pm)/.test(intValue) && date.hours < 12){
+                                                } else if (/(p|pm)/.test(intValue) && date.hours < 12) {
                                                     date.hours = date.hours + 12;
                                                 }
                                             }
                                     }
                                 });
-                                date.date = (date.date !== null)? date.date : dateNow.getDate();
-                                date.month = (date.month !== null)? date.month : dateNow.getMonth();
+                                date.date = (date.date !== null) ? date.date : dateNow.getDate();
+                                date.month = (date.month !== null) ? date.month : dateNow.getMonth();
                                 date.year = date.year || dateNow.getFullYear();
-                                date.hours = (date.hours !== null)? date.hours : 0;
+                                date.hours = (date.hours !== null) ? date.hours : 0;
                                 date.minutes = date.minutes || 0;
                                 date.seconds = date.seconds || 0;
                                 date.milliseconds = date.milliseconds || 0;
                                 isNan = false;
-                                for (a in date){
-                                    if (a === null){
+                                for (a in date) {
+                                    if (a === null) {
                                         isNan = true;
-                                        break
+                                        break;
                                     }
                                 }
-                                if (!isNan){
-                                    res = new Date(date.year,date.month, date.date, date.hours, date.minutes, date.seconds, date.milliseconds);
+                                if (!isNan) {
+                                    res = new Date(date.year, date.month, date.date, date.hours, date.minutes, date.seconds, date.milliseconds);
                                     return res;
                                 } else {
                                     return null;
@@ -510,8 +511,8 @@
                             res,
                             d1_2 = "(\\d{1,2})",
                             d2 = "(\\d{2})",
-                            flagFunc = function(name, returnVal){
-                                return function(){
+                            flagFunc = function(name, returnVal) {
+                                return function() {
                                     dateAr.push(name);
                                     return returnVal;
                                 };
@@ -544,160 +545,160 @@
                                 TT:     flagFunc("t", "(AM|PM)")
                             };
 
-                        regexpText = format.replace(token, function (char) {
+                        regexpText = format.replace(token, function(char) {
                             return char in flags ? flags[char]() : char.toString();
                         });
                         regexp = new RegExp(regexpText, "g");
                         res = regexp.exec(dateString);
-                        if (!!res && res.length && (res.length-1) === dateAr.length){
+                        if (!!res && res.length && (res.length - 1) === dateAr.length) {
                             newDate = getDateUTC(res, dateAr);
                             return newDate;
                         } else {
                             return null;
                         }
                     }/*fromStringEnd*/
-                }
+                };
             })(),
-            isClassListSupport = (function(){
+            isClassListSupport = (function() {
                 var elem = document.documentElement;
                 return !!(elem && elem.classList && elem.classList.remove && elem.classList.add && elem.classList.contains);
             })(),
-            addClass = (function(){
-                if (isClassListSupport){
-                    return function(element, className){
+            addClass = (function() {
+                if (isClassListSupport) {
+                    return function(element, className) {
                         element.classList.add(className);
                     };
                 }
-                return function(element, className){
-                    var reg = new RegExp("\\s?"+className, "gim"),
+                return function(element, className) {
+                    var reg = new RegExp("\\s?" + className, "gim"),
                         classObj = element.className;
-                    if (!classObj){
+                    if (!classObj) {
                         element.className = className;
                     } else {
-                        if (!reg.test(classObj)){
+                        if (!reg.test(classObj)) {
                             element.className += " " + className;
                         }
                     }
                 };
             })(),
-            css = function(element, options){
+            css = function(element, options) {
                 var style = element.style, opt;
-                for (opt in options){
-                    if (options.hasOwnProperty(opt)){
+                for (opt in options) {
+                    if (options.hasOwnProperty(opt)) {
                         style[opt] = options[opt];
                     }
                 }
             },
-            addOptionsToSelect = function(select, data, extraText){
+            addOptionsToSelect = function(select, data, extraText) {
                 var length = data.length, i, opt,
-                    withTime = function(hour){
+                    withTime = function(hour) {
                         var int = parseInt(hour),
-                            hours = ((int < 13)? hour : hour-12) + ((int < 12)? " AM" : " PM");
+                            hours = ((int < 13) ? hour : hour - 12) + ((int < 12) ? " AM" : " PM");
 
-                        if (int === 0){
+                        if (int === 0) {
                             hours += " (12 AM)";
                         }
                         return hours;
                     };
-                for (i=0; i< length; i++){
+                for (i = 0; i < length; i++) {
                     opt = createElement("option", {
-                        class:"select_option"
+                        class: "select_option"
                     }, {
-                        innerHTML:((!!extraText)? withTime(data[i], extraText) : data[i]),
-                        value:data[i]
+                        innerHTML: ((!!extraText) ? withTime(data[i], extraText) : data[i]),
+                        value: data[i]
                     });
                     select.appendChild(opt);
                 }
             },
-            clearChild = function(element){
+            clearChild = function(element) {
                 var ch;
-                while(ch = element.firstChild){
+                while(ch = element.firstChild) {
                     element.removeChild(ch);
                 }
             },
-            getRangeYear = function(range){
+            getRangeYear = function(range) {
                 var res = [], i,
                     lenght,
                     c = 2000,
                     rAr;
-                if (isArray(range)){
+                if (isArray(range)) {
                     lenght = range.length;
-                    for (i = 0; i < lenght; i++){
+                    for (i = 0; i < lenght; i++) {
                         res.push(range[i].toString());
                     }
                 } else {
-                    if (/c/.test(range)){
+                    if (/c/.test(range)) {
                         range = range.replace(/c/gim, "");
                         rAr = range.split(":");
-                        for ( i = 0; i < 2; i++){
-                            if (/-/.test(rAr[i])){
-                                rAr[i] = parseInt(rAr[i].replace("-",""));
+                        for (i = 0; i < 2; i++) {
+                            if (/-/.test(rAr[i])) {
+                                rAr[i] = parseInt(rAr[i].replace("-", ""));
                                 rAr[i] = c - (rAr[i] || 0);
                             } else {
-                                rAr[i] = parseInt(rAr[i].replace("+",""));
+                                rAr[i] = parseInt(rAr[i].replace("+", ""));
                                 rAr[i] = c + (rAr[i] || 0);
                             }
                         }
                     } else {
                         rAr = range.split(":");
-                        for ( i = 0; i < 2; i++){
+                        for (i = 0; i < 2; i++) {
                             rAr[i] = parseInt(rAr[i]);
                         }
                     }
-                    if (rAr[0] > rAr[1]){
+                    if (rAr[0] > rAr[1]) {
                         var t = rAr[0];
                         rAr[0] = rAr[1];
                         rAr[1] = t;
                     }
-                    for( i = rAr[0]; i <= rAr[1]; i++){
+                    for(i = rAr[0]; i <= rAr[1]; i++) {
                         res.push(i.toString());
                     }
                 }
-                if (!res.length){
+                if (!res.length) {
                     throw new Error("Unknown range of year!\r\nCheck your datepicker options");
                 }
                 return res;
             },
-            getRangeMonth = function(range){
+            getRangeMonth = function(range) {
                 var res = [], i, length, k = 1;
-                if (isArray(range)){
+                if (isArray(range)) {
                     length = range.length;
-                    for (i = 0; i < length; i++){
+                    for (i = 0; i < length; i++) {
                         res.push(pickerOptions.monthNames[range[i] - 1]);
                     }
-                } else if (!isNaN(parseInt(range))){
+                } else if (!isNaN(parseInt(range))) {
                     length = pickerOptions.monthNames.length;
-                    if (range > 1){
+                    if (range > 1) {
                         k = parseInt(range);
                     }
-                    for (i=0; i< length; i+=k){
+                    for (i = 0; i < length; i += k) {
                         res.push(pickerOptions.monthNames[i]);
                     }
                 }
-                if (!res.length){
+                if (!res.length) {
                     throw new Error("Unknown range of year!\r\nCheck your datepicker options");
                 }
                 return res;
             },
-            getRange = function(range, step){
+            getRange = function(range, step) {
                 var k = 1, res = [], i;
-                if (isArray(range)){
+                if (isArray(range)) {
                     var length = range.length;
-                    if(step){
-                        k= step;
+                    if(step) {
+                        k = step;
                     }
-                    for (i=0; i< length; i+=k){
+                    for (i = 0; i < length; i += k) {
                         res.push(range[i]);
                     }
                 }
                 return res;
             },
-            showOrHideElement = function(element, isShow){
-                if (!element){
+            showOrHideElement = function(element, isShow) {
+                if (!element) {
                     return;
                 }
-                isShow = isShow === undefined? true : isShow;
-                if (isShow){
+                isShow = isShow === undefined ? true : isShow;
+                if (isShow) {
                     addClass(element, "shown");
                     removeClass(element, "hidden");
                 } else {
@@ -705,89 +706,89 @@
                     removeClass(element, "shown");
                 }
             },
-            createElement = function(nodeName, options, methods){
+            createElement = function(nodeName, options, methods) {
                 var elem = document.createElement(nodeName), opt;
-                for (opt in options){
-                    if (options.hasOwnProperty(opt)){
-                        if (opt === "class"){
+                for (opt in options) {
+                    if (options.hasOwnProperty(opt)) {
+                        if (opt === "class") {
                             elem.className = options[opt];
                         } else {
                             elem.setAttribute(opt, options[opt]);
                         }
                     }
                 }
-                for (opt in methods){
-                    if (methods.hasOwnProperty(opt)){
+                for (opt in methods) {
+                    if (methods.hasOwnProperty(opt)) {
                         elem[opt] = methods[opt];
                     }
                 }
                 return elem;
             },
-            removeClass = (function(){
-                if (isClassListSupport){
-                    return function(element, className){
+            removeClass = (function() {
+                if (isClassListSupport) {
+                    return function(element, className) {
                         element.classList.remove(className);
                     };
                 }
-                return function(element, className){
-                    var reg = new RegExp("\\s?"+className, "gim"),
+                return function(element, className) {
+                    var reg = new RegExp("\\s?" + className, "gim"),
                         classObj = element.className;
-                    if (!!classObj){
+                    if (!!classObj) {
                         element.className = classObj.replace(reg, "");
                     }
                 };
             })(),
-            isClassInElement = (function(){
-                if (isClassListSupport){
-                    return function(element, className){
+            isClassInElement = (function() {
+                if (isClassListSupport) {
+                    return function(element, className) {
                         return element.classList.contains(className);
                     };
                 }
-                return function(element, className){
-                    var reg = new RegExp("\\s?"+className, "gim"),
+                return function(element, className) {
+                    var reg = new RegExp("\\s?" + className, "gim"),
                         classObj = element.className;
-                    if (!!classObj){
+                    if (!!classObj) {
                         return reg.test(classObj);
                     } else {
                         return false;
                     }
                 };
             })(),
-            isElementVisible = function(element){
+            isElementVisible = function(element) {
                 return isClassInElement(element, "shown");
             },
-            onMousewheelAndScroll = function(e){
+            onMousewheelAndScroll = function(e) {
                 e.stopPropagation();
             },
-            addEvents = function(isAdd){
-                var event = (isAdd)? "add" : "remove";
+            addEvents = function(isAdd) {
+                var event = isAdd ? "add" : "remove";
                 bd[event + "EventListener"]("click", bdEvent, false);
                 objects.mainContainer[event + "EventListener"]("click", mainBlockClick, false);
                 window[event + "EventListener"]("resize", resizeEvent, false);
-                objects.entitySelect[event+"EventListener"]("mousewheel", onMousewheelAndScroll, false);
-                objects.entitySelect[event+"EventListener"]("scroll", onMousewheelAndScroll, false);
+                objects.entitySelect[event + "EventListener"]("mousewheel", onMousewheelAndScroll, false);
+                objects.entitySelect[event + "EventListener"]("scroll", onMousewheelAndScroll, false);
             },
-            setDate = function(){
+            setDate = function() {
                 var day = this["data-day"],
                     month = this["data-month"],
                     year = this["data-year"],
                     gmtDate = new Date(year, month, day, objects.hour.value, objects.minutes.value, objects.seconds.value);
-                setNewDate(gmtDate, function(){
+                setNewDate(gmtDate, function() {
                     self.trigger("onChange");
                 });
             },
-            updateInputText = function(flag){
+            updateInputText = function(flag) {
                 var text = dateParser.toStringFormat(currentDate, pickerOptions[pickerOptions.type + "Format"]),
                     inputText = inputElement.value, date;
-                if (text !== inputText){
-                    if (!flag){
+                if (text !== inputText) {
+                    if (!flag) {
                         inputElement.value = text;
                     } else {
-                        date = dateParser.fromStringFormat(inputText, pickerOptions[pickerOptions.type+"Format"]);
-                        if (!!date && !isNaN(date) && date !== null){
+                        date = dateParser.fromStringFormat(inputText, pickerOptions[pickerOptions.type + "Format"]);
+                        if (!!date && !isNaN(date) && date !== null) {
                             date = checkNewDate(date);
-                            if (date!== null){
-                                setNewDate(date, function(){
+                            if (date !== null) {
+                                setNewDate(date, function() {
                                     self.trigger("onChange");
                                 });
                             }
@@ -796,28 +797,28 @@
 
                 }
             },
-            updateButtonPanelFunc = function(){
+            updateButtonPanelFunc = function() {
                 showOrHideElement(objects.buttonPanel, pickerOptions.showButtonPanel);
                 showOrHideElement(objects.buttonNow, pickerOptions.showNowButton);
-                objects.buttonDone.onclick = function(){
+                objects.buttonDone.onclick = function() {
                     hidePicker();
                 };
-                objects.buttonNow.onclick = function(){
+                objects.buttonNow.onclick = function() {
                     var date = checkNewDate(/*toLocalDateTimeFunc*/(new Date())/*toLocalDateTimeFuncEnd*/);
-                    setNewDate(date, function(){
+                    setNewDate(date, function() {
                         self.trigger("onChange");
                     });
                 };
             },
-            showType = (function(){
+            showType = (function() {
                 return {
-                    date: function(date){
+                    date: function(date) {
                         var today = todayDate,
                             current = currentDate,
                             showingDate = date || null,
                             difDate,
-                            funcForSelect = function(node, type, value, array, showingDate){
-                                return function(e){
+                            funcForSelect = function(node, type, value, array, showingDate) {
+                                return function(e) {
                                     var length,
                                         childsHeight,
                                         heightCont = objects.mainContainer.getBoundingClientRect().height,
@@ -831,21 +832,21 @@
                                     showOrHideElement(objects.entitySelect);
                                     childsHeight = objects.entitySelect.firstChild.offsetHeight * length;
                                     css(objects.entitySelect, {
-                                        top: 0 +"px",
+                                        top: 0 + "px",
                                         left: this.offsetLeft + this.offsetParent.offsetLeft + "px"
                                     });
-                                    if (childsHeight > heightCont){
+                                    if (childsHeight > heightCont) {
                                         addClass(objects.entitySelect, "overflow_y");
-                                        if (selected){
+                                        if (selected) {
                                             selected.scrollIntoView(true);
                                             objects.entitySelect.scrollTop = selected.offsetTop;
                                         }
                                     } else {
                                         removeClass(objects.entitySelect, "overflow_y");
                                     }
-                                    if(!isMobileVersion){
-                                        objects.entitySelect.onmouseenter = function(){
-                                            objects.entitySelect.onmouseleave = function(){
+                                    if(!isMobileVersion) {
+                                        objects.entitySelect.onmouseenter = function() {
+                                            objects.entitySelect.onmouseleave = function() {
                                                 showOrHideElement(this, false);
                                             };
                                         };
@@ -872,8 +873,8 @@
                         showOrHideElement(objects.timeContainer, false);
                         showOrHideElement(objects.myTab);
                         showOrHideElement(objects.scheduler);
-                        if (!showingDate){
-                            showingDate = (!current)? today : current;
+                        if (!showingDate) {
+                            showingDate = !current ? today : current;
                         }
                         month = pickerOptions.monthNames[showingDate.getMonth()];
                         monthInt = showingDate.getMonth();
@@ -881,7 +882,7 @@
 
                         counter  = (new Date(year, monthInt, 1)).getDay();
                         startDayOfWeek = dayNames.indexOf(pickerOptions.startOfWeek);
-                        counter = (counter > startDayOfWeek)? counter - startDayOfWeek : 7 - startDayOfWeek + counter;
+                        counter = (counter > startDayOfWeek) ? counter - startDayOfWeek : 7 - startDayOfWeek + counter;
                         lastDate = daysInMonth(showingDate);
                         arrTd = objects.tableBody.querySelectorAll("td");
                         //clear and set days descriptions
@@ -901,14 +902,14 @@
                         objects.monthContainer.innerHTML = month;
                         objects.yearContainer.innerHTML  = year;
                         //attache entity selector if need it
-                        if (!!pickerOptions.selectingMonth){
+                        if (!!pickerOptions.selectingMonth) {
                             objects.monthContainer.onclick = funcForSelect(objects.monthContainer, "month", month, rangeMonths, showingDate);
                             addClass(objects.monthContainer, "hover");
                         } else {
                             objects.monthContainer.onclick = NOOP;
                             removeClass(objects.monthContainer, "hover");
                         }
-                        if (!!pickerOptions.selectingYear){
+                        if (!!pickerOptions.selectingYear) {
                             objects.yearContainer.onclick = funcForSelect(objects.yearContainer, "year", year.toString(), rangeYears, showingDate);
                             addClass(objects.yearContainer, "hover");
                         } else {
@@ -916,24 +917,24 @@
                             removeClass(objects.yearContainer, "hover");
                         }
                         //set buttons title
-                        prevDate = checkNewDate(new Date(((monthInt === 0)? year-1:year), ((monthInt === 0)? 11 : monthInt-1), 1, showingDate.getHours(), showingDate.getMinutes(), showingDate.getSeconds()), true);
-                        objects.leftButton.title = pickerOptions.monthNames[prevDate.getMonth()]+ " "+ prevDate.getFullYear();
+                        prevDate = checkNewDate(new Date(((monthInt === 0) ? year - 1 : year), ((monthInt === 0) ? 11 : monthInt - 1), 1, showingDate.getHours(), showingDate.getMinutes(), showingDate.getSeconds()), true);
+                        objects.leftButton.title = pickerOptions.monthNames[prevDate.getMonth()] + " " + prevDate.getFullYear();
                         objects.leftButton["data-day"] = objects.rightButton["data-day"] = 1;
                         objects.leftButton["data-month"] = prevDate.getMonth();
                         objects.leftButton["data-year"] = prevDate.getFullYear();
                         objects.leftButton.onclick = onButtonClick;
                         objects.rightButton.onclick = onButtonClick;
-                        nextDate = checkNewDate(new Date(((monthInt === 11)? year+1:year), ((monthInt === 11)? 0 : monthInt+1), 1, showingDate.getHours(), showingDate.getMinutes(), showingDate.getSeconds()), false);
-                        objects.rightButton.title = pickerOptions.monthNames[nextDate.getMonth()]+ " "+ nextDate.getFullYear();
+                        nextDate = checkNewDate(new Date(((monthInt === 11) ? year + 1 : year), ((monthInt === 11) ? 0 : monthInt + 1), 1, showingDate.getHours(), showingDate.getMinutes(), showingDate.getSeconds()), false);
+                        objects.rightButton.title = pickerOptions.monthNames[nextDate.getMonth()] + " " + nextDate.getFullYear();
                         objects.rightButton["data-month"] = nextDate.getMonth();
                         objects.rightButton["data-year"] = nextDate.getFullYear();
                         //set calendar
-                        for (i=0; i<arrTd.length; i++){
+                        for (i = 0; i < arrTd.length; i++) {
                             var td = arrTd[i];
                             td.className = "";
-                            if (i < counter){
-                                if (pickerOptions.showSiblingMonthsDays){
-                                    difDate = new Date(year, monthInt, 1 -(counter - i), 12, 0, 0);
+                            if (i < counter) {
+                                if (pickerOptions.showSiblingMonthsDays) {
+                                    difDate = new Date(year, monthInt, 1 - (counter - i), 12, 0, 0);
                                     td["data-day"]  = difDate.getDate();
                                     td["data-month"] = difDate.getMonth() ;
                                     td["data-year"] = difDate.getFullYear();
@@ -950,25 +951,25 @@
                                     addClass(td, "space");
                                 }
                             } else {
-                                if (days <= lastDate){
+                                if (days <= lastDate) {
                                     td.onclick = setDate;
                                     td.innerHTML = days;
                                     td["data-day"]  = days;
                                     td["data-month"] = monthInt ;
                                     td["data-year"] = year;
                                     addClass(td, "number");
-                                    if (!!current && !isNaN(current) && days === current.getDate()){
-                                        if (monthInt === current.getMonth() && year === current.getFullYear()){
+                                    if (!!current && !isNaN(current) && days === current.getDate()) {
+                                        if (monthInt === current.getMonth() && year === current.getFullYear()) {
                                             addClass(td, "selected_date");
                                         }
-                                    } else if (!isNaN(today) && days === today.getDate()){
-                                        if (monthInt === today.getMonth() && year === today.getFullYear()){
+                                    } else if (!isNaN(today) && days === today.getDate()) {
+                                        if (monthInt === today.getMonth() && year === today.getFullYear()) {
                                             addClass(td, "today_date");
                                         }
                                     }
                                     days++;
                                 } else {
-                                    if (pickerOptions.showSiblingMonthsDays){
+                                    if (pickerOptions.showSiblingMonthsDays) {
                                         difDate = new Date(year, monthInt, days, 12, 0, 0);
                                         td["data-day"]  = difDate.getDate();
                                         td["data-month"] = difDate.getMonth() ;
@@ -989,13 +990,13 @@
                                 }
                             }
                         }
-                        if (!pickerOptions.showSiblingMonthsDays){
+                        if (!pickerOptions.showSiblingMonthsDays) {
                             lastTr = objects.tableBody.querySelector("tr.datepicker_scheduler_calendar_body_last_row");
-                            (lastTr.querySelectorAll(".space").length < 7 )? lastTr.style.display = "table-row" : lastTr.style.display = "none";
+                            (lastTr.querySelectorAll(".space").length < 7) ? lastTr.style.display = "table-row" : lastTr.style.display = "none";
                         }
                         return true;
                     },
-                    time: function(){
+                    time: function() {
                         var h,
                             min,
                             sec,
@@ -1006,23 +1007,23 @@
                         showOrHideElement(objects.timeContainer);
                         showOrHideElement(objects.myTab, false);
                         showOrHideElement(objects.scheduler, false);
-                        if (!pickerOptions.showSeconds){
-                            addClass(objects.tContTable.querySelector(".t_cont_table_row.seconds"),"hidden");
+                        if (!pickerOptions.showSeconds) {
+                            addClass(objects.tContTable.querySelector(".t_cont_table_row.seconds"), "hidden");
                         } else {
-                            removeClass(objects.tContTable.querySelector(".t_cont_table_row.seconds"),"hidden");
+                            removeClass(objects.tContTable.querySelector(".t_cont_table_row.seconds"), "hidden");
                         }
                         showOrHideElement(objects.tContTable.querySelector(".t_cont_table_row.zones"), pickerOptions.showZones);
                         clearChild(objects.hour);
                         clearChild(objects.minutes);
                         clearChild(objects.seconds);
-                        addOptionsToSelect(objects.hour, rangeHours, ((isTime && isTime.length === 2)? isTime[1] : false));
+                        addOptionsToSelect(objects.hour, rangeHours, ((isTime && isTime.length === 2) ? isTime[1] : false));
                         addOptionsToSelect(objects.minutes, rangeMinutes);
                         addOptionsToSelect(objects.seconds, rangeSeconds);
 
-                        if (currentDate){
-                            h = (currentDate.getHours()<10)? "0"+currentDate.getHours().toString() : currentDate.getHours().toString();
-                            min = (currentDate.getMinutes()<10)? "0"+currentDate.getMinutes().toString() : currentDate.getMinutes().toString();
-                            sec = (currentDate.getSeconds()<10)? "0"+currentDate.getSeconds().toString() : currentDate.getSeconds().toString();
+                        if (currentDate) {
+                            h = (currentDate.getHours() < 10) ? "0" + currentDate.getHours().toString() : currentDate.getHours().toString();
+                            min = (currentDate.getMinutes() < 10) ? "0" + currentDate.getMinutes().toString() : currentDate.getMinutes().toString();
+                            sec = (currentDate.getSeconds() < 10) ? "0" + currentDate.getSeconds().toString() : currentDate.getSeconds().toString();
                             objects.timeText.innerHTML = dateParser.toStringFormat(currentDate, pickerOptions.timeFormat);
                             objects.hour.value = h;
                             objects.minutes.value = min;
@@ -1035,7 +1036,7 @@
 
                         return true;
                     },
-                    datetime: function(date){
+                    datetime: function(date) {
                         showType.date(date);
                         showType.time();
                         updateButtonPanelFunc();
@@ -1047,119 +1048,119 @@
                     }
                 };
             })(),
-            checkNewDate = function(date, prev){
+            checkNewDate = function(date, prev) {
                 var dateNum = date.getDate(),
                     monthNum = date.getMonth(),
                     monthString = pickerOptions.monthNames[monthNum],
                     monthIncorrect = false,
-                    monthNumAr = (function(){
+                    monthNumAr = (function() {
                         var res = [],
                             length = rangeMonths.length, i;
-                        for (i=0; i<length; i++){
-                            res.push(searchInString(rangeMonths[i],pickerOptions.monthNames));
+                        for (i = 0; i < length; i++) {
+                            res.push(searchInString(rangeMonths[i], pickerOptions.monthNames));
                         }
                         return res;
                     })(),
                     yearNum = date.getFullYear(),
                     yearString = yearNum.toString(),
                     yearIncorrect = false,
-                    hour = (date.getHours() < 10)? "0"+date.getHours().toString() : date.getHours().toString(),
-                    minutes = (date.getMinutes() < 10)? "0"+date.getMinutes().toString() : date.getMinutes().toString(),
-                    second = (date.getSeconds() < 10)? "0"+date.getSeconds().toString() : date.getSeconds().toString(),
+                    hour = (date.getHours() < 10) ? "0" + date.getHours().toString() : date.getHours().toString(),
+                    minutes = (date.getMinutes() < 10) ? "0" + date.getMinutes().toString() : date.getMinutes().toString(),
+                    second = (date.getSeconds() < 10) ? "0" + date.getSeconds().toString() : date.getSeconds().toString(),
                     milliseconds = date.getMilliseconds() || 0,
-                    minMaxValue = function(ar, value){
+                    minMaxValue = function(ar, value) {
                         var length = ar.length, i;
-                        if (value <= ar[0]){
+                        if (value <= ar[0]) {
                             return {
-                                min:ar[0],
-                                max:ar[1]
+                                min: ar[0],
+                                max: ar[1]
                             };
                         }
-                        if (value >= ar[length-1]){
+                        if (value >= ar[length - 1]) {
                             return {
-                                min: ar[length-2],
-                                max: ar[length-1]
+                                min: ar[length - 2],
+                                max: ar[length - 1]
                             };
                         }
-                        for (i = 0; i < length; i++){
-                            if (value < ar[i]){
+                        for (i = 0; i < length; i++) {
+                            if (value < ar[i]) {
                                 return {
-                                    min:ar[i-1],
-                                    max:ar[i]
+                                    min: ar[i - 1],
+                                    max: ar[i]
                                 };
                             }
                         }
                     },
-                    some = function(value){
-                        return function(val){
+                    some = function(value) {
+                        return function(val) {
                             return val === value;
                         };
                     };
-                if (searchInString(monthString, rangeMonths) === null){
+                if (searchInString(monthString, rangeMonths) === null) {
                     monthIncorrect = true;
                 }
-                if (!rangeYears.some(some(yearString))){
+                if (!rangeYears.some(some(yearString))) {
                     yearIncorrect = true;
                 }
-                if (!rangeHours.some(some(hour))){
+                if (!rangeHours.some(some(hour))) {
                     hour = minMaxValue(rangeHours, hour);
-                    hour = (prev === undefined || !prev)? hour.max : hour.min;
+                    hour = (prev === undefined || !prev) ? hour.max : hour.min;
                 }
-                if (!rangeMinutes.some(some(minutes))){
+                if (!rangeMinutes.some(some(minutes))) {
                     minutes = minMaxValue(rangeMinutes, minutes);
-                    minutes = (prev === undefined || !prev)? minutes.max : minutes.min;
+                    minutes = (prev === undefined || !prev) ? minutes.max : minutes.min;
                 }
-                if (!rangeSeconds.some(some(second))){
+                if (!rangeSeconds.some(some(second))) {
                     second = minMaxValue(rangeSeconds, second);
-                    second = (prev === undefined || !prev)? second.max : second.min;
+                    second = (prev === undefined || !prev) ? second.max : second.min;
                 }
 
-                if (prev === undefined || !prev){
-                    if ((monthIncorrect && yearIncorrect) || (!monthIncorrect && yearIncorrect)){
+                if (prev === undefined || !prev) {
+                    if ((monthIncorrect && yearIncorrect) || (!monthIncorrect && yearIncorrect)) {
                         monthNum = monthNumAr[0];
                         yearNum = minMaxValue(rangeYears, yearNum).max;
-                        if ((!monthIncorrect && yearIncorrect) && yearNum === rangeYears[rangeYears.length-1]){
-                            monthNum = monthNumAr[monthNumAr.length-1];
+                        if ((!monthIncorrect && yearIncorrect) && yearNum === rangeYears[rangeYears.length - 1]) {
+                            monthNum = monthNumAr[monthNumAr.length - 1];
                         }
                         return new Date(yearNum, monthNum, dateNum, hour, minutes, second);
                     }
-                    if (monthIncorrect && !yearIncorrect){
+                    if (monthIncorrect && !yearIncorrect) {
                         monthNum = minMaxValue(monthNumAr, monthNum).max;
                     }
                 } else {
-                    if ((monthIncorrect && yearIncorrect) || (!monthIncorrect && yearIncorrect)){
-                        monthNum = monthNumAr[monthNumAr.length-1];
+                    if ((monthIncorrect && yearIncorrect) || (!monthIncorrect && yearIncorrect)) {
+                        monthNum = monthNumAr[monthNumAr.length - 1];
                         yearNum = minMaxValue(rangeYears, yearNum).min;
-                        if ((!monthIncorrect && yearIncorrect) && yearNum === rangeYears[0]){
+                        if ((!monthIncorrect && yearIncorrect) && yearNum === rangeYears[0]) {
                             monthNum = monthNumAr[0];
                         }
                         return new Date(yearNum, monthNum, dateNum, hour, minutes, second);
                     }
-                    if (monthIncorrect && !yearIncorrect){
+                    if (monthIncorrect && !yearIncorrect) {
                         monthNum = minMaxValue(monthNumAr, monthNum).min;
                     }
                 }
                 return new Date(yearNum, monthNum, dateNum, hour, minutes, second, milliseconds);
             },
-            setNewDate = function(newDate, callback){
-                var getUTCDateFromString = function(dateString){
+            setNewDate = function(newDate, callback) {
+                var getUTCDateFromString = function(dateString) {
                         var date  = new Date(dateString),
                             newDate;
-                        if (typeof date === "object" && !!date && !isNaN(date)){
+                        if (typeof date === "object" && !!date && !isNaN(date)) {
                             newDate =  new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCMilliseconds());
                         }
                         return newDate;
                     },
-                    d = (typeof newDate === "object")? newDate : getUTCDateFromString(newDate),
+                    d = (typeof newDate === "object") ? newDate : getUTCDateFromString(newDate),
                     correctDate;
-                if (typeof d === "object" && !!d && !isNaN(d)){
+                if (typeof d === "object" && !!d && !isNaN(d)) {
                     correctDate = checkNewDate(d);
-                    if (correctDate.getTime() !== d.getTime()){
-                        if (pickerOptions.autoCorrectDate && (!currentDate || correctDate.getTime() !== currentDate.getTime())){
+                    if (correctDate.getTime() !== d.getTime()) {
+                        if (pickerOptions.autoCorrectDate && (!currentDate || correctDate.getTime() !== currentDate.getTime())) {
                             self.trigger("onChangeDate", currentDate, correctDate);
                         }
                     } else {
-                        if (!currentDate || correctDate.getTime() !== currentDate.getTime()){
+                        if (!currentDate || correctDate.getTime() !== currentDate.getTime()) {
                             self.trigger("onChangeDate", currentDate, correctDate);
                         }
                     }
@@ -1171,12 +1172,12 @@
             },
             hidePicker = function() {
                 css(objects.mainContainer, {
-                    display:"none"
+                    display: "none"
                 });
             },
             showPicker = function(input) {
                 css(objects.mainContainer, {
-                    display:"block"
+                    display: "block"
                 });
                 input = input || inputElement;
                 var top,
@@ -1192,14 +1193,14 @@
 
                 top = inputRect.bottom - offsetParentRect.top;
                 left = inputRect.left - offsetParentRect.left;
-                if ( (top + rectContainer.height) > bdRect.height){
-                    if (inputRect.top - rectContainer.height >= 0){
+                if ((top + rectContainer.height) > bdRect.height) {
+                    if (inputRect.top - rectContainer.height >= 0) {
                         top = inputRect.top - rectContainer.height;
                     } else {
                         top = bdRect.height - 2 - rectContainer.height;
                     }
                 }
-                if ( (left + rectContainer.width) > bdRect.width){
+                if ((left + rectContainer.width) > bdRect.width) {
                     left = bdRect.width - 2 - rectContainer.width;
                 }
                 css(objects.mainContainer, {
@@ -1210,35 +1211,35 @@
             isPickerVisible = function() {
                 return objects.mainContainer.style.display === "block";
             },
-            preventDafeult = function(e){
+            preventDafeult = function(e) {
                 //fixed bug with showing keyboard for tablets that don't support date type
                 e.preventDefault();
                 self.trigger("onShowPicker");
             },
-            isArray = function(arr){
+            isArray = function(arr) {
                 return Object.prototype.toString.call(arr).indexOf("Array") !== -1;
             },
-            isUsualObject = function(obj){
+            isUsualObject = function(obj) {
                 return Object.prototype.toString.call(obj).indexOf("Object") !== -1;
             },
-            extend = function(){
+            extend = function() {
                 var length = arguments.length,
                     src, srcKeys, srcAttr,
                     fullCopy = false,
                     resAttr,
                     res = arguments[0], i = 1, j;
 
-                if (typeof res === "boolean"){
+                if (typeof res === "boolean") {
                     fullCopy = res;
                     res = arguments[1];
                     i++;
                 }
-                while (i !== length){
+                while (i !== length) {
                     src = arguments[i];
                     srcKeys = Object.keys(src);
-                    for (j = 0; j < srcKeys.length; j++){
+                    for (j = 0; j < srcKeys.length; j++) {
                         srcAttr = src[srcKeys[j]];
-                        if (fullCopy && (isUsualObject(srcAttr) || isArray(srcAttr))){
+                        if (fullCopy && (isUsualObject(srcAttr) || isArray(srcAttr))) {
                             resAttr = res[srcKeys[j]] = res[srcKeys[j]] || (isArray(srcAttr) ? [] : {});
                             extend(fullCopy, resAttr, srcAttr);
                         } else {
@@ -1249,7 +1250,7 @@
                 }
                 return res;
             },
-            createNodes = function(){
+            createNodes = function() {
                 createMainContainer();
                 createMonthYearTab();
                 createScheduler();
@@ -1258,14 +1259,14 @@
                 createButtonPanel();
                 addEvents(true);
             },
-            addEventsForInput = function(isAddEvents){
+            addEventsForInput = function(isAddEvents) {
                 var a = inputElement,
                     optionEvent,
-                    event = (!isAddEvents)? "remove" : "add";
-                if (!isAddEvents){
-                    removeClass(inputElement,"hasDatePicker");
-                    for (optionEvent in pickerOptions.on){
-                        if (pickerOptions.on.hasOwnProperty(optionEvent)){
+                    event = (!isAddEvents) ? "remove" : "add";
+                if (!isAddEvents) {
+                    removeClass(inputElement, "hasDatePicker");
+                    for (optionEvent in pickerOptions.on) {
+                        if (pickerOptions.on.hasOwnProperty(optionEvent)) {
                             self.off(optionEvent, pickerOptions.on[optionEvent]);
                         }
                     }
@@ -1273,9 +1274,9 @@
                     self.off("onShowPicker", onShowPicker);
                     self.off("onChangeDate", onChangeDate);
                 } else {
-                    addClass(inputElement,"hasDatePicker");
-                    for (optionEvent in pickerOptions.on){
-                        if (pickerOptions.on.hasOwnProperty(optionEvent)){
+                    addClass(inputElement, "hasDatePicker");
+                    for (optionEvent in pickerOptions.on) {
+                        if (pickerOptions.on.hasOwnProperty(optionEvent)) {
                             self.on(optionEvent, pickerOptions.on[optionEvent]);
                         }
                     }
@@ -1284,35 +1285,35 @@
                     self.on("onChangeDate", onChangeDate);
                 }
 
-                if ("ontouchstart" in document.documentElement){
-                    a[event+"EventListener"]("touchstart", preventDafeult, false);
-                    a[event+"EventListener"]("touchend", preventDafeult, false);
-                    a[event+"EventListener"]("focus", preventDafeult, false);
-                    a[event+"EventListener"]("input", onInput, false);
-                    a[event+"EventListener"]("change", onChange, false);
+                if ("ontouchstart" in document.documentElement) {
+                    a[event + "EventListener"]("touchstart", preventDafeult, false);
+                    a[event + "EventListener"]("touchend", preventDafeult, false);
+                    a[event + "EventListener"]("focus", preventDafeult, false);
+                    a[event + "EventListener"]("input", onInput, false);
+                    a[event + "EventListener"]("change", onChange, false);
                 } else {
-                    a[event+"EventListener"]("input", onInput, false);
-                    a[event+"EventListener"]("change", onChange, false);
-                    a[event+"EventListener"]("click", onClickAndFocus, false);
-                    a[event+"EventListener"]("focus", onClickAndFocus, false);
-                    a[event+"EventListener"]("blur", onBlur, false);
+                    a[event + "EventListener"]("input", onInput, false);
+                    a[event + "EventListener"]("change", onChange, false);
+                    a[event + "EventListener"]("click", onClickAndFocus, false);
+                    a[event + "EventListener"]("focus", onClickAndFocus, false);
+                    a[event + "EventListener"]("blur", onBlur, false);
                 }
             },
-            onHidePicker = function(){
+            onHidePicker = function() {
                 hidePicker();
             },
-            onShowPicker = function(){
+            onShowPicker = function() {
                 var h, m, s, date;
                 objects.mainContainer.currentInput = inputElement;
-                if (!currentDate){
+                if (!currentDate) {
                     clearChild(objects.hour);
                     clearChild(objects.minutes);
                     clearChild(objects.seconds);
                     updateRangeOfTime();
-                    h = (objects.hour.value === "")? 0 : rangeHours[0];
-                    m = (objects.minutes.value === "")? 0 : rangeMinutes[0];
-                    s = (objects.seconds.value === "")? 0 : rangeSeconds[0];
-                    date = new Date(todayDate.getFullYear(), todayDate.getMonth(),todayDate.getDate(), h, m, s);
+                    h = (objects.hour.value === "") ? 0 : rangeHours[0];
+                    m = (objects.minutes.value === "") ? 0 : rangeMinutes[0];
+                    s = (objects.seconds.value === "") ? 0 : rangeSeconds[0];
+                    date = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate(), h, m, s);
                     setNewDate(checkNewDate(date));
                 } else {
                     showType[pickerOptions.type]();
@@ -1320,53 +1321,53 @@
                 showPicker();
 
             },
-            onChangeDate = function(oldDate, newDate){
-                var stringDate = dateParser.toStringFormat(newDate, pickerOptions[pickerOptions.type+"Format"]);
+            onChangeDate = function(oldDate, newDate) {
+                var stringDate = dateParser.toStringFormat(newDate, pickerOptions[pickerOptions.type + "Format"]);
                 currentDate = newDate;
-                if (inputElement.value !== stringDate){
+                if (inputElement.value !== stringDate) {
                     inputElement.value = stringDate;
                 }
-                if (!objects.mainContainer.currentInput || objects.mainContainer.currentInput === inputElement){
+                if (!objects.mainContainer.currentInput || objects.mainContainer.currentInput === inputElement) {
                     showType[pickerOptions.type](newDate);
                 }
                 self.trigger("onAfterChangeDate", oldDate, newDate);
             },
-            onInput = function(e){
+            onInput = function(e) {
                 e.preventDefault();
                 objects.mainContainer.inputElemntLast = this;
                 var value = this.value.trim(),
                     date,
                     dateSecond = new Date(value),
-                    format = pickerOptions[pickerOptions.type+"Format"];
-                if ( !(!!dateSecond && !isNaN(dateSecond) && dateSecond !== null) && /[^\/\s\d:\.-]/.test(value)){
-                    if (!/tt|TT|T|t|MMMM|MMM|dddd|ddd/.test(format)){
+                    format = pickerOptions[pickerOptions.type + "Format"];
+                if (!(!!dateSecond && !isNaN(dateSecond) && dateSecond !== null) && /[^\/\s\d:\.-]/.test(value)) {
+                    if (!/tt|TT|T|t|MMMM|MMM|dddd|ddd/.test(format)) {
                         this.value = value.replace(/[^\/\s\d:\.-]/gi, "").trim();
                         return;
                     }
                 }
                 date = dateParser.fromStringFormat(value, format);
-                if (!isNaN(date) && date !== null){
-                    setNewDate(date, function(){
+                if (!isNaN(date) && date !== null) {
+                    setNewDate(date, function() {
                         self.trigger("onChange");
                     });
                 }
             },
-            onChange = function(){
+            onChange = function() {
                 var value = this.value, date;
                 objects.mainContainer.inputElemntLast = this;
                 date = dateParser.fromStringFormat(value, pickerOptions[pickerOptions.type + "Format"]);
-                setNewDate(date, function(){
+                setNewDate(date, function() {
                     self.trigger("onChange");
                 });
             },
             onClickAndFocus = function(e) {
                 objects.mainContainer.inputElemntLast = this;
-                if ( true || !isPickerVisible() ){
-                    if (e.type === "focus" && objects.mainContainer.currentInput === this){
+                if (true || !isPickerVisible()) {
+                    if (e.type === "focus" && objects.mainContainer.currentInput === this) {
                         return;
                     }
                     inputElemntLast = this;
-                    if(currentDate){
+                    if(currentDate) {
                         updateInputText(true);
                     }
                     self.trigger("onShowPicker");
@@ -1375,9 +1376,9 @@
             onBlur = function() {
                 //bd.addEventListener("click", bdEvent, false);
             },
-            destoy = function(){
+            destoy = function() {
                 addEventsForInput(false);
-                if((objects.amount - 1) === 0){
+                if((objects.amount - 1) === 0) {
                     addEvents(false);
                     bd.removeChild(objects.mainContainer);
                     resetObjects();
@@ -1387,48 +1388,48 @@
                 delete inputElement.datepicker;
                 isDestroied = true;
             },
-            updateRangeOfTime = function(){
+            updateRangeOfTime = function() {
                 rangeMonths = getRangeMonth(pickerOptions.rangeMonths);
                 rangeYears = getRangeYear(pickerOptions.rangeYears);
                 rangeHours = getRange(hoursAr, pickerOptions.stepHours);
                 rangeMinutes = getRange(minutesAr, pickerOptions.stepMinutes);
                 rangeSeconds = getRange(minutesAr, pickerOptions.stepSeconds);
             },
-            getMinutes = function(){
+            getMinutes = function() {
                 var res = [], text;
-                for (var i=0; i<60; i++){
-                    text = (i<10)? "0"+ i.toString() : i.toString();
+                for (var i = 0; i < 60; i++) {
+                    text = (i < 10) ? "0" + i.toString() : i.toString();
                     res.push(text);
                 }
                 return res;
             },
-            getHours = function(){
+            getHours = function() {
                 var res = [], text;
-                for (var i=0; i<24; i++){
-                    text = (i<10)? "0"+ i.toString() : i.toString();
+                for (var i = 0; i < 24; i++) {
+                    text = (i < 10) ? "0" + i.toString() : i.toString();
                     res.push(text);
                 }
                 return res;
             },
-            getOprions = function(options){
+            getOptions = function(options) {
                 var res = {},
                     a,
                     type = typeof options;
-                if (type === "undefined"){
+                if (type === "undefined") {
                     return pickerOptions;
                 }
-                if (type === "string"){
-                    if (options in pickerOptions){
+                if (type === "string") {
+                    if (options in pickerOptions) {
                         return pickerOptions[options];
                     } else {
                         return undefined;
                     }
                 }
-                if (type === "object"){
-                    for (a in options){
-                        if (options.hasOwnProperty(a)){
-                            if (options[a] in pickerOptions){
-                                if (pickerOptions.hasOwnProperty(options[a])){
+                if (type === "object") {
+                    for (a in options) {
+                        if (options.hasOwnProperty(a)) {
+                            if (options[a] in pickerOptions) {
+                                if (pickerOptions.hasOwnProperty(options[a])) {
                                     res[options[a]] = pickerOptions[options[a]];
                                 }
                             } else {
@@ -1439,22 +1440,22 @@
                 }
                 return res;
             },
-            clearPicker = function(){
+            clearPicker = function() {
                 currentDate = null;
                 inputElement.value = "";
             },
-            setOptions = function(options){
+            setOptions = function(options) {
                 var type = typeof options;
-                if (type === "undefined"){
+                if (type === "undefined") {
                     return "undefined";
-                } else if (type === "object"){
+                } else if (type === "object") {
                     addEventsForInput(false);
                     extend(false, pickerOptions, options);
                     addEventsForInput(true);
                     updateRangeOfTime();
                     setNewDate(currentDate);
-                    if (!!currentDate){
-                        if (objects.mainContainer.currentInput === inputElement && isPickerVisible()){
+                    if (!!currentDate) {
+                        if (objects.mainContainer.currentInput === inputElement && isPickerVisible()) {
                             showType[pickerOptions.type]();
                         }
                         updateInputText();
@@ -1481,14 +1482,14 @@
                 type: "date",
                 on: {},
                 rangeMonths: 0,
-                rangeYears:"c-50:c+50",
-                hourText:"Hours",
+                rangeYears: "c-50:c+50",
+                hourText: "Hours",
                 startOfWeek: "Sunday",
-                minutesText:"Minutes",
-                secondsText:"Seconds",
-                zoneText:"Zone",
-                timeText:"Time",
-                currentText:"Now",
+                minutesText: "Minutes",
+                secondsText: "Seconds",
+                zoneText: "Zone",
+                timeText: "Time",
+                currentText: "Now",
                 closeText: "Done",
                 showButtonPanel: false,
                 showNowButton: true,
@@ -1506,11 +1507,11 @@
                 stepMinutes: 0,
                 stepSeconds: 0,
                 stepHours: 0,
-                showSeconds:false,
-                showZones:false
+                showSeconds: false,
+                showZones: false
             };
         self.on = function(eventName, handler) {
-            if (!this["_eventHandlers"]){
+            if (!this["_eventHandlers"]) {
                 this["_eventHandlers"] = [];
             }
             if (!this._eventHandlers[eventName]) {
@@ -1522,7 +1523,7 @@
             var handlers = this._eventHandlers[eventName],
                 i,
                 length;
-            if (!handlers){
+            if (!handlers) {
                 return;
             }
             length = handlers.length;
@@ -1536,7 +1537,7 @@
             var handlers = this._eventHandlers[eventName],
                 i,
                 length;
-            if (!handlers){
+            if (!handlers) {
                 return;
             }
             length = handlers.length;
@@ -1544,9 +1545,9 @@
                 handlers[i].apply(this, [].slice.call(arguments, 1));
             }
         };
-        extend(false, pickerOptions,options || {});
+        extend(false, pickerOptions, options || {});
         getElement();
-        if (inputElement && inputElement.datepicker){
+        if (inputElement && inputElement.datepicker) {
             return inputElement.datepicker;
         }
         if (objects.mainContainer && objects.mainContainer.parentNode) {
@@ -1559,73 +1560,73 @@
         addEventsForInput(true);
         updateRangeOfTime();
 
-        if(inputElement){
+        if(inputElement) {
             inputElement["datepicker"] = {
-                attachEvent: function(event, handler){
+                attachEvent: function(event, handler) {
                     if (!isDestroied) {
-                        self.on(event,handler);
+                        self.on(event, handler);
                     } else {
                         return undefined;
                     }
                 },
-                detachEvent: function(event, handler){
-                    if (!isDestroied){
+                detachEvent: function(event, handler) {
+                    if (!isDestroied) {
                         self.off(event, handler);
                     } else {
                         return undefined;
                     }
                 },
-                hide:function () {
-                    if (!isDestroied){
+                hide: function() {
+                    if (!isDestroied) {
                         self.trigger("onHidePicker");
                     } else {
                         return undefined;
                     }
                 },
-                show:function() {
-                    if (!isDestroied){
+                show: function() {
+                    if (!isDestroied) {
                         self.trigger("onShowPicker");
                     } else {
                         return undefined;
                     }
                 },
-                setDate:function(newDate){
-                    if (!isDestroied){
+                setDate: function(newDate) {
+                    if (!isDestroied) {
                         setNewDate(newDate);
                     } else {
                         return undefined;
                     }
                 },
-                getDate:function(){
-                    if (!isDestroied){
+                getDate: function() {
+                    if (!isDestroied) {
                         return currentDate;
                     } else {
                         return undefined;
                     }
                 },
-                getOptions: function(options){
-                    if (!isDestroied){
-                        return getOprions(options);
+                getOptions: function(options) {
+                    if (!isDestroied) {
+                        return getOptions(options);
                     } else {
                         return undefined;
                     }
                 },
-                setOptions: function(options){
-                    if (!isDestroied){
+                setOptions: function(options) {
+                    if (!isDestroied) {
                         setOptions(options);
                     } else {
                         return undefined;
                     }
                 },
-                clear: function(){
-                    if (!isDestroied){
+                clear: function() {
+                    if (!isDestroied) {
                         clearPicker();
                     } else {
                         return undefined;
                     }
                 },
-                destroy: function(){
-                    if (!isDestroied){
+                destroy: function() {
+                    if (!isDestroied) {
                         destoy();
                     }
                     return isDestroied;
@@ -1634,8 +1635,8 @@
             return inputElement.datepicker;
         }
     };
-    if (!window.datepicker){
-        window.datepicker = function(elementId, options){
+    if (!window.datepicker) {
+        window.datepicker = function(elementId, options) {
             return new _datepicker(elementId, options);
         };
     } else {
